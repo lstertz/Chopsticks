@@ -1,0 +1,8 @@
+<Project>
+    <PropertyGroup>
+        <LangVersion>latest</LangVersion>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
+        <NoWarn>CS0618,CS0619</NoWarn>
+        <MSBuildWarningsAsMessages>CS0618;CS0619</MSBuildWarningsAsMessages>
+    </PropertyGroup>
+</Project> 

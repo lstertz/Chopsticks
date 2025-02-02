@@ -1,0 +1,23 @@
+root = true
+
+[*.cs]
+# General settings
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+csharp_language_version = preview
+
+# Comprehensive warning suppressions
+dotnet_diagnostic.CS0618.severity = none
+dotnet_diagnostic.CS0619.severity = none
+
+# Rider-specific settings
+resharper_cs0618_highlighting = none
+resharper_cs0619_highlighting = none
+resharper_obsolete_code_highlighting = none
+resharper_check_obsolete_code_highlighting = none
+resharper_compiler_warnings_highlighting = none
+
+# Unity-specific settings
+dotnet_analyzer_diagnostic.category-Usage.severity = none
