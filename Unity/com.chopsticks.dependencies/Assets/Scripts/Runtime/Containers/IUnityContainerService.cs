@@ -10,7 +10,9 @@ namespace Chopsticks.Dependencies.Containers
     /// </summary>
     /// <typeparam name="TNativeContainer">The type of the native container for which 
     /// Unity-specific services are being provided.</typeparam>
-    public interface IUnityContainerService<TNativeContainer>
+    /// <typeparam name="TNativeContainerDefinition">The type of container 
+    /// definition used to create the global container.</typeparam>
+    public interface IUnityContainerService<TNativeContainer, TNativeContainerDefinition>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
     {
         /// <summary>
@@ -71,6 +73,8 @@ namespace Chopsticks.Dependencies.Containers
         /// <summary>
         /// Resets the <see cref="GlobalContainer"/>.
         /// </summary>
-        void ResetGlobal();
+        /// <param name="definition">The optional definition to specify the 
+        /// settings of the container.</param>
+        void ResetGlobal(TNativeContainerDefinition definition = default);
     }
 }

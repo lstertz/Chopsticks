@@ -4,10 +4,11 @@ using UnityEngine;
 
 namespace MonoContainerTests.Mocks
 {
-    public class MockMonoContainerService : IUnityContainerService<MockDependencyContainer>
+    public class MockMonoContainerService : IUnityContainerService<MockDependencyContainer,
+        MockDependencyContainer.Definition>
     {
-        public IUnityContainerService<MockDependencyContainer> Sub { get; } =
-            Substitute.For<IUnityContainerService<MockDependencyContainer>>();
+        public IUnityContainerService<MockDependencyContainer, MockDependencyContainer.Definition> Sub { get; } =
+            Substitute.For<IUnityContainerService<MockDependencyContainer, MockDependencyContainer.Definition>>();
 
         public MockDependencyContainer GlobalContainer { get; } = 
             Substitute.For<MockDependencyContainer>();
@@ -26,7 +27,7 @@ namespace MonoContainerTests.Mocks
             where TOverrideContainer : IUnityContainer<MockDependencyContainer> => 
             Sub.GetContainer(setting, includeSelf, unityContainer, overrideContainer);
 
-        public void ResetGlobal() => 
-            Sub.ResetGlobal();
+        public void ResetGlobal(MockDependencyContainer.Definition definition = default) => 
+            Sub.ResetGlobal(definition);
     }
 }

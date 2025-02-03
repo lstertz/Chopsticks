@@ -1,5 +1,4 @@
 ﻿using Chopsticks.Dependencies.Containers;
-using NSubstitute;
 
 namespace MonoContainerTests.Mocks
 {

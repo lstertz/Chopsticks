@@ -5,19 +5,28 @@ using UnityEngine;
 
 namespace Chopsticks.Dependencies.Containers
 {
+    /// <inheritdoc cref="IUnityContainerService{TNativeContainer, TNativeContainerDefinition}"/>
+    /// <typeparam name="TNativeContainerFactory">The type of the factory 
+    /// that creates the global container of the service.</typeparam>
+    /// <typeparam name="TNativeContainerDefinition">The type of container 
+    /// definition used to create the global container.</typeparam>
+    /// <remarks>
+    /// By default, the <see cref="GlobalContainer"/> will be the default container 
+    /// built by the specified factory. <see cref="ResetGlobal"/> can be used to specify 
+    /// the settings of a new container per a provided <see cref="TNativeContainerDefinition"/>.
+    /// </remarks>
     public class UnityContainerService<TNativeContainer, TNativeContainerFactory, 
-        TNativeContainerDefinition> : IUnityContainerService<TNativeContainer>
+        TNativeContainerDefinition> : 
+        IUnityContainerService<TNativeContainer, TNativeContainerDefinition>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
         where TNativeContainerFactory : IDependencyContainerFactory<TNativeContainer, 
             TNativeContainerDefinition>, new()
     {
-        // TODO :: Add locking for thread safety.
-
         /// <inheritdoc/>
-        public TNativeContainer GlobalContainer => _instance ??= _instanceFactory.BuildContainer();
-        private static TNativeContainer _instance;
+        public TNativeContainer GlobalContainer => _instance;
 
-        private static TNativeContainerFactory _instanceFactory = new();
+        private static readonly TNativeContainerFactory _instanceFactory = new();
+        private static TNativeContainer _instance = _instanceFactory.BuildContainer();
 
 
 
@@ -68,10 +77,10 @@ namespace Chopsticks.Dependencies.Containers
             };
 
         /// <inheritdoc/>
-        public void ResetGlobal()
+        public void ResetGlobal(TNativeContainerDefinition definition = default)
         {
             _instance?.Dispose();
-            _instance = default;
+            _instance = _instanceFactory.BuildContainer(definition);
         }
 
 

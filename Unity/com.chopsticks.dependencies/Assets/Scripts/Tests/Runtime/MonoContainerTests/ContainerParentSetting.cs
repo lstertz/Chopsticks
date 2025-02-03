@@ -18,7 +18,8 @@ namespace MonoContainerTests
                 ParentSetting parentSetting,
                 out GameObject containerGameObject,
                 out MockMonoContainer parentContainer,
-                out IUnityContainerService<MockDependencyContainer> serviceSub)
+                out IUnityContainerService<MockDependencyContainer, 
+                    MockDependencyContainer.Definition> serviceSub)
             {
                 var parentGameObject = new GameObject("Parent Object");
                 containerGameObject = new GameObject("Test Object");

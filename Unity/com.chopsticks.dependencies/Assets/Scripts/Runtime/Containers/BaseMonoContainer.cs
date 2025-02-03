@@ -27,7 +27,8 @@ namespace Chopsticks.Dependencies.Containers
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
         where TNativeContainerFactory : IDependencyContainerFactory<TNativeContainer,
             TNativeContainerDefinition>, new()
-        where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
+        where TUnityContainerService : IUnityContainerService<TNativeContainer, 
+            TNativeContainerDefinition>, new()
     {
         /// <summary>
         /// The global (highest application scope) container for all of the same type 
