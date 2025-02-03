@@ -60,6 +60,7 @@ namespace Chopsticks.Dependencies.Containers
         private ContainerParentSetting _containerParentSetting =
             ContainerParentSetting.HierarchyWithGlobal;
 
+
         // TODO :: Inspector display features:
         //          Current parent.
         //          Contained MonoDependencies.
@@ -69,8 +70,7 @@ namespace Chopsticks.Dependencies.Containers
 
 
         /// <summary>
-        /// Initiates <see cref="SetUp"/>, defines parent settings, and calls 
-        /// <see cref="RegisterNativeDependencies"/>.
+        /// Defines parent settings and calls <see cref="RegisterNativeDependencies"/>.
         /// </summary>
         public void Awake()
         {
@@ -84,17 +84,29 @@ namespace Chopsticks.Dependencies.Containers
         /// Registers any native dependencies that should be inherent to this container.
         /// </summary>
         /// <remarks>
-        /// This is only performed once after <see cref="SetUp"/>.
+        /// This is only performed once during <see cref="Awake"/>.
         /// </remarks>
         protected virtual void RegisterNativeDependencies() { }
 
 
+        /// <summary>
+        /// Disposes of the internal container, releasing the resources of 
+        /// its managed dependencies.
+        /// </summary>
         public void OnDestroy() => 
             InternalContainer.Dispose();
 
+        /// <summary>
+        /// Verifies any changes to the container's parent, per any 
+        /// changes in the GameObject hierarchy, if appropriate.
+        /// </summary>
         public void OnTransformParentChanged() => 
             UpdateParent();
 
+        /// <summary>
+        /// Verifies any changes to the container's parent, per any 
+        /// changes to the parent settings.
+        /// </summary>
         public void OnValidate() =>
             UpdateParent();
 
