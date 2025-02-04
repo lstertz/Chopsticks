@@ -23,7 +23,7 @@
             Constructs a new dependnecy container with the default resolution factory.
             </summary>
         </member>
-        <member name="M:Chopsticks.Dependencies.Containers.DependencyContainer.#ctor(Chopsticks.Dependencies.Resolutions.IDependencyResolutionFactory)">
+        <member name="M:Chopsticks.Dependencies.Containers.DependencyContainer.#ctor(Chopsticks.Dependencies.Factories.IDependencyResolutionFactory)">
             <summary>
             Constructs a new dependency container with the given resolution factory.
             </summary>
@@ -54,6 +54,16 @@
         </member>
         <member name="M:Chopsticks.Dependencies.Containers.DependencyContainer.Chopsticks#Dependencies#Resolutions#IDependencyResolutionProvider#GetResolutionsForDisposal">
             <inheritdoc/>
+        </member>
+        <member name="T:Chopsticks.Dependencies.Containers.DependencyContainerDefinition">
+            <summary>
+            The definition to define the factory's produced dependency container.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Dependencies.Containers.DependencyContainerDefinition.ResolutionFactory">
+            <summary>
+            The resolution factory to be used with the dependency container.
+            </summary>
         </member>
         <member name="T:Chopsticks.Dependencies.Containers.DependencyRegistration">
             <summary>
@@ -99,20 +109,6 @@
             providing localized resolution while accounting for dependency scope
             and accessibility.
             </summary>
-        </member>
-        <member name="P:Chopsticks.Dependencies.Containers.IDependencyContainer.InheritParentDependencies">
-            <summary>
-            Specifies whether this container should inherit all of its parent container's 
-            registered dependencies.
-            </summary>
-        </member>
-        <member name="P:Chopsticks.Dependencies.Containers.IDependencyContainer.Parent">
-            <summary>
-            The parent container, as a resolution provider.
-            </summary>
-            <remarks>
-            This is null if this container has no parent container.
-            </remarks>
         </member>
         <member name="M:Chopsticks.Dependencies.Containers.IDependencyContainer.Deregister(Chopsticks.Dependencies.Containers.DependencyRegistration)">
             <summary>
@@ -348,6 +344,44 @@
             </summary>
             <param name="message">The message that describes the error.</param>
         </member>
+        <member name="T:Chopsticks.Dependencies.Factories.DefaultDependencyContainerFactory">
+            <summary>
+            Provides a default strategy to manage the construction of dependency containers.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Dependencies.Factories.DefaultDependencyContainerFactory.BuildContainer(Chopsticks.Dependencies.Containers.DependencyContainerDefinition)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Chopsticks.Dependencies.Factories.DependencyResolutionFactory">
+            <inheritdoc cref="T:Chopsticks.Dependencies.Factories.IDependencyResolutionFactory"/>
+        </member>
+        <member name="M:Chopsticks.Dependencies.Factories.DependencyResolutionFactory.BuildResolutionFor(Chopsticks.Dependencies.Containers.DependencySpecification)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Chopsticks.Dependencies.Factories.IDependencyContainerFactory`2">
+            <summary>
+            Manages the construction of dependency containers.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Dependencies.Factories.IDependencyContainerFactory`2.BuildContainer(`1)">
+            <summary>
+            Builds a new container, per the optional container definition.
+            </summary>
+            <param name="definition">The optional definition that 
+            defines the container.</param>
+        </member>
+        <member name="T:Chopsticks.Dependencies.Factories.IDependencyResolutionFactory">
+            <summary>
+            Manages the construction of dependency resolutions.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Dependencies.Factories.IDependencyResolutionFactory.BuildResolutionFor(Chopsticks.Dependencies.Containers.DependencySpecification)">
+            <summary>
+            Builds a resolution appropriate for the given specification.
+            </summary>
+            <param name="specification">The specification that will define the resolution.</param>
+            <returns>The new resolution.</returns>
+        </member>
         <member name="T:Chopsticks.Dependencies.Resolutions.ContainedResolution">
             <inheritdoc/>
             <remarks>
@@ -421,28 +455,24 @@
             <returns>An implementation that resolves the dependency, or null 
             if this resolution has been disposed of.</returns>
         </member>
-        <member name="T:Chopsticks.Dependencies.Resolutions.DependencyResolutionFactory">
-            <inheritdoc cref="T:Chopsticks.Dependencies.Resolutions.IDependencyResolutionFactory"/>
-        </member>
-        <member name="M:Chopsticks.Dependencies.Resolutions.DependencyResolutionFactory.BuildResolutionFor(Chopsticks.Dependencies.Containers.DependencySpecification)">
-            <inheritdoc/>
-        </member>
-        <member name="T:Chopsticks.Dependencies.Resolutions.IDependencyResolutionFactory">
-            <summary>
-            Manages the construction of dependency resolutions.
-            </summary>
-        </member>
-        <member name="M:Chopsticks.Dependencies.Resolutions.IDependencyResolutionFactory.BuildResolutionFor(Chopsticks.Dependencies.Containers.DependencySpecification)">
-            <summary>
-            Builds a resolution appropriate for the given specification.
-            </summary>
-            <param name="specification">The specification that will define the resolution.</param>
-            <returns>The new resolution.</returns>
-        </member>
         <member name="T:Chopsticks.Dependencies.Resolutions.IDependencyResolutionProvider">
             <summary>
             Provides resolutions for dependencies.
             </summary>
+        </member>
+        <member name="P:Chopsticks.Dependencies.Resolutions.IDependencyResolutionProvider.InheritParentDependencies">
+            <summary>
+            Specifies whether this provider should inherit all of its parent provider's 
+            registered dependencies.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Dependencies.Resolutions.IDependencyResolutionProvider.Parent">
+            <summary>
+            The parent of this provider.
+            </summary>
+            <remarks>
+            This is null if this provider has no parent.
+            </remarks>
         </member>
         <member name="M:Chopsticks.Dependencies.Resolutions.IDependencyResolutionProvider.CanProvide(System.Type)">
             <summary>

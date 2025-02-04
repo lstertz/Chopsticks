@@ -1,4 +1,5 @@
 ﻿using Chopsticks.Dependencies.Containers;
+using Chopsticks.Dependencies.Factories;
 using Chopsticks.Dependencies.Resolutions;
 using NSubstitute;
 

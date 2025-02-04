@@ -1,6 +1,7 @@
 ﻿using Chopsticks.Dependencies.Containers;
+using Chopsticks.Dependencies.Resolutions;
 
-namespace Chopsticks.Dependencies.Resolutions
+namespace Chopsticks.Dependencies.Factories
 {
     /// <summary>
     /// Manages the construction of dependency resolutions.

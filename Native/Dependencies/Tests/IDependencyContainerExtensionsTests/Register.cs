@@ -1,6 +1,5 @@
 using Chopsticks.Dependencies;
 using Chopsticks.Dependencies.Containers;
-using Chopsticks.Dependencies.Resolutions;
 using NSubstitute;
 
 namespace IDependencyContainerExtensionsTests;
@@ -18,17 +17,6 @@ public class Register
         {
             public (DependencySpecification Spec, DependencyRegistration Registration) CallResults 
             { get; set; }
-
-            bool IDependencyContainer.InheritParentDependencies
-            { 
-                get => throw new NotImplementedException(); 
-                set => throw new NotImplementedException();
-            }
-            IDependencyResolutionProvider? IDependencyContainer.Parent 
-            { 
-                get => throw new NotImplementedException(); 
-                set => throw new NotImplementedException(); 
-            }
 
             IDependencyContainer IDependencyContainer.Deregister(
                 DependencyRegistration registration)

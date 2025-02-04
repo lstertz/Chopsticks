@@ -9,6 +9,21 @@ namespace Chopsticks.Dependencies.Resolutions
     public interface IDependencyResolutionProvider
     {
         /// <summary>
+        /// Specifies whether this provider should inherit all of its parent provider's 
+        /// registered dependencies.
+        /// </summary>
+        bool InheritParentDependencies { get; set; }
+
+        /// <summary>
+        /// The parent of this provider.
+        /// </summary>
+        /// <remarks>
+        /// This is null if this provider has no parent.
+        /// </remarks>
+        IDependencyResolutionProvider? Parent { get; set; }
+
+
+        /// <summary>
         /// Specifies whether a resolution for the specified contract can be provided.
         /// </summary>
         /// <param name="contract">The contract to be checked for.</param>

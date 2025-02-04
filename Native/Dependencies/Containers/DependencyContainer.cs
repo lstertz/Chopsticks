@@ -1,4 +1,5 @@
-﻿using Chopsticks.Dependencies.Resolutions;
+﻿using Chopsticks.Dependencies.Factories;
+using Chopsticks.Dependencies.Resolutions;
 using System;
 using System.Collections.Generic;
 

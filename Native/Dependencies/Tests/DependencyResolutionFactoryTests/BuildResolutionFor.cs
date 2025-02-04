@@ -1,10 +1,11 @@
 using Chopsticks.Dependencies.Containers;
+using Chopsticks.Dependencies.Factories;
 using Chopsticks.Dependencies.Resolutions;
 using NSubstitute;
 
-namespace DependencyResolutionFactoryTests;
+namespace DependencyContainerFactoryTests;
 
-public class BuildResolutionFor
+public class BuildContainer
 {
     public static class Mock
     {

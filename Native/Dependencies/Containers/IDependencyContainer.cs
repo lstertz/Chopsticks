@@ -1,5 +1,4 @@
-﻿using Chopsticks.Dependencies.Resolutions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Chopsticks.Dependencies.Containers
@@ -11,21 +10,6 @@ namespace Chopsticks.Dependencies.Containers
     /// </summary>
     public interface IDependencyContainer
     {
-        /// <summary>
-        /// Specifies whether this container should inherit all of its parent container's 
-        /// registered dependencies.
-        /// </summary>
-        bool InheritParentDependencies { get; set; }
-
-        /// <summary>
-        /// The parent container, as a resolution provider.
-        /// </summary>
-        /// <remarks>
-        /// This is null if this container has no parent container.
-        /// </remarks>
-        IDependencyResolutionProvider? Parent { get; set; }
-
-
         /// <summary>
         /// Deregisters the dependency identified by the given registration.
         /// </summary>

@@ -1,5 +1,5 @@
 {
-	"name": "Chopsticks.Dependencies.Editor.Tests",
+	"name": "Chopsticks.Dependencies.Tests.Editor",
 	"references": [
 		"Chopsticks.Dependencies.Editor",
 		"Chopsticks.Dependencies"

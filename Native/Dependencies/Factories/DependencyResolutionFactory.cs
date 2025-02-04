@@ -1,7 +1,8 @@
 ﻿using Chopsticks.Dependencies.Containers;
+using Chopsticks.Dependencies.Resolutions;
 using System;
 
-namespace Chopsticks.Dependencies.Resolutions
+namespace Chopsticks.Dependencies.Factories
 {
     /// <inheritdoc cref="IDependencyResolutionFactory"/>
     public class DependencyResolutionFactory : IDependencyResolutionFactory
