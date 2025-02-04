@@ -52,7 +52,7 @@ namespace Chopsticks.Dependencies.Containers
 
 
         [SerializeField]  // TODO :: Hide if the parent setting is None.
-        private bool _inheritParentDependencies;
+        private bool _inheritParentDependencies = true;
 
         [SerializeField]  // TODO :: Hide if the parent setting is not Override.
         private BaseUnityContainer<TNativeContainer> _overrideParent;
