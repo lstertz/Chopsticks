@@ -18,12 +18,5 @@ namespace Examples
         // Optional if OnEnable/OnDisable are used.
         protected override void OnEnable() { base.OnEnable(); }
         protected override void OnDisable() { base.OnDisable(); }
-
-        protected override void Register()
-        {
-            // Example global registration: MonoDependencyContainer.Global.Register(this);
-
-            throw new System.NotImplementedException();
-        }
     }
 }
