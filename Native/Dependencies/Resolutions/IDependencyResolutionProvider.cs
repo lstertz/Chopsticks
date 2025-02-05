@@ -47,13 +47,13 @@ namespace Chopsticks.Dependencies.Resolutions
         IEnumerable<DependencyResolution> GetResolutions(Type contract);
 
         /// <summary>
-        /// Provides all disposable resolutions known to this provider.
+        /// Provides all resolutions known to this provider.
         /// </summary>
         /// <remarks>
-        /// This includes all resolutions of a parent provider.
+        /// This includes all of a parent provider.
         /// </remarks>
-        /// <returns>All disposable resolutions. If there are none, 
+        /// <returns>All resolutions. If there are none, 
         /// the returned collection will be empty.</returns>
-        IEnumerable<DependencyResolution> GetResolutionsForDisposal();
+        IEnumerable<DependencyResolution> GetResolutions();
     }
 }
