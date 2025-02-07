@@ -1,3 +1,27 @@
+.title {
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    font-size: 18px;
+    padding: 5px;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    -unity-font-style: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.section-header {
+    -unity-font-style: bold;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+PropertyField {
+    margin: 2px 0;
+}
+
 .settings-container {
     margin: 4px;
     padding: 6px;
@@ -12,30 +36,6 @@
     border-width: 1px;
     border-radius: 3px;
     border-color: var(--unity-colors-default-border);
-}
-
-.section-header {
-    -unity-font-style: bold;
-    font-size: 14px;
-    margin-bottom: 2px;
-}
-
-PropertyField {
-    margin: 2px 0;
-}
-
-.title {
-    -unity-font-style: bold;
-    font-size: 18px;
-    padding: 5px;
-    margin-bottom: 4px;
-    -unity-text-align: middle-center;
-}
-
-.subtitle {
-    -unity-font-style: bold;
-    margin-top: 10px;
-    margin-bottom: 5px;
 }
 
 .parent-state-label {
