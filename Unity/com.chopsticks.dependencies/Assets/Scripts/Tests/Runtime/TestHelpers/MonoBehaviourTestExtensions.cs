@@ -32,7 +32,7 @@ namespace TestHelpers
         }
         public static MonoBehaviour SetSerializedProperty(
             this MonoBehaviour container,
-            string propertyName, Chopsticks.Dependencies.Containers.ContainerParentSetting value)
+            string propertyName, Chopsticks.Dependencies.Containers.ContainerSetting value)
         {
             var serializedObject = new SerializedObject(container);
             var serializedProperty = serializedObject.FindProperty(propertyName);

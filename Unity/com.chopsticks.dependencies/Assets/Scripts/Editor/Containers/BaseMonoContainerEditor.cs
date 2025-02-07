@@ -50,13 +50,13 @@ namespace Chopsticks.Dependencies.Editor
 
         private void UpdateCurrentParentContainer()
         {
-            var parentSetting = (ContainerParentSetting)(serializedObject
+            var parentSetting = (ContainerSetting)(serializedObject
                 .FindProperty("_containerParentSetting").enumValueIndex - 1);
             var overrideParent = (BaseUnityContainer)serializedObject
                 .FindProperty("_overrideParent").objectReferenceValue;
 
             IUnityContainerEditor parentContainer = null;
-            if (parentSetting != ContainerParentSetting.None)
+            if (parentSetting != ContainerSetting.None)
                 parentContainer = UnityEditorContainerService.FindParentUnityContainer(
                     (ContainerRetrievalSetting)parentSetting, (BaseUnityContainer)target, 
                     overrideParent);
@@ -64,9 +64,9 @@ namespace Chopsticks.Dependencies.Editor
             _currentParentField.value = parentContainer as MonoBehaviour;
             var hasParent = parentContainer != null;
 
-            bool showObjectField = parentSetting == ContainerParentSetting.Override ||
-                (parentSetting == ContainerParentSetting.HierarchyWithGlobal && hasParent) ||
-                (parentSetting == ContainerParentSetting.HierarchyWithoutGlobal && hasParent);
+            bool showObjectField = parentSetting == ContainerSetting.Override ||
+                (parentSetting == ContainerSetting.HierarchyWithGlobal && hasParent) ||
+                (parentSetting == ContainerSetting.HierarchyWithoutGlobal && hasParent);
 
             _currentParentField.style.display = showObjectField ? 
                 DisplayStyle.Flex : DisplayStyle.None;
@@ -77,9 +77,9 @@ namespace Chopsticks.Dependencies.Editor
             {
                 string stateText = parentSetting switch
                 {
-                    ContainerParentSetting.Global => "Global",
-                    ContainerParentSetting.HierarchyWithGlobal when !hasParent => "Global",
-                    ContainerParentSetting.None => "None",
+                    ContainerSetting.Global => "Global",
+                    ContainerSetting.HierarchyWithGlobal when !hasParent => "Global",
+                    ContainerSetting.None => "None",
                     _ => "None (No Parent Found)"
                 };
                 _parentStateLabel.text = stateText;
@@ -91,12 +91,12 @@ namespace Chopsticks.Dependencies.Editor
             if (serializedObject == null)
                 return;
 
-            var parentSetting = (ContainerParentSetting)(serializedObject
+            var parentSetting = (ContainerSetting)(serializedObject
                 .FindProperty("_containerParentSetting").enumValueIndex - 1);
             
-            _inheritDependenciesField.style.display = parentSetting != ContainerParentSetting.None ? 
+            _inheritDependenciesField.style.display = parentSetting != ContainerSetting.None ? 
                 DisplayStyle.Flex : DisplayStyle.None;
-            _overrideParentField.style.display = parentSetting == ContainerParentSetting.Override ? 
+            _overrideParentField.style.display = parentSetting == ContainerSetting.Override ? 
                 DisplayStyle.Flex : DisplayStyle.None;
         }
 

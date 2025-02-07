@@ -5,7 +5,7 @@ using NUnit.Framework;
 using TestHelpers;
 using UnityEngine;
 using UnityEngine.TestTools;
-using ParentSetting = Chopsticks.Dependencies.Containers.ContainerParentSetting;
+using ParentSetting = Chopsticks.Dependencies.Containers.ContainerSetting;
 
 namespace MonoContainerTests
 {

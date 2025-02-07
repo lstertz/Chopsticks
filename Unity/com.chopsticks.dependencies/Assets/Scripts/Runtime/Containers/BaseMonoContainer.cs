@@ -58,8 +58,8 @@ namespace Chopsticks.Dependencies.Containers
         private BaseUnityContainer<TNativeContainer> _overrideParent;
 
         [SerializeField]
-        private ContainerParentSetting _containerParentSetting =
-            ContainerParentSetting.HierarchyWithGlobal;
+        private ContainerSetting _containerParentSetting =
+            ContainerSetting.HierarchyWithGlobal;
 
 
         // TODO :: Inspector display features:
@@ -136,7 +136,7 @@ namespace Chopsticks.Dependencies.Containers
 
         private void UpdateParent()
         {
-            if (_containerParentSetting == ContainerParentSetting.None)
+            if (_containerParentSetting == ContainerSetting.None)
             {
                 InternalContainer.Parent = null;
                 return;
@@ -145,7 +145,7 @@ namespace Chopsticks.Dependencies.Containers
             InternalContainer.Parent = _containerService.FindParentContainer(
                 (ContainerRetrievalSetting)_containerParentSetting, this, _overrideParent);
 
-            if (_containerParentSetting == ContainerParentSetting.Override &&
+            if (_containerParentSetting == ContainerSetting.Override &&
                 InternalContainer.Parent == null && _overrideParent != null)
             {
                 Debug.LogError($"BaseMonoContainer :: Override parent was reset to 'null' " +
