@@ -17,8 +17,8 @@ namespace MonoContainerTests.Mocks
         public abstract IDependencyContainer Deregister(DependencyRegistration registration);
         public abstract void Dispose();
         public abstract DependencyResolution GetResolution(Type contract);
+        public abstract IEnumerable<DependencyResolution> GetResolutions();
         public abstract IEnumerable<DependencyResolution> GetResolutions(Type contract);
-        public abstract IEnumerable<DependencyResolution> GetResolutionsForDisposal();
         public abstract IDependencyContainer Register(DependencySpecification specification,
             out DependencyRegistration registration);
         public abstract bool Resolve(Type contract, out object implementation);

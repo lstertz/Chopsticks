@@ -40,7 +40,7 @@ namespace Chopsticks.Dependencies.Containers
         public void Dispose()
         {
             if (Parent != null)
-                foreach (var resolution in Parent.GetResolutionsForDisposal())
+                foreach (var resolution in Parent.GetResolutions())
                     resolution.DisposeFor(this);
 
             foreach (var resolutions in _resolutions.Values)
@@ -143,6 +143,18 @@ namespace Chopsticks.Dependencies.Containers
         }
 
         /// <inheritdoc/>
+        IEnumerable<DependencyResolution> IDependencyResolutionProvider.GetResolutions()
+        {
+            foreach (var resolutions in _resolutions.Values)
+                foreach (var resolution in resolutions)
+                    yield return resolution;
+
+            if (Parent != null)
+                foreach (var resolution in Parent.GetResolutions())
+                    yield return resolution;
+        }
+
+        /// <inheritdoc/>
         IEnumerable<DependencyResolution> IDependencyResolutionProvider.GetResolutions(
             Type contract)
         {
@@ -152,18 +164,6 @@ namespace Chopsticks.Dependencies.Containers
 
             if (Parent != null && InheritParentDependencies)
                 foreach (var resolution in Parent.GetResolutions(contract))
-                    yield return resolution;
-        }
-
-        /// <inheritdoc/>
-        IEnumerable<DependencyResolution> IDependencyResolutionProvider.GetResolutionsForDisposal()
-        {
-            foreach (var resolutions in _resolutions.Values)
-                foreach (var resolution in resolutions)
-                    yield return resolution;
-
-            if (Parent != null)
-                foreach (var resolution in Parent.GetResolutionsForDisposal())
                     yield return resolution;
         }
     }
