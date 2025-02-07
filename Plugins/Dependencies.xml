@@ -49,10 +49,10 @@
         <member name="M:Chopsticks.Dependencies.Containers.DependencyContainer.Chopsticks#Dependencies#Resolutions#IDependencyResolutionProvider#GetResolution(System.Type)">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Dependencies.Containers.DependencyContainer.Chopsticks#Dependencies#Resolutions#IDependencyResolutionProvider#GetResolutions(System.Type)">
+        <member name="M:Chopsticks.Dependencies.Containers.DependencyContainer.Chopsticks#Dependencies#Resolutions#IDependencyResolutionProvider#GetResolutions">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Dependencies.Containers.DependencyContainer.Chopsticks#Dependencies#Resolutions#IDependencyResolutionProvider#GetResolutionsForDisposal">
+        <member name="M:Chopsticks.Dependencies.Containers.DependencyContainer.Chopsticks#Dependencies#Resolutions#IDependencyResolutionProvider#GetResolutions(System.Type)">
             <inheritdoc/>
         </member>
         <member name="T:Chopsticks.Dependencies.Containers.DependencyContainerDefinition">
@@ -489,22 +489,22 @@
             <returns>The first resolving resolution, or null if there is no such 
             resolution.</returns>
         </member>
+        <member name="M:Chopsticks.Dependencies.Resolutions.IDependencyResolutionProvider.GetResolutions">
+            <summary>
+            Provides all resolutions known to this provider.
+            </summary>
+            <remarks>
+            This includes all of a parent provider.
+            </remarks>
+            <returns>All resolutions. If there are none, 
+            the returned collection will be empty.</returns>
+        </member>
         <member name="M:Chopsticks.Dependencies.Resolutions.IDependencyResolutionProvider.GetResolutions(System.Type)">
             <summary>
             Provides all resolutions that will resolve the specified contract.
             </summary>
             <param name="contract">The type of the contract.</param>
             <returns>All resolving resolutions. If there are none, 
-            the returned collection will be empty.</returns>
-        </member>
-        <member name="M:Chopsticks.Dependencies.Resolutions.IDependencyResolutionProvider.GetResolutionsForDisposal">
-            <summary>
-            Provides all disposable resolutions known to this provider.
-            </summary>
-            <remarks>
-            This includes all resolutions of a parent provider.
-            </remarks>
-            <returns>All disposable resolutions. If there are none, 
             the returned collection will be empty.</returns>
         </member>
         <member name="T:Chopsticks.Dependencies.Resolutions.SingletonResolution">

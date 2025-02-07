@@ -10,10 +10,19 @@ namespace Chopsticks.Dependencies.Containers
     /// are contained within this container. This enables the organization 
     /// of dependencies to be defined through the Unity hierarchy and prefabs.
     /// </summary>
+    public abstract class BaseUnityContainer : MonoBehaviour, IUnityContainerEditor
+    {
+    }
+
+    /// <summary>
+    /// Designates that all child GameObject Containers/Dependencies 
+    /// are contained within this container. This enables the organization 
+    /// of dependencies to be defined through the Unity hierarchy and prefabs.
+    /// </summary>
     /// <typeparam name="TNativeContainer">The type of the native container that manages 
     /// the dependencies of this mono container.</typeparam>
     public abstract class BaseUnityContainer<TNativeContainer> :
-        MonoBehaviour, IDependencyContainer, IUnityContainer<TNativeContainer>
+        BaseUnityContainer, IDependencyContainer, IUnityContainer<TNativeContainer>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
     {
         /// <inheritdoc/>

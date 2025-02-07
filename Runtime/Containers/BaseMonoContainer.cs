@@ -51,10 +51,10 @@ namespace Chopsticks.Dependencies.Containers
         protected virtual TNativeContainerDefinition InternalContainerDefinition { get; }
 
 
-        [SerializeField]  // TODO :: Hide if the parent setting is None.
+        [SerializeField]
         private bool _inheritParentDependencies = true;
 
-        [SerializeField]  // TODO :: Hide if the parent setting is not Override.
+        [SerializeField]
         private BaseUnityContainer<TNativeContainer> _overrideParent;
 
         [SerializeField]
@@ -63,10 +63,8 @@ namespace Chopsticks.Dependencies.Containers
 
 
         // TODO :: Inspector display features:
-        //          Current parent.
         //          Contained MonoDependencies.
         //          Maybe list native dependencies.
-        //          Prevent disablement.
 
 
 

@@ -34,7 +34,7 @@ namespace Chopsticks.Dependencies.Containers
         /// to find the parent container.</param>
         /// <param name="unityContainer">The Unity container whose parent will be 
         /// searched for.</param>
-        /// <param name="overrideContainer">The wrapping Unity container of a contaienr 
+        /// <param name="overrideContainer">The wrapping Unity container of a container 
         /// that may be provided per some settings.</param>
         /// <returns>The found parent container, or null if either no such 
         /// container could be found or if the specified override is actually a child of the 
