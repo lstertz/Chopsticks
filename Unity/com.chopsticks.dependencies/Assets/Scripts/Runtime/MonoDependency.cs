@@ -1,40 +1,53 @@
-﻿using Chopsticks.Dependencies.Containers;
-using UnityEngine;
+﻿using Chopsticks.Dependencies.Consumers;
 
 namespace Chopsticks.Dependencies
 {
-    /// <summary>
-    /// Defines a dependency, which may also have its own injected dependencies.
-    /// </summary>
-    public abstract class MonoDependency : MonoBehaviour
+    /// <inheritdoc cref="IMonoDependency"/>
+    public abstract class MonoDependency : MonoDependent, IMonoDependency
     {
-        public IDependencyContainer Container { get; protected set; }
-
-        public MonoDependency()  // May need to be Awake.
+        ///<inheritdoc/>
+        public override void OnEnable()
         {
-            // Handle the set up of the dependencies.
+            base.OnEnable();
+            OnRegistration();
         }
 
-        protected virtual void OnEnable()
-        {
-            // Register with its container (or global container).
-        }
+        ///<inheritdoc/>
+        public virtual void OnDisable() => Deregister();
 
-        protected virtual void OnDisable()
+        ///<inheritdoc/>
+        public override void OnTransformParentChanged()
         {
-            // Deregister with its container (or global container).
-        }
+            if (!enabled)
+                return;
 
-        protected virtual void OnTransformParentChanged()
-        {
-            // Switch containers, if necessary.
+            if (!GetUpdatedContainer(out var updatedContainer))
+                return;
+
+            Deregister();
+            Container = updatedContainer;
+            OnRegistration();
 
             OnContainerChanged();
         }
 
-        protected virtual void OnContainerChanged()
-        {
 
+        /// <summary>
+        /// Performs registration of this dependency for each of its contracts 
+        /// using <see cref="RegisterAs{T}"/>.
+        /// </summary>
+        protected abstract void OnRegistration();
+
+        protected void RegisterAs<T>()
+        {
+            // TODO :: Uses interface extension method to register.
+            // TODO :: Tracks registrations.
+        }
+
+
+        private void Deregister()
+        {
+            // TODO :: Deregisters all tracked registrations.
         }
     }
 }
