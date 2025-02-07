@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Label class="title" text="Chopsticks Dependency Container"/>
+    <ui:VisualElement class="settings-container">
+        <ui:Label class="section-header" text="Settings"/>
+        <uie:PropertyField name="parentSetting" label="Parent Setting"/>
+        <uie:PropertyField name="inheritDependencies" label="Inherit Parent Dependencies"/>
+        <uie:PropertyField name="overrideParent" label="Override Parent"/>
+    </ui:VisualElement>
+    <ui:VisualElement class="info-container">
+        <ui:Label class="section-header" text="Info"/>
+        <ui:Label class="subtitle" text="Current Parent"/>
+        <ui:Label text="None" name="parentStateLabel" class="parent-state-label" />
+        <uie:ObjectField name="currentParent"/>
+    </ui:VisualElement>
+</UXML> 
