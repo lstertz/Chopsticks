@@ -24,23 +24,17 @@ namespace Chopsticks.Dependencies.Contained
         /// returned per some settings on the dependent.</param>
         /// <returns>The appropriate Unity container for this dependent, or null if no such 
         /// container could be found.</returns>
-        public static TNativeContainer FindContainer<TNativeContainer, 
+        public static TNativeContainer FindContainer<TNativeContainer,
             TUnityContainerService, TOverrideContainer>(
                 this IUnityDependent<TNativeContainer, TUnityContainerService> dependent,
                 Transform unityContained,
                 TOverrideContainer overrideContainer)
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
-            where TOverrideContainer : IUnityContainer<TNativeContainer>
-        {
-            var service = IUnityDependent<TNativeContainer, TUnityContainerService>
-                .UnityContainerService;
-            service.GetContainer((ContainerRetrievalSetting)dependent.ContainerSetting,
-                true, unityContained, overrideContainer);
-
-            // TODO :: Implement.
-            return default;
-        }
+            where TOverrideContainer : IUnityContainer<TNativeContainer> => 
+                IUnityDependent<TNativeContainer, TUnityContainerService>.UnityContainerService
+                    .GetContainer((ContainerRetrievalSetting)dependent.ContainerSetting,
+                    true, unityContained, overrideContainer);
 
         // TODO :: Resolve extension to get dependencies.
     }
