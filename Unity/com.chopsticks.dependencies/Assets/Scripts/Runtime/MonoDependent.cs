@@ -1,60 +1,14 @@
 ﻿using Chopsticks.Dependencies.Contained;
 using Chopsticks.Dependencies.Containers;
-using UnityEngine;
+using Chopsticks.Dependencies.Factories;
 
 namespace Chopsticks.Dependencies
 {
-    /// <summary>
-    /// Defines a consumer of dependencies that is itself not a dependency.
-    /// </summary>
-    public class MonoDependent : MonoBehaviour, IMonoDependent
-    {
-        ///<inheritdoc/>
-        public DependencyContainer Container { get; protected set; }
-
-        ///<inheritdoc/>
-        public ContainerSetting ContainerSetting { get; protected set; }
-
-        [SerializeField]
-        private BaseUnityContainer<DependencyContainer> _overrideContainer;
 
 
-        ///<inheritdoc/>
-        public virtual void OnEnable()
-        {
-            GetUpdatedContainer(out var updatedContainer);
-            Container = updatedContainer;
-        }
-
-        ///<inheritdoc/>
-        public virtual void OnTransformParentChanged()
-        {
-            if (!enabled)
-                return;
-
-            if (!GetUpdatedContainer(out var updatedContainer))
-                return;
-
-            Container = updatedContainer;
-            OnContainerChanged();
-        }
-
-        /// <summary>
-        /// Invoked when the container is changed as the result of a change in the 
-        /// MonoBehaviour's parent hierarchy.
-        /// </summary>
-        protected virtual void OnContainerChanged() { }
-
-
-        protected bool GetUpdatedContainer(out DependencyContainer updatedContainer)
-        {
-            updatedContainer = this.FindContainer(transform, _overrideContainer);
-            // TODO :: Handle None and Global settings.
-
-            return Container != updatedContainer;
-        }
-
-
-        // TODO :: Wrappers to Resolve dependencies through the interface extensions.
-    }
+    ///<inheritdoc cref="IMonoDependent"/>
+    public abstract class MonoDependent : 
+        BaseMonoDependent<DependencyContainer, 
+            UnityContainerService<DependencyContainer, DefaultDependencyContainerFactory,
+            DependencyContainerDefinition>>, IMonoDependent { }
 }
