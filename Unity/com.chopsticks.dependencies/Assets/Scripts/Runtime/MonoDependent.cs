@@ -1,4 +1,4 @@
-﻿using Chopsticks.Dependencies.Consumers;
+﻿using Chopsticks.Dependencies.Contained;
 using Chopsticks.Dependencies.Containers;
 using UnityEngine;
 

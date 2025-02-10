@@ -1,4 +1,4 @@
-﻿using Chopsticks.Dependencies.Consumers;
+﻿using Chopsticks.Dependencies.Contained;
 
 namespace Chopsticks.Dependencies
 {
