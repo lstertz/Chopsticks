@@ -1,4 +1,5 @@
-﻿using Chopsticks.Dependencies.Resolutions;
+﻿using Chopsticks.Dependencies.Consumers;
+using Chopsticks.Dependencies.Resolutions;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,18 +22,30 @@ namespace Chopsticks.Dependencies.Containers
     /// </summary>
     /// <typeparam name="TNativeContainer">The type of the native container that manages 
     /// the dependencies of this mono container.</typeparam>
-    public abstract class BaseUnityContainer<TNativeContainer> :
-        BaseUnityContainer, IDependencyContainer, IUnityContainer<TNativeContainer>
+    public abstract class BaseUnityContainer<TNativeContainer> : BaseUnityContainer, 
+        IDependencyContainer, IUnityContainer<TNativeContainer>, IUnityContained<TNativeContainer>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
     {
         /// <inheritdoc/>
+        ContainerSetting IUnityContained<TNativeContainer>.ContainerSetting =>
+            ParentContainerSetting;
+
+        /// <inheritdoc/>
         TNativeContainer IUnityContainer<TNativeContainer>.NativeContainer => InternalContainer;
+
+        /// <inheritdoc/>
+        TNativeContainer IUnityContained<TNativeContainer>.Container => InternalContainer;
 
         /// <summary>
         /// The internal, non-Unity container that manages the actual dependencies of 
         /// this Unity Container.
         /// </summary>
         protected abstract TNativeContainer InternalContainer { get; }
+
+        /// <summary>
+        /// The setting that specifies how this container's parent container is found.
+        /// </summary>
+        protected abstract ContainerSetting ParentContainerSetting { get; }
 
 
         /// <inheritdoc/>

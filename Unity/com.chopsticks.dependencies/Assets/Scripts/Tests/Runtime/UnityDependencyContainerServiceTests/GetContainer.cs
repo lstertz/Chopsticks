@@ -55,7 +55,7 @@ namespace UnityDependencyContainerServiceTests
             // Act
             var serviceContainer = service.GetContainer(
                 ContainerRetrievalSetting.Global,
-                false, (MonoContainer)null, (MonoContainer)null);
+                false, (Transform)null, (MonoContainer)null);
 
             // Assert
             Assert.That(serviceContainer, Is.EqualTo(service.GlobalContainer));
@@ -70,7 +70,7 @@ namespace UnityDependencyContainerServiceTests
             // Act
             var serviceContainer = service.GetContainer(
                 ContainerRetrievalSetting.HierarchyWithGlobal, 
-                true, child, (MonoContainer)null);
+                true, child.transform, (MonoContainer)null);
 
             // Assert
             Assert.That(serviceContainer, Is.EqualTo(
@@ -86,7 +86,7 @@ namespace UnityDependencyContainerServiceTests
             // Act
             var serviceContainer = service.GetContainer(
                 ContainerRetrievalSetting.HierarchyWithGlobal, 
-                false, container, (MonoContainer)null);
+                false, container.transform, (MonoContainer)null);
 
             // Assert
             Assert.That(serviceContainer, Is.EqualTo(MonoContainer.Global));
@@ -101,7 +101,7 @@ namespace UnityDependencyContainerServiceTests
             // Act
             var serviceContainer = service.GetContainer(
                 ContainerRetrievalSetting.HierarchyWithGlobal, 
-                false, child, (MonoContainer)null);
+                false, child.transform, (MonoContainer)null);
 
             // Assert
             Assert.That(serviceContainer, Is.EqualTo(
@@ -117,7 +117,7 @@ namespace UnityDependencyContainerServiceTests
             // Act
             var serviceContainer = service.GetContainer(
                 ContainerRetrievalSetting.HierarchyWithoutGlobal, 
-                true, child, (MonoContainer)null);
+                true, child.transform, (MonoContainer)null);
 
             // Assert
             Assert.That(serviceContainer, Is.EqualTo(
@@ -133,7 +133,7 @@ namespace UnityDependencyContainerServiceTests
             // Act
             var serviceContainer = service.GetContainer(
                 ContainerRetrievalSetting.HierarchyWithoutGlobal, 
-                false, container, (MonoContainer)null);
+                false, container.transform, (MonoContainer)null);
 
             // Assert
             Assert.That(serviceContainer, Is.Null);
@@ -148,7 +148,7 @@ namespace UnityDependencyContainerServiceTests
             // Act
             var serviceContainer = service.GetContainer(
                 ContainerRetrievalSetting.HierarchyWithoutGlobal, 
-                false, child, (MonoContainer)null);
+                false, child.transform, (MonoContainer)null);
 
             // Assert
             Assert.That(serviceContainer, Is.EqualTo(
@@ -164,7 +164,7 @@ namespace UnityDependencyContainerServiceTests
             // Act
             var serviceContainer = service.GetContainer(
                 ContainerRetrievalSetting.Override,
-                false, (MonoContainer)null, overrideContainer);
+                false, (Transform)null, overrideContainer);
 
             // Assert
             Assert.That(serviceContainer, Is.EqualTo(

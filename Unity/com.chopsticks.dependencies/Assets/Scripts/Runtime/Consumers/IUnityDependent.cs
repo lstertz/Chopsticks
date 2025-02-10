@@ -9,36 +9,13 @@ namespace Chopsticks.Dependencies.Consumers
     /// </summary>
     /// <typeparam name="TNativeContainer">The type of the internal, non-Unity 
     /// dependency container.</typeparam>
-    /// <typeparam name="TUnityContainer">The type of the Unity dependency container that 
-    /// encapsulates the <see cref="TNativeContainer"/> and the dependent.</typeparam>
-    /// <typeparam name="TNativeContainerDefinition">The type of definition to define any custom 
-    /// properties of the internal, non-Unity dependency container.</typeparam>
     /// <typeparam name="TUnityContainerService">The type of the Unity container service that 
     /// provides Unity-specific services.</typeparam>
-    public interface IUnityDependent<TNativeContainer, TNativeContainerDefinition,
-        TUnityContainer, TUnityContainerService>
+    public interface IUnityDependent<TNativeContainer, TUnityContainerService> : 
+        IUnityContained<TNativeContainer, TUnityContainerService>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
-        where TUnityContainer : IDependencyContainer
-        where TUnityContainerService : IUnityContainerService<TNativeContainer,
-            TNativeContainerDefinition>, new()
+        where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {
-        /// <summary>
-        /// The Unity service that provides container services for Unity dependents.
-        /// </summary>
-        public static TUnityContainerService UnityContainerService { get; } = new();
-
-
-        /// <summary>
-        /// The container of this dependent.
-        /// </summary>
-        TUnityContainer Container { get; }
-
-        /// <summary>
-        /// The setting that specifies how the Container is found.
-        /// </summary>
-        ContainerSetting ContainerSetting { get; }
-
-
         /// <summary>
         /// Performed when the Unity object is enabled.
         /// This ensures the contained has its appropriate container, 

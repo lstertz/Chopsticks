@@ -1,4 +1,5 @@
-﻿using Chopsticks.Dependencies.Containers;
+﻿using Chopsticks.Dependencies.Consumers;
+using Chopsticks.Dependencies.Containers;
 using NSubstitute;
 using UnityEngine;
 
@@ -16,14 +17,14 @@ namespace MonoContainerTests.Mocks
         public MockDependencyContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
             ContainerRetrievalSetting setting, TUnityContainer unityContainer, 
             TOverrideContainer overrideContainer)
-            where TUnityContainer : MonoBehaviour, IUnityContainer<MockDependencyContainer>
+            where TUnityContainer : MonoBehaviour, IUnityContainer<MockDependencyContainer>,
+                IUnityContained<MockDependencyContainer>
             where TOverrideContainer : IUnityContainer<MockDependencyContainer> =>
             Sub.FindParentContainer(setting, unityContainer, overrideContainer);
 
-        public MockDependencyContainer GetContainer<TUnityContainer, TOverrideContainer>(
-            ContainerRetrievalSetting setting, bool includeSelf, TUnityContainer unityContainer,
+        public MockDependencyContainer GetContainer<TOverrideContainer>(
+            ContainerRetrievalSetting setting, bool includeSelf, Transform unityContainer,
             TOverrideContainer overrideContainer)
-            where TUnityContainer : MonoBehaviour, IUnityContainer<MockDependencyContainer>
             where TOverrideContainer : IUnityContainer<MockDependencyContainer> => 
             Sub.GetContainer(setting, includeSelf, unityContainer, overrideContainer);
 

@@ -40,8 +40,5 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.InheritParentDependencies, Is.True);
         }
-
-
-        // TODO :: Test for changes after creation.
     }
 }

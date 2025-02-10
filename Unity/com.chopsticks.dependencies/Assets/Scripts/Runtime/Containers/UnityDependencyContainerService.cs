@@ -1,4 +1,5 @@
-﻿using Chopsticks.Dependencies.Factories;
+﻿using Chopsticks.Dependencies.Consumers;
+using Chopsticks.Dependencies.Factories;
 using Chopsticks.Dependencies.Resolutions;
 using System;
 using UnityEngine;
@@ -29,21 +30,21 @@ namespace Chopsticks.Dependencies.Containers
         private static TNativeContainer _instance = _instanceFactory.BuildContainer();
 
 
-
         /// <inheritdoc/>
         /// <exception cref="NotSupportedException">Thrown if a  
         /// <see cref="ContainerRetrievalSetting"/>is not supported.</exception>
         public TNativeContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
             ContainerRetrievalSetting setting, TUnityContainer unityContainer,
             TOverrideContainer overrideContainer)
-            where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>
+            where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>, 
+                IUnityContained<TNativeContainer>
             where TOverrideContainer : IUnityContainer<TNativeContainer> =>
             setting switch
             {
                 ContainerRetrievalSetting.HierarchyWithGlobal =>
-                    GetContainer(setting, false, unityContainer, overrideContainer),
+                    GetContainer(setting, false, unityContainer.transform, overrideContainer),
                 ContainerRetrievalSetting.HierarchyWithoutGlobal =>
-                    GetContainer(setting, false, unityContainer, overrideContainer),
+                    GetContainer(setting, false, unityContainer.transform, overrideContainer),
                 ContainerRetrievalSetting.Global => GlobalContainer,
                 ContainerRetrievalSetting.Override =>
                     ValidateOverrideParent(unityContainer, overrideContainer) == null ? default : 
@@ -55,19 +56,18 @@ namespace Chopsticks.Dependencies.Containers
         /// <inheritdoc/>
         /// <exception cref="NotSupportedException">Thrown if a  
         /// <see cref="ContainerRetrievalSetting"/>is not supported.</exception>
-        public TNativeContainer GetContainer<TUnityContainer, TOverrideContainer>(
+        public TNativeContainer GetContainer<TOverrideContainer>(
             ContainerRetrievalSetting setting, bool includeSelf, 
-            TUnityContainer unityContainer, TOverrideContainer overrideContainer)
-            where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>
+            Transform unityContainer, TOverrideContainer overrideContainer)
             where TOverrideContainer : IUnityContainer<TNativeContainer> =>
             setting switch
             {
                 ContainerRetrievalSetting.HierarchyWithGlobal =>
-                    FindContainerInHierarchy(includeSelf ? unityContainer.transform : 
-                        unityContainer.transform.parent, true),
+                    FindContainerInHierarchy(includeSelf ? 
+                        unityContainer : unityContainer.parent, true),
                 ContainerRetrievalSetting.HierarchyWithoutGlobal =>
-                    FindContainerInHierarchy(includeSelf ? unityContainer.transform :
-                        unityContainer.transform.parent, false),
+                    FindContainerInHierarchy(includeSelf ? 
+                        unityContainer : unityContainer.parent, false),
                 ContainerRetrievalSetting.Global => 
                     GlobalContainer,
                 ContainerRetrievalSetting.Override => 

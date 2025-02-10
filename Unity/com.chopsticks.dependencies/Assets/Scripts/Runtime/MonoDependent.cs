@@ -10,10 +10,13 @@ namespace Chopsticks.Dependencies
     public class MonoDependent : MonoBehaviour, IMonoDependent
     {
         ///<inheritdoc/>
-        public MonoContainer Container { get; protected set; }
+        public DependencyContainer Container { get; protected set; }
 
         ///<inheritdoc/>
         public ContainerSetting ContainerSetting { get; protected set; }
+
+        [SerializeField]
+        private BaseUnityContainer<DependencyContainer> _overrideContainer;
 
 
         ///<inheritdoc/>
@@ -43,9 +46,11 @@ namespace Chopsticks.Dependencies
         protected virtual void OnContainerChanged() { }
 
 
-        protected bool GetUpdatedContainer(out MonoContainer updatedContainer)
+        protected bool GetUpdatedContainer(out DependencyContainer updatedContainer)
         {
-            updatedContainer = this.FindContainer();
+            updatedContainer = this.FindContainer(transform, _overrideContainer);
+            // TODO :: Handle None and Global settings.
+
             return Container != updatedContainer;
         }
 

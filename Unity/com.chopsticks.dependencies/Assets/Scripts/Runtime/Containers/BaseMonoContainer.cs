@@ -50,16 +50,17 @@ namespace Chopsticks.Dependencies.Containers
         /// </summary>
         protected virtual TNativeContainerDefinition InternalContainerDefinition { get; }
 
+        /// <inheritdoc/>
+        protected override ContainerSetting ParentContainerSetting => _containerParentSetting;
+        [SerializeField]
+        private ContainerSetting _containerParentSetting = ContainerSetting.HierarchyWithGlobal;
+
 
         [SerializeField]
         private bool _inheritParentDependencies = true;
 
         [SerializeField]
         private BaseUnityContainer<TNativeContainer> _overrideParent;
-
-        [SerializeField]
-        private ContainerSetting _containerParentSetting =
-            ContainerSetting.HierarchyWithGlobal;
 
 
         // TODO :: Inspector display features:

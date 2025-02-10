@@ -9,19 +9,12 @@ namespace Chopsticks.Dependencies.Consumers
     /// </summary>
     /// <typeparam name="TNativeContainer">The type of the internal, non-Unity 
     /// dependency container.</typeparam>
-    /// <typeparam name="TUnityContainer">The type of the Unity dependency container that 
-    /// encapsulates the <see cref="TNativeContainer"/> and the dependency.</typeparam>
-    /// <typeparam name="TNativeContainerDefinition">The type of definition to define any custom 
-    /// properties of the internal, non-Unity dependency container.</typeparam>
     /// <typeparam name="TUnityContainerService">The type of the Unity container service that 
     /// provides Unity-specific services.</typeparam>
-    public interface IUnityDependency<TNativeContainer, TNativeContainerDefinition,
-        TUnityContainer, TUnityContainerService> : IUnityDependent<TNativeContainer, 
-            TNativeContainerDefinition, TUnityContainer, TUnityContainerService>
+    public interface IUnityDependency<TNativeContainer, TUnityContainerService> : 
+        IUnityDependent<TNativeContainer, TUnityContainerService>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
-        where TUnityContainer : IDependencyContainer
-        where TUnityContainerService : IUnityContainerService<TNativeContainer,
-            TNativeContainerDefinition>, new()
+        where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {
         /// <summary>
         /// Performed when the Unity object is disabled.
