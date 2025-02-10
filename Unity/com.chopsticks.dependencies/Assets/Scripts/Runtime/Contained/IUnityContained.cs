@@ -2,7 +2,7 @@
 using Chopsticks.Dependencies.Resolutions;
 using System;
 
-namespace Chopsticks.Dependencies.Consumers
+namespace Chopsticks.Dependencies.Contained
 {
     /// <summary>
     /// Defines a Unity construct that is contained by 

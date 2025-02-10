@@ -1,4 +1,4 @@
-﻿namespace Chopsticks.Dependencies.Consumers
+﻿namespace Chopsticks.Dependencies.Contained
 {
     /// <summary>
     /// Provides extensions to Unity dependencies.

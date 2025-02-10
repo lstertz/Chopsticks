@@ -2,7 +2,7 @@
 using Chopsticks.Dependencies.Resolutions;
 using System;
 
-namespace Chopsticks.Dependencies.Consumers
+namespace Chopsticks.Dependencies.Contained
 {
     /// <summary>
     /// Defines a Unity consumer of dependencies that is itself a dependency.

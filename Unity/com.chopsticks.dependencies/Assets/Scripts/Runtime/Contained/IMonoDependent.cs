@@ -1,7 +1,7 @@
 ﻿using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Factories;
 
-namespace Chopsticks.Dependencies.Consumers
+namespace Chopsticks.Dependencies.Contained
 {
     /// <summary>
     /// Defines a Unity consumer of dependencies that is itself not a dependency.
