@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Resolutions;
+using Chopsticks.Dependencies.Services;
 using System;
 
 namespace Chopsticks.Dependencies.Contained
@@ -12,7 +13,8 @@ namespace Chopsticks.Dependencies.Contained
     /// <typeparam name="TUnityContainerService">The type of the Unity container service that 
     /// provides Unity-specific services.</typeparam>
     public interface IUnityDependent<TNativeContainer, TUnityContainerService> : 
-        IUnityContained<TNativeContainer, TUnityContainerService>
+        IUnityContained<TNativeContainer>, 
+        IUnityContainerConsumer<TNativeContainer, TUnityContainerService>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
         where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {

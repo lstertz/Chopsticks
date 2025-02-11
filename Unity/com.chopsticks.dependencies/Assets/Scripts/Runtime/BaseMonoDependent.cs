@@ -1,7 +1,9 @@
 ﻿using Chopsticks.Dependencies.Contained;
 using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Resolutions;
+using Chopsticks.Dependencies.Services;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Chopsticks.Dependencies
@@ -13,20 +15,23 @@ namespace Chopsticks.Dependencies
         where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {
         ///<inheritdoc/>
-        public TNativeContainer Container { get; protected set; }
+        TNativeContainer IUnityContained<TNativeContainer>.Container { get; set; }
 
-        ///<inheritdoc/>
-        public ContainerSetting ContainerSetting { get; protected set; }
+        ContainerSetting IUnityContained<TNativeContainer>.ContainerSetting => _containerSetting;
+        [SerializeField]
+        protected ContainerSetting _containerSetting;
 
         [SerializeField]
         private BaseUnityContainer<TNativeContainer> _overrideContainer;
 
 
+        // TODO :: Extract all functionality to extensions.
+
         ///<inheritdoc/>
         public virtual void OnEnable()
         {
             GetUpdatedContainer(out var updatedContainer);
-            Container = updatedContainer;
+            (this as IUnityContained<TNativeContainer>).Container = updatedContainer;
         }
 
         ///<inheritdoc/>
@@ -38,7 +43,7 @@ namespace Chopsticks.Dependencies
             if (!GetUpdatedContainer(out var updatedContainer))
                 return;
 
-            Container = updatedContainer;
+            (this as IUnityContained<TNativeContainer>).Container = updatedContainer;
             OnContainerChanged();
         }
 
@@ -49,15 +54,42 @@ namespace Chopsticks.Dependencies
         protected virtual void OnContainerChanged() { }
 
 
+        protected TContract AssertiveGetOrResolve<TContract>(string customErrorMessage = "")
+        {
+
+        }
+
+        protected TContract AssertiveResolve<TContract>(string customErrorMessage = "")
+        {
+
+        }
+
         protected bool GetUpdatedContainer(out TNativeContainer updatedContainer)
         {
             updatedContainer = this.FindContainer(transform, _overrideContainer);
             // TODO :: Handle None.
 
-            return !Container.Equals(updatedContainer);
+            return !(this as IUnityContained<TNativeContainer>).Container.Equals(updatedContainer);
         }
 
+        protected bool GetOrResolve<TContract>(out TContract implementation)
+        {
+            //Container.Resolve<TContract>()
+        }
 
-        // TODO :: Wrappers to Resolve dependencies through the interface extensions.
+        protected IEnumerable<TContract> GetOrResolveAll<TContract>()
+        {
+
+        }
+
+        protected bool Resolve<TContract>(out TContract implementation)
+        {
+
+        }
+
+        protected IEnumerable<TContract> ResolveAll<TContract>()
+        {
+
+        }
     }
 }

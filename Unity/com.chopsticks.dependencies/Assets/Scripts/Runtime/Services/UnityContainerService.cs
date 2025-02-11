@@ -1,11 +1,12 @@
-﻿using Chopsticks.Dependencies.Contained;
+﻿using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Factories;
 using Chopsticks.Dependencies.Resolutions;
 using System;
 using UnityEngine;
 
-namespace Chopsticks.Dependencies.Containers
+namespace Chopsticks.Dependencies.Services
 {
+
     /// <inheritdoc cref="IUnityContainerService{TNativeContainer, TNativeContainerDefinition}"/>
     /// <typeparam name="TNativeContainerFactory">The type of the factory 
     /// that creates the global container of the service.</typeparam>
@@ -23,12 +24,13 @@ namespace Chopsticks.Dependencies.Containers
         where TNativeContainerFactory : IDependencyContainerFactory<TNativeContainer, 
             TNativeContainerDefinition>, new()
     {
+        protected static readonly TNativeContainerFactory _instanceFactory = new();
+        protected static TNativeContainer _globalContainer = _instanceFactory.BuildContainer();
+
+
         /// <inheritdoc/>
-        public TNativeContainer GlobalContainer => _instance;
-
-        private static readonly TNativeContainerFactory _instanceFactory = new();
-        private static TNativeContainer _instance = _instanceFactory.BuildContainer();
-
+        public TNativeContainer BuildContainer(TNativeContainerDefinition definition = default) => 
+            _instanceFactory.BuildContainer(definition);
 
         /// <inheritdoc/>
         /// <exception cref="NotSupportedException">Thrown if a  
@@ -36,8 +38,7 @@ namespace Chopsticks.Dependencies.Containers
         public TNativeContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
             ContainerRetrievalSetting setting, TUnityContainer unityContainer,
             TOverrideContainer overrideContainer)
-            where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>, 
-                IUnityContained<TNativeContainer>
+            where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>
             where TOverrideContainer : IUnityContainer<TNativeContainer> =>
             setting switch
             {
@@ -45,7 +46,8 @@ namespace Chopsticks.Dependencies.Containers
                     GetContainer(setting, false, unityContainer.transform, overrideContainer),
                 ContainerRetrievalSetting.HierarchyWithoutGlobal =>
                     GetContainer(setting, false, unityContainer.transform, overrideContainer),
-                ContainerRetrievalSetting.Global => GlobalContainer,
+                ContainerRetrievalSetting.Global => 
+                    _globalContainer,
                 ContainerRetrievalSetting.Override =>
                     ValidateOverrideParent(unityContainer, overrideContainer) == null ? default : 
                         overrideContainer.NativeContainer,
@@ -68,20 +70,13 @@ namespace Chopsticks.Dependencies.Containers
                 ContainerRetrievalSetting.HierarchyWithoutGlobal =>
                     FindContainerInHierarchy(includeSelf ? 
                         unityContainer : unityContainer.parent, false),
-                ContainerRetrievalSetting.Global => 
-                    GlobalContainer,
+                ContainerRetrievalSetting.Global =>
+                    _globalContainer,
                 ContainerRetrievalSetting.Override => 
                     overrideContainer == null ? default : overrideContainer.NativeContainer,
                 _ => throw new NotSupportedException($"The container retrieval setting of " +
                                         $"{setting} is not supported."),
             };
-
-        /// <inheritdoc/>
-        public void ResetGlobal(TNativeContainerDefinition definition = default)
-        {
-            _instance?.Dispose();
-            _instance = _instanceFactory.BuildContainer(definition);
-        }
 
 
         private TNativeContainer FindContainerInHierarchy(
@@ -93,7 +88,7 @@ namespace Chopsticks.Dependencies.Containers
             if (container == null)
             {
                 if (defaultToGlobal)
-                    return GlobalContainer;
+                    return _globalContainer;
                 return default;
             }
 

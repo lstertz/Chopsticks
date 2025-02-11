@@ -1,12 +1,12 @@
-﻿using Chopsticks.Dependencies.Contained;
+﻿using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Resolutions;
 using System;
 using UnityEngine;
 
-namespace Chopsticks.Dependencies.Containers
+namespace Chopsticks.Dependencies.Services
 {
     /// <summary>
-    /// Provides Unity-specific services for working with containers.
+    /// Provides services for working with Unity containers.
     /// </summary>
     /// <typeparam name="TNativeContainer">The type of the native container for which 
     /// Unity-specific services are being provided.</typeparam>
@@ -33,8 +33,7 @@ namespace Chopsticks.Dependencies.Containers
         TNativeContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
             ContainerRetrievalSetting setting, TUnityContainer unityContainer,
             TOverrideContainer overrideContainer)
-            where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>,
-                IUnityContained<TNativeContainer>
+            where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>
             where TOverrideContainer : IUnityContainer<TNativeContainer>;
 
         /// <summary>
@@ -63,28 +62,23 @@ namespace Chopsticks.Dependencies.Containers
 
 
     /// <summary>
-    /// Provides Unity-specific services for working with containers, including 
-    /// access to a global instance and strategies to work with other containers.
+    /// Provides services for working with Unity containers, 
+    /// including strategies to work with other containers.
     /// </summary>
     /// <typeparam name="TNativeContainer">The type of the native container for which 
     /// Unity-specific services are being provided.</typeparam>
     /// <typeparam name="TNativeContainerDefinition">The type of container 
-    /// definition used to create the global container.</typeparam>
+    /// definition used to create native containers, including the global container.</typeparam>
     public interface IUnityContainerService<TNativeContainer, TNativeContainerDefinition> : 
         IUnityContainerService<TNativeContainer>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
     {
         /// <summary>
-        /// A static, global instance of a container, for use as a default or 
-        /// the highest-level container of a hierarchy of containers.
-        /// </summary>
-        TNativeContainer GlobalContainer { get; }
-
-        /// <summary>
-        /// Resets the <see cref="GlobalContainer"/>.
+        /// Builds a new native container as an abstraction from a Unity container.
         /// </summary>
         /// <param name="definition">The optional definition to specify the 
         /// settings of the container.</param>
-        void ResetGlobal(TNativeContainerDefinition definition = default);
+        /// <returns>The new native container.</returns>
+        TNativeContainer BuildContainer(TNativeContainerDefinition definition = default);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Dependencies.Factories;
 using Chopsticks.Dependencies.Resolutions;
+using Chopsticks.Dependencies.Services;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,10 +21,11 @@ namespace Chopsticks.Dependencies.Containers
     /// <typeparam name="TNativeContainerDefinition">The type of definition to define any custom 
     /// properties of the internal, non-Unity dependency container.</typeparam>
     /// <typeparam name="TUnityContainerService">The type of the Unity container service that 
-    /// provides Unity-specific services.</typeparam>
+    /// provides Unity-specific services for containers.</typeparam>
     public abstract class BaseMonoContainer<TNativeContainer, TNativeContainerFactory,
         TNativeContainerDefinition, TUnityContainerService> :
-        BaseUnityContainer<TNativeContainer>
+        BaseUnityContainer<TNativeContainer>, 
+        IUnityContainerConsumer<TNativeContainer, TUnityContainerService>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
         where TNativeContainerFactory : IDependencyContainerFactory<TNativeContainer,
             TNativeContainerDefinition>, new()
@@ -31,18 +33,14 @@ namespace Chopsticks.Dependencies.Containers
             TNativeContainerDefinition>, new()
     {
         /// <summary>
-        /// The global (highest application scope) container for all of the same type 
-        /// of MonoContainers, as defined by this container's Unity Container Service.
+        /// The Unity container service that provides Unity-specific services for containers.
         /// </summary>
-        public static IDependencyContainer Global => _containerService.GlobalContainer;
-
-        protected static readonly TUnityContainerService _containerService = new();
-        protected static readonly TNativeContainerFactory _containerFactory = new();
-
+        protected TUnityContainerService ContainerService =>
+            (this as IUnityContainerConsumer<TNativeContainer, TUnityContainerService>).Service;
 
         /// <inheritdoc/>
         protected override TNativeContainer InternalContainer =>
-            _internalContainer ??= _containerFactory.BuildContainer(InternalContainerDefinition);
+            _internalContainer ??= ContainerService.BuildContainer(InternalContainerDefinition);
         private TNativeContainer _internalContainer;
 
         /// <summary>
@@ -143,7 +141,7 @@ namespace Chopsticks.Dependencies.Containers
                 return;
             }
 
-            InternalContainer.Parent = _containerService.FindParentContainer(
+            InternalContainer.Parent = ContainerService.FindParentContainer(
                 (ContainerRetrievalSetting)_containerParentSetting, this, _overrideParent);
 
             if (_containerParentSetting == ContainerSetting.Override &&

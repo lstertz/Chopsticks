@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Resolutions;
+using Chopsticks.Dependencies.Services;
 using System;
 using UnityEngine;
 
@@ -31,11 +32,9 @@ namespace Chopsticks.Dependencies.Contained
                 TOverrideContainer overrideContainer)
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
-            where TOverrideContainer : IUnityContainer<TNativeContainer> => 
-                IUnityDependent<TNativeContainer, TUnityContainerService>.UnityContainerService
-                    .GetContainer((ContainerRetrievalSetting)dependent.ContainerSetting,
+            where TOverrideContainer : IUnityContainer<TNativeContainer> =>
+                dependent.Service.GetContainer(
+                    (ContainerRetrievalSetting)dependent.ContainerSetting,
                     true, unityContained, overrideContainer);
-
-        // TODO :: Resolve extension to get dependencies.
     }
 }

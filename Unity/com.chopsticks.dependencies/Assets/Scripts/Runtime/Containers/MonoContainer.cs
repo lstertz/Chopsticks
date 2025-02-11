@@ -1,4 +1,5 @@
 ﻿using Chopsticks.Dependencies.Factories;
+using Chopsticks.Dependencies.Services;
 
 namespace Chopsticks.Dependencies.Containers
 {
@@ -9,7 +10,5 @@ namespace Chopsticks.Dependencies.Containers
     /// through the Unity hierarchy and prefabs.
     /// </summary>
     public class MonoContainer : BaseMonoContainer<DependencyContainer, 
-        DefaultDependencyContainerFactory, DependencyContainerDefinition,
-        UnityContainerService<DependencyContainer, DefaultDependencyContainerFactory,
-            DependencyContainerDefinition>> { }
+        DefaultDependencyContainerFactory, DependencyContainerDefinition, MonoContainerService> { }
 }

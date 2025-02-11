@@ -23,18 +23,11 @@ namespace Chopsticks.Dependencies.Containers
     /// <typeparam name="TNativeContainer">The type of the native container that manages 
     /// the dependencies of this mono container.</typeparam>
     public abstract class BaseUnityContainer<TNativeContainer> : BaseUnityContainer, 
-        IDependencyContainer, IUnityContainer<TNativeContainer>, IUnityContained<TNativeContainer>
+        IDependencyContainer, IUnityContainer<TNativeContainer>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
     {
         /// <inheritdoc/>
-        ContainerSetting IUnityContained<TNativeContainer>.ContainerSetting =>
-            ParentContainerSetting;
-
-        /// <inheritdoc/>
         TNativeContainer IUnityContainer<TNativeContainer>.NativeContainer => InternalContainer;
-
-        /// <inheritdoc/>
-        TNativeContainer IUnityContained<TNativeContainer>.Container => InternalContainer;
 
         /// <summary>
         /// The internal, non-Unity container that manages the actual dependencies of 
