@@ -1,34 +1,26 @@
-﻿using Chopsticks.Dependencies.Contained;
-using Chopsticks.Dependencies.Containers;
+﻿using Chopsticks.Dependencies.Containers;
+using Chopsticks.Dependencies.Services;
 using NSubstitute;
 using UnityEngine;
 
 namespace MonoContainerTests.Mocks
 {
-    public class MockMonoContainerService : IUnityContainerService<MockDependencyContainer,
+    public class MockMonoContainerService : UnityContainerService<MockDependencyContainer,
+        MockDependencyContainerFactory,
         MockDependencyContainer.Definition>
     {
         public IUnityContainerService<MockDependencyContainer, MockDependencyContainer.Definition> Sub { get; } =
             Substitute.For<IUnityContainerService<MockDependencyContainer, MockDependencyContainer.Definition>>();
 
-        public MockDependencyContainer GlobalContainer { get; } = 
-            Substitute.For<MockDependencyContainer>();
 
-        public MockDependencyContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
+        public override MockDependencyContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
             ContainerRetrievalSetting setting, TUnityContainer unityContainer, 
-            TOverrideContainer overrideContainer)
-            where TUnityContainer : MonoBehaviour, IUnityContainer<MockDependencyContainer>,
-                IUnityContained<MockDependencyContainer>
-            where TOverrideContainer : IUnityContainer<MockDependencyContainer> =>
+            TOverrideContainer overrideContainer) =>
             Sub.FindParentContainer(setting, unityContainer, overrideContainer);
 
-        public MockDependencyContainer GetContainer<TOverrideContainer>(
+        public override MockDependencyContainer GetContainer<TOverrideContainer>(
             ContainerRetrievalSetting setting, bool includeSelf, Transform unityContainer,
-            TOverrideContainer overrideContainer)
-            where TOverrideContainer : IUnityContainer<MockDependencyContainer> => 
+            TOverrideContainer overrideContainer) => 
             Sub.GetContainer(setting, includeSelf, unityContainer, overrideContainer);
-
-        public void ResetGlobal(MockDependencyContainer.Definition definition = default) => 
-            Sub.ResetGlobal(definition);
     }
 }

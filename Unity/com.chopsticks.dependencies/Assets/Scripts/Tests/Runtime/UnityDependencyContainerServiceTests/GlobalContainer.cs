@@ -1,6 +1,9 @@
-﻿using Chopsticks.Dependencies.Containers;
-using Chopsticks.Dependencies.Factories;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+
+using ContainerService = Chopsticks.Dependencies.Services.UnityContainerService<
+    MonoContainerTests.Mocks.MockDependencyContainer,
+    MonoContainerTests.Mocks.MockDependencyContainerFactory,
+    MonoContainerTests.Mocks.MockDependencyContainer.Definition>;
 
 namespace UnityDependencyContainerServiceTests
 {
@@ -10,13 +13,11 @@ namespace UnityDependencyContainerServiceTests
         public void GlobalContainer_AfterReset_NewCallInstance()
         {
             // Set up
-            var service = new UnityContainerService<DependencyContainer,
-                DefaultDependencyContainerFactory, DependencyContainerDefinition>();
-            var firstCallContainer = service.GlobalContainer;
-            service.ResetGlobal();
+            var firstCallContainer = ContainerService.GlobalContainer;
+            ContainerService.ResetGlobal();
 
             // Act
-            var afterResetContainer = service.GlobalContainer;
+            var afterResetContainer = ContainerService.GlobalContainer;
 
             // Assert
             Assert.That(afterResetContainer, Is.Not.Null);
@@ -26,12 +27,8 @@ namespace UnityDependencyContainerServiceTests
         [Test]
         public void GlobalContainer_FirstCall_IsNotNull()
         {
-            // Set up
-            var service = new UnityContainerService<DependencyContainer,
-                DefaultDependencyContainerFactory, DependencyContainerDefinition>();
-
-            // Act
-            var container = service.GlobalContainer;
+            // Set up & Act
+            var container = ContainerService.GlobalContainer;
 
             // Assert
             Assert.That(container, Is.Not.Null);
@@ -41,12 +38,10 @@ namespace UnityDependencyContainerServiceTests
         public void GlobalContainer_SecondCall_MatchesFirstCallInstance()
         {
             // Set up
-            var service = new UnityContainerService<DependencyContainer,
-                DefaultDependencyContainerFactory, DependencyContainerDefinition>();
-            var firstCallContainer = service.GlobalContainer;
+            var firstCallContainer = ContainerService.GlobalContainer;
 
             // Act
-            var secondCallContainer = service.GlobalContainer;
+            var secondCallContainer = ContainerService.GlobalContainer;
 
             // Assert
             Assert.That(secondCallContainer, Is.EqualTo(firstCallContainer));

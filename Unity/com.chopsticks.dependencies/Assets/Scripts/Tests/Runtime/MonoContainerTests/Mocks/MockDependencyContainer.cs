@@ -6,7 +6,8 @@ using System.Collections.Generic;
 namespace MonoContainerTests.Mocks
 {
     public abstract class MockDependencyContainer :
-        IDependencyContainer, IDependencyResolutionProvider, IDisposable
+        IDependencyContainer, IDependencyResolutionProvider, IDisposable,
+        IUnityContainerConsumer<MockDependencyContainer, MockMonoContainerService>
     {
         public class Definition { }
 

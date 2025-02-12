@@ -1,7 +1,11 @@
-﻿using Chopsticks.Dependencies.Containers;
-using MonoContainerTests.Mocks;
+﻿using MonoContainerTests.Mocks;
 using NSubstitute;
 using NUnit.Framework;
+
+using ContainerService = Chopsticks.Dependencies.Services.UnityContainerService<
+    MonoContainerTests.Mocks.MockDependencyContainer,
+    MonoContainerTests.Mocks.MockDependencyContainerFactory, 
+    MonoContainerTests.Mocks.MockDependencyContainer.Definition>;
 
 namespace UnityDependencyContainerServiceTests
 {
@@ -18,12 +22,10 @@ namespace UnityDependencyContainerServiceTests
         public void ResetGlobal_StandardReset_DisposesOfInstance()
         {
             // Set up
-            var service = new UnityContainerService<MockDependencyContainer, 
-                MockDependencyContainerFactory, MockDependencyContainer.Definition>();
-            var container = service.GlobalContainer;
+            var container = ContainerService.GlobalContainer;
 
             // Act
-            service.ResetGlobal();
+            ContainerService.ResetGlobal();
 
             // Assert
             container.Received(1).Dispose();
@@ -33,14 +35,11 @@ namespace UnityDependencyContainerServiceTests
         public void ResetGlobal_WithDefinition_CreatesNewWithDefinition()
         {
             // Set up
-            var service = new UnityContainerService<MockDependencyContainer,
-                MockDependencyContainerFactory, MockDependencyContainer.Definition>();
-            var container = service.GlobalContainer;
-
+            var container = ContainerService.GlobalContainer;
             var definition = new MockDependencyContainer.Definition();
 
             // Act
-            service.ResetGlobal(definition);
+            ContainerService.ResetGlobal(definition);
 
             // Assert
             Assert.That(MockDependencyContainerFactory.Received
@@ -53,12 +52,10 @@ namespace UnityDependencyContainerServiceTests
         public void ResetGlobal_WithoutDefinition_CreatesNewDefault()
         {
             // Set up
-            var service = new UnityContainerService<MockDependencyContainer,
-                MockDependencyContainerFactory, MockDependencyContainer.Definition>();
-            var container = service.GlobalContainer;
+            var container = ContainerService.GlobalContainer;
 
             // Act
-            service.ResetGlobal();
+            ContainerService.ResetGlobal();
 
             // Assert
             Assert.That(MockDependencyContainerFactory.Received

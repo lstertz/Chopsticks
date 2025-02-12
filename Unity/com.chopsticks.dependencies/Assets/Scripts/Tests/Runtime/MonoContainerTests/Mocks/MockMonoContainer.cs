@@ -6,8 +6,9 @@ namespace MonoContainerTests.Mocks
         BaseMonoContainer<MockDependencyContainer, MockDependencyContainerFactory, 
             MockDependencyContainer.Definition, MockMonoContainerService>
     {
+        public new MockMonoContainerService ContainerService => base.ContainerService;
+
         public new MockDependencyContainer InternalContainer => base.InternalContainer;
-        public MockMonoContainerService ContainerService => _containerService;
 
         public bool HasRegisteredNativeDependencies { get; set; }
 

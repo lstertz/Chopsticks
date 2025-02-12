@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Dependencies.Contained;
 using Chopsticks.Dependencies.Containers;
+using IUnityDependentExtensionsTests.Mocks;
 using MonoContainerTests.Mocks;
 using NSubstitute;
 using NUnit.Framework;
@@ -7,17 +8,17 @@ using UnityEngine;
 
 namespace IUnityDependentExtensionsTests
 {
+
     public class FindContainer
     {
         [Test]
         public void FindContainer_StandardCall_ReturnsFromServiceGetContainer()
         {
             // Set up
-            var mockService = IUnityDependent<MockDependencyContainer,
-                MockMonoContainerService>.UnityContainerService;
             var expectedContainer = Substitute.For<MockDependencyContainer>();
-            var unityDependent = Substitute.For<IUnityDependent<MockDependencyContainer, 
-                MockMonoContainerService>>();
+            var mockService = (expectedContainer as IUnityContainerConsumer<MockDependencyContainer, 
+                MockMonoContainerService>).Service.Sub;
+            var unityDependent = Substitute.For<MockUnityDependent>();
 
             var transform = new GameObject().transform;
             var overrideContainer = Substitute.For<IUnityContainer<MockDependencyContainer>>();
@@ -25,7 +26,7 @@ namespace IUnityDependentExtensionsTests
             var setting = ContainerSetting.Override;
             unityDependent.ContainerSetting.Returns(setting);
             
-            mockService.Sub.GetContainer((ContainerRetrievalSetting)setting, true, transform, 
+            mockService.GetContainer((ContainerRetrievalSetting)setting, true, transform, 
                 overrideContainer).Returns(expectedContainer);
 
             // Act
@@ -33,7 +34,7 @@ namespace IUnityDependentExtensionsTests
 
             // Assert
             Assert.That(container, Is.EqualTo(expectedContainer));
-            mockService.Sub.Received(1).GetContainer((ContainerRetrievalSetting)setting, true, 
+            mockService.Received(1).GetContainer((ContainerRetrievalSetting)setting, true, 
                 transform, overrideContainer);
         }
     }

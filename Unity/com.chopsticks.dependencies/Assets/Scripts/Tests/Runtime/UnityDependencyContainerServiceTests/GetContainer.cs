@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-using UnityContainerService = Chopsticks.Dependencies.Containers.UnityContainerService<
+using ContainerService = Chopsticks.Dependencies.Services.UnityContainerService<
     Chopsticks.Dependencies.Containers.DependencyContainer,
     Chopsticks.Dependencies.Factories.DefaultDependencyContainerFactory,
     Chopsticks.Dependencies.Containers.DependencyContainerDefinition>;
@@ -13,10 +13,10 @@ namespace UnityDependencyContainerServiceTests
     {
         public class SetUp
         {
-            public static UnityContainerService ParentedContainers(
+            public static ContainerService ParentedContainers(
                 out MonoContainer childContainer, out MonoContainer parentContainer)
             {
-                var service = new UnityContainerService();
+                var service = new ContainerService();
 
                 var parentGameObject = new GameObject("Parent Object");
                 var gameObject = new GameObject("Test Object");
@@ -31,10 +31,10 @@ namespace UnityDependencyContainerServiceTests
                 return service;
             }
 
-            public static UnityContainerService StandardContainer(
+            public static ContainerService StandardContainer(
                 out MonoContainer container)
             {
-                var service = new UnityContainerService();
+                var service = new ContainerService();
 
                 var gameObject = new GameObject("Test Object");
                 gameObject.SetActive(false);
@@ -50,7 +50,7 @@ namespace UnityDependencyContainerServiceTests
         public void GetContainer_GlobalRetrievalSetting_Global()
         {
             // Set up
-            var service = new UnityContainerService();
+            var service = new ContainerService();
 
             // Act
             var serviceContainer = service.GetContainer(
@@ -58,7 +58,7 @@ namespace UnityDependencyContainerServiceTests
                 false, (Transform)null, (MonoContainer)null);
 
             // Assert
-            Assert.That(serviceContainer, Is.EqualTo(service.GlobalContainer));
+            Assert.That(serviceContainer, Is.EqualTo(ContainerService.GlobalContainer));
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace UnityDependencyContainerServiceTests
                 false, container.transform, (MonoContainer)null);
 
             // Assert
-            Assert.That(serviceContainer, Is.EqualTo(MonoContainer.Global));
+            Assert.That(serviceContainer, Is.EqualTo(ContainerService.GlobalContainer));
         }
 
         [Test]
