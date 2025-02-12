@@ -24,18 +24,37 @@ namespace Chopsticks.Dependencies.Services
         where TNativeContainerFactory : IDependencyContainerFactory<TNativeContainer, 
             TNativeContainerDefinition>, new()
     {
+        /// <summary>
+        /// A static, global instance of a container, for use as a default or 
+        /// the highest-level container of a hierarchy of containers.
+        /// </summary>
+        public static TNativeContainer GlobalContainer => _globalContainer;
+
         protected static readonly TNativeContainerFactory _instanceFactory = new();
         protected static TNativeContainer _globalContainer = _instanceFactory.BuildContainer();
 
 
+        /// <summary>
+        /// Resets the <see cref="GlobalContainer"/>.
+        /// </summary>
+        /// <param name="definition">The optional definition to specify the 
+        /// settings of the container.</param>
+        public static void ResetGlobal(TNativeContainerDefinition definition = default)
+        {
+            _globalContainer?.Dispose();
+            _globalContainer = _instanceFactory.BuildContainer(definition);
+        }
+
+
         /// <inheritdoc/>
-        public TNativeContainer BuildContainer(TNativeContainerDefinition definition = default) => 
-            _instanceFactory.BuildContainer(definition);
+        public virtual TNativeContainer BuildContainer(
+            TNativeContainerDefinition definition = default) => 
+                _instanceFactory.BuildContainer(definition);
 
         /// <inheritdoc/>
         /// <exception cref="NotSupportedException">Thrown if a  
         /// <see cref="ContainerRetrievalSetting"/>is not supported.</exception>
-        public TNativeContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
+        public virtual TNativeContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
             ContainerRetrievalSetting setting, TUnityContainer unityContainer,
             TOverrideContainer overrideContainer)
             where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>
@@ -58,7 +77,7 @@ namespace Chopsticks.Dependencies.Services
         /// <inheritdoc/>
         /// <exception cref="NotSupportedException">Thrown if a  
         /// <see cref="ContainerRetrievalSetting"/>is not supported.</exception>
-        public TNativeContainer GetContainer<TOverrideContainer>(
+        public virtual TNativeContainer GetContainer<TOverrideContainer>(
             ContainerRetrievalSetting setting, bool includeSelf, 
             Transform unityContainer, TOverrideContainer overrideContainer)
             where TOverrideContainer : IUnityContainer<TNativeContainer> =>
