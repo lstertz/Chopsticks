@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Factories;
+using Chopsticks.Dependencies.Services;
 
 namespace Chopsticks.Dependencies.Contained
 {

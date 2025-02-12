@@ -1,6 +1,7 @@
 ﻿using Chopsticks.Dependencies.Contained;
 using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Resolutions;
+using Chopsticks.Dependencies.Services;
 using System;
 
 namespace Chopsticks.Dependencies
@@ -32,7 +33,7 @@ namespace Chopsticks.Dependencies
                 return;
 
             Deregister();
-            Container = updatedContainer;
+            (this as IUnityContained<TNativeContainer>).Container = updatedContainer;
             OnRegistration();
 
             OnContainerChanged();
