@@ -5,7 +5,7 @@ using ContainerService = Chopsticks.Dependencies.Services.UnityContainerService<
     MonoContainerTests.Mocks.MockDependencyContainerFactory,
     MonoContainerTests.Mocks.MockDependencyContainer.Definition>;
 
-namespace UnityDependencyContainerServiceTests
+namespace UnityContainerServiceTests
 {
     public class GlobalContainer
     {

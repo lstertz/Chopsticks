@@ -7,7 +7,7 @@ using ContainerService = Chopsticks.Dependencies.Services.UnityContainerService<
     Chopsticks.Dependencies.Factories.DefaultDependencyContainerFactory,
     Chopsticks.Dependencies.Containers.DependencyContainerDefinition>;
 
-namespace UnityDependencyContainerServiceTests
+namespace UnityContainerServiceTests
 {
     public class FindParentContainer
     {
