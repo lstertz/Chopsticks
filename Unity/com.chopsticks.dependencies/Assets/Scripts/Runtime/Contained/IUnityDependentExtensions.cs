@@ -106,7 +106,7 @@ namespace Chopsticks.Dependencies.Contained
                 if (updatedContainer == null)
                     return;
             }
-            else  if (dependent.Container.Equals(updatedContainer))
+            else if (dependent.Container.Equals(updatedContainer))
                 return;
 
             onPreContainerChanged?.Invoke();
