@@ -19,6 +19,7 @@ namespace IUnityDependentExtensionsTests
             var mockService = (expectedContainer as IUnityContainerConsumer<MockDependencyContainer, 
                 MockMonoContainerService>).Service.Sub;
             var unityDependent = Substitute.For<MockUnityDependent>();
+            unityDependent.Container = null;
 
             var transform = new GameObject().transform;
             var overrideContainer = Substitute.For<IUnityContainer<MockDependencyContainer>>();
@@ -38,4 +39,9 @@ namespace IUnityDependentExtensionsTests
                 transform, overrideContainer);
         }
     }
+
+
+    // TODO :: SetContainer for dependency extensions.
+
+    // TODO :: UpdateContainer for dependency extensions.
 }

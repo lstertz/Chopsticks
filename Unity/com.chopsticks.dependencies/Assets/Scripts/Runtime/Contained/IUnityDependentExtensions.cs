@@ -36,5 +36,79 @@ namespace Chopsticks.Dependencies.Contained
                 dependent.Service.GetContainer(
                     (ContainerRetrievalSetting)dependent.ContainerSetting,
                     true, unityContained, overrideContainer);
+
+        /// <summary>
+        /// Sets the container of the dependent based on its current transform hierarchy.
+        /// </summary>
+        /// <remarks>
+        /// Usually called as part of 
+        /// <see cref="IUnityDependent{TNativeContainer, TUnityContainerService}.OnEnable"/>.
+        /// </remarks>
+        /// <typeparam name="TNativeContainer">The type of the internal, non-Unity 
+        /// dependency container.</typeparam>
+        /// <typeparam name="TUnityContainerService">The type of the Unity container service that 
+        /// provides Unity-specific services.</typeparam>
+        /// <param name="dependent">This dependent that is having its container set.</param>
+        /// <param name="unityContained">The MonoBehaviour of this dependent.</param>
+        /// <param name="overrideContainer">The container that may be used as an override 
+        /// when setting the container.</param>
+        public static void SetContainer<TNativeContainer, TUnityContainerService>(
+            this IUnityDependent<TNativeContainer, TUnityContainerService> dependent,
+            MonoBehaviour unityContained,
+            IUnityContainer<TNativeContainer> overrideContainer)
+            where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
+            where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
+        {
+            TNativeContainer updatedContainer = default;
+            if (dependent.ContainerSetting != ContainerSetting.None)
+                updatedContainer = dependent.Service.GetContainer(
+                    (ContainerRetrievalSetting)dependent.ContainerSetting,
+                    true, unityContained.transform, overrideContainer);
+
+            dependent.Container = updatedContainer;
+        }
+
+        /// <summary>
+        /// Updates the container of the dependent based on its current transform hierarchy, 
+        /// and invokes the provided change handler upon a container change.
+        /// </summary>
+        /// <remarks>
+        /// Usually called as part of 
+        /// <see cref="IUnityDependent{TNativeContainer, TUnityContainerService}.OnTransformParentChanged"/>.
+        /// </remarks>
+        /// <param name="dependent">This dependent that is having its container set.</param>
+        /// <param name="unityContained">The MonoBehaviour of this dependent.</param>
+        /// <param name="overrideContainer">The container that may be used as an override 
+        /// when setting the container.</param>
+        /// <param name="onContainerChanged">The method called when the container 
+        /// has been updated.</param>
+        public static void UpdateContainer<TNativeContainer, TUnityContainerService>(
+            this IUnityDependent<TNativeContainer, TUnityContainerService> dependent,
+            MonoBehaviour unityContained,
+            IUnityContainer<TNativeContainer> overrideContainer, 
+            Action onContainerChanged)
+            where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
+            where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
+        {
+            if (!unityContained.enabled)
+                return;
+
+            TNativeContainer updatedContainer = default;
+            if (dependent.ContainerSetting != ContainerSetting.None)
+                updatedContainer = dependent.Service.GetContainer(
+                    (ContainerRetrievalSetting)dependent.ContainerSetting,
+                    true, unityContained.transform, overrideContainer);
+
+            if (dependent.Container == null)
+            {
+                if (updatedContainer == null)
+                    return;
+            }
+            else  if (dependent.Container.Equals(updatedContainer))
+                return;
+
+            dependent.Container = updatedContainer;
+            onContainerChanged?.Invoke();
+        }
     }
 }
