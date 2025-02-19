@@ -35,11 +35,12 @@ namespace Chopsticks.Dependencies
 
         ///<inheritdoc/>
         public virtual void OnTransformParentChanged() => 
-            this.UpdateContainer(this, _overrideContainer, OnContainerChanged);
+            this.UpdateContainer(this, _overrideContainer, 
+                OnPreContainerChanged, OnPostContainerChanged);
 
 
         /// <summary>
-        /// Invoked when the container is changed as the result of a change in the 
+        /// Invoked after to the container has been changed as the result of a change in the 
         /// MonoBehaviour's parent hierarchy.
         /// </summary>
         /// <remarks>
@@ -47,7 +48,18 @@ namespace Chopsticks.Dependencies
         /// container changes that occur while disabled by extending the existing 
         /// functionality of <see cref="OnEnable"/>.
         /// </remarks>
-        protected virtual void OnContainerChanged() { }
+        protected virtual void OnPostContainerChanged() { }
+
+        /// <summary>
+        /// Invoked prior to the container being changed as the result of a change in the 
+        /// MonoBehaviour's parent hierarchy.
+        /// </summary>
+        /// <remarks>
+        /// This is not called if the MonoBehaviour is disabled. Handle any possible 
+        /// container changes that occur while disabled by extending the existing 
+        /// functionality of <see cref="OnEnable"/>.
+        /// </remarks>
+        protected virtual void OnPreContainerChanged() { }
 
 
         /// <inheritdoc cref="IUnityContainedExtensions

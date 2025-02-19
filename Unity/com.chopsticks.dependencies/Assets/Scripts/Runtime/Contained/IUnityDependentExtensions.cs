@@ -80,13 +80,15 @@ namespace Chopsticks.Dependencies.Contained
         /// <param name="unityContained">The MonoBehaviour of this dependent.</param>
         /// <param name="overrideContainer">The container that may be used as an override 
         /// when setting the container.</param>
-        /// <param name="onContainerChanged">The method called when the container 
+        /// <param name="onPreContainerChanged">The method called prior to when the container 
+        /// is being updated.</param>
+        /// <param name="onPreContainerChanged">The method called after the container 
         /// has been updated.</param>
         public static void UpdateContainer<TNativeContainer, TUnityContainerService>(
             this IUnityDependent<TNativeContainer, TUnityContainerService> dependent,
             MonoBehaviour unityContained,
             IUnityContainer<TNativeContainer> overrideContainer, 
-            Action onContainerChanged)
+            Action onPreContainerChanged, Action onPostContainerChanged)
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
         {
@@ -107,8 +109,9 @@ namespace Chopsticks.Dependencies.Contained
             else  if (dependent.Container.Equals(updatedContainer))
                 return;
 
+            onPreContainerChanged?.Invoke();
             dependent.Container = updatedContainer;
-            onContainerChanged?.Invoke();
+            onPostContainerChanged?.Invoke();
         }
     }
 }

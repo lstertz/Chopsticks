@@ -9,6 +9,7 @@ using TestHelpers;
 using MonoContainerService = Chopsticks.Dependencies.Services.IUnityContainerService<
     MonoContainerTests.Mocks.MockDependencyContainer,
     MonoContainerTests.Mocks.MockDependencyContainer.Definition>;
+using IUnityDependentExtensionsTests.Mocks;
 
 namespace IUnityDependentExtensionsTests
 {
@@ -37,6 +38,7 @@ namespace IUnityDependentExtensionsTests
                 return unityDependent;
             }
         }
+
 
         [Test]
         public void SetContainer_NoneContainerSetting_ContainerSetToNull()

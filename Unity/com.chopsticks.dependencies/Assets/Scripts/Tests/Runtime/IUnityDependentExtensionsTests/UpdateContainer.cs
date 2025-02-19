@@ -9,6 +9,7 @@ using TestHelpers;
 using MonoContainerService = Chopsticks.Dependencies.Services.IUnityContainerService<
     MonoContainerTests.Mocks.MockDependencyContainer, 
     MonoContainerTests.Mocks.MockDependencyContainer.Definition>;
+using IUnityDependentExtensionsTests.Mocks;
 
 namespace IUnityDependentExtensionsTests
 {
@@ -50,7 +51,7 @@ namespace IUnityDependentExtensionsTests
                 out var monoBehaviour, out _, out var serviceSub);
 
             // Act
-            unityDependent.UpdateContainer(monoBehaviour, null, null);
+            unityDependent.UpdateContainer(monoBehaviour, null, null, null);
 
             // Assert
             Assert.That(unityDependent.Container, Is.Null);
@@ -72,15 +73,20 @@ namespace IUnityDependentExtensionsTests
                 !containerChanged ? null : Substitute.For<MockDependencyContainer>(), true,
                 out var monoBehaviour, out var overrideContainer, out var serviceSub);
 
-            bool calledContainerChanged = false;
-            void onContainerChanged() => calledContainerChanged = true;
+            bool calledPreContainerChanged = false;
+            void onPreContainerChanged() => calledPreContainerChanged = true;
+
+            bool calledPostContainerChanged = false;
+            void onPostContainerChanged() => calledPostContainerChanged = true;
 
             // Act
-            unityDependent.UpdateContainer(monoBehaviour, overrideContainer, onContainerChanged);
+            unityDependent.UpdateContainer(monoBehaviour, overrideContainer, 
+                onPreContainerChanged, onPostContainerChanged);
 
             // Assert
             Assert.That(unityDependent.Container, Is.Null);
-            Assert.That(calledContainerChanged, Is.EqualTo(containerChanged));
+            Assert.That(calledPreContainerChanged, Is.EqualTo(containerChanged));
+            Assert.That(calledPostContainerChanged, Is.EqualTo(containerChanged));
             serviceSub.DidNotReceiveWithAnyArgs().GetContainer(
                 Arg.Any<ContainerRetrievalSetting>(),
                 Arg.Any<bool>(),
@@ -112,15 +118,20 @@ namespace IUnityDependentExtensionsTests
                 monoBehaviour.transform,
                 overrideContainer).Returns(expectedContainer);
 
-            bool calledContainerChanged = false;
-            void onContainerChanged() => calledContainerChanged = true;
+            bool calledPreContainerChanged = false;
+            void onPreContainerChanged() => calledPreContainerChanged = true;
+
+            bool calledPostContainerChanged = false;
+            void onPostContainerChanged() => calledPostContainerChanged = true;
 
             // Act
-            unityDependent.UpdateContainer(monoBehaviour, overrideContainer, onContainerChanged);
+            unityDependent.UpdateContainer(monoBehaviour, overrideContainer, 
+                onPreContainerChanged, onPostContainerChanged);
 
             // Assert
             Assert.That(unityDependent.Container, Is.EqualTo(expectedContainer));
-            Assert.That(calledContainerChanged, Is.EqualTo(containerChanged));
+            Assert.That(calledPreContainerChanged, Is.EqualTo(containerChanged));
+            Assert.That(calledPostContainerChanged, Is.EqualTo(containerChanged));
             serviceSub.Received().GetContainer(
                 (ContainerRetrievalSetting)containerSetting,
                 true,

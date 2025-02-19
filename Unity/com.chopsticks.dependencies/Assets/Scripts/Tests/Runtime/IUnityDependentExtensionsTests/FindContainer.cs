@@ -39,9 +39,4 @@ namespace IUnityDependentExtensionsTests
                 transform, overrideContainer);
         }
     }
-
-
-    // TODO :: SetContainer for dependency extensions.
-
-    // TODO :: UpdateContainer for dependency extensions.
 }
