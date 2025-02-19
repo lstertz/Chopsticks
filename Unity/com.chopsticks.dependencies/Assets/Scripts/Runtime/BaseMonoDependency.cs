@@ -14,30 +14,17 @@ namespace Chopsticks.Dependencies
         where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {
         ///<inheritdoc/>
-        public override void OnEnable()
-        {
-            base.OnEnable();
-            OnRegistration();
-        }
+        public override void OnEnable() =>
+            this.SetContainer(this, OverrideContainer, OnRegistration);
 
         ///<inheritdoc/>
-        public virtual void OnDisable() => Deregister();
+        public virtual void OnDisable() => 
+            this.Deregister();
 
         ///<inheritdoc/>
-        public override void OnTransformParentChanged()
-        {
-            if (!enabled)
-                return;
-
-            if (!GetUpdatedContainer(out var updatedContainer))
-                return;
-
-            Deregister();
-            (this as IUnityContained<TNativeContainer>).Container = updatedContainer;
-            OnRegistration();
-
-            OnContainerChanged();
-        }
+        public override void OnTransformParentChanged() => 
+            this.UpdateContainer(this, OverrideContainer, 
+                OnPreContainerChanged, OnPostContainerChanged, OnRegistration);
 
 
         /// <summary>
@@ -46,16 +33,11 @@ namespace Chopsticks.Dependencies
         /// </summary>
         protected abstract void OnRegistration();
 
-        protected void RegisterAs<T>()
-        {
-            // TODO :: Uses interface extension method to register.
-            // TODO :: Tracks registrations.
-        }
-
-
-        private void Deregister()
-        {
-            // TODO :: Deregisters all tracked registrations.
-        }
+        /// <summary>
+        /// Registers this dependency as the specified contract.
+        /// </summary>
+        /// <typeparam name="TContract">The contract to be registered as.</typeparam>
+        protected void RegisterAs<TContract>() =>
+            this.RegisterAs<TNativeContainer, TUnityContainerService, TContract>();
     }
 }
