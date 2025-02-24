@@ -7,7 +7,7 @@ using UnityEngine;
 using TestHelpers;
 
 using MonoContainerService = Chopsticks.Dependencies.Services.IUnityContainerService<
-    MonoContainerTests.Mocks.MockDependencyContainer, 
+    MonoContainerTests.Mocks.MockDependencyContainer,
     MonoContainerTests.Mocks.MockDependencyContainer.Definition>;
 using IUnityDependencyExtensionsTests.Mocks;
 
@@ -180,16 +180,36 @@ namespace IUnityDependencyExtensionsTests
             var initContainerIsNull = containerSetting != ContainerSetting.None ?
                 containerChanged : !containerChanged;
 
-            var unityDependency = SetUp.ChangeableContainer(containerSetting,
-                initContainerIsNull, out var monoBehaviour,
-                out var overrideContainer, out var serviceSub);
+            var originalContainer = Substitute.For<MockDependencyContainer>();
+            var unityDependency = SetUp.StandardDependency(containerSetting, originalContainer, true, 
+                out var monoBehaviour, out var overrideContainer, out var serviceSub);
+
+            var newContainer = Substitute.For<MockDependencyContainer>();
+            serviceSub.GetContainer(
+                (ContainerRetrievalSetting)containerSetting,
+                true,
+                monoBehaviour.transform,
+                overrideContainer).Returns(newContainer);
+
+            DependencyRegistration registrationA = new()
+            {
+                Contract = typeof(object)
+            };
+            DependencyRegistration registrationB = new()
+            {
+                Contract = typeof(object)
+            };
+            unityDependency.Registrations.Add(registrationA);
+            unityDependency.Registrations.Add(registrationB);
 
             // Act
             unityDependency.UpdateContainer(monoBehaviour, overrideContainer, 
                 null, null, null);
 
             // Assert
-            Assert.Ignore();
+            Assert.That(unityDependency.Registrations, Is.Empty);
+            originalContainer.Received().Deregister(registrationA);
+            originalContainer.Received().Deregister(registrationB);
         }
 
         [Test]
