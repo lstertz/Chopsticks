@@ -14,7 +14,7 @@ namespace Examples
         private void Awake()
         {
             // Optionally resolve for this specific container.
-            _b.Resolve(Container);
+            //_b.Resolve(Container);
 
             Debug.Log(B.A.ConfiguredField);
         }

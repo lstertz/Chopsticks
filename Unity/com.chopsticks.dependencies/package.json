@@ -1,6 +1,6 @@
 {
   "name": "com.chopsticks.dependencies",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "displayName": "Chopsticks Dependencies",
   "description": "Provides dependency injection functionality for Unity.",
   "unity": "2023.2"

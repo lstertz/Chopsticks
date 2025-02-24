@@ -1,0 +1,42 @@
+﻿using Chopsticks.Dependencies.Contained;
+using Chopsticks.Dependencies.Containers;
+using IUnityDependentExtensionsTests.Mocks;
+using MonoContainerTests.Mocks;
+using NSubstitute;
+using NUnit.Framework;
+using UnityEngine;
+
+namespace IUnityDependentExtensionsTests
+{
+
+    public class FindContainer
+    {
+        [Test]
+        public void FindContainer_StandardCall_ReturnsFromServiceGetContainer()
+        {
+            // Set up
+            var expectedContainer = Substitute.For<MockDependencyContainer>();
+            var mockService = (expectedContainer as IUnityContainerConsumer<MockDependencyContainer, 
+                MockMonoContainerService>).Service.Sub;
+            var unityDependent = Substitute.For<MockUnityDependent>();
+            unityDependent.Container = null;
+
+            var transform = new GameObject().transform;
+            var overrideContainer = Substitute.For<IUnityContainer<MockDependencyContainer>>();
+            
+            var setting = ContainerSetting.Override;
+            unityDependent.ContainerSetting.Returns(setting);
+            
+            mockService.GetContainer((ContainerRetrievalSetting)setting, true, transform, 
+                overrideContainer).Returns(expectedContainer);
+
+            // Act
+            var container = unityDependent.FindContainer(transform, overrideContainer);
+
+            // Assert
+            Assert.That(container, Is.EqualTo(expectedContainer));
+            mockService.Received(1).GetContainer((ContainerRetrievalSetting)setting, true, 
+                transform, overrideContainer);
+        }
+    }
+}

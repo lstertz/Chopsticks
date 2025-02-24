@@ -1,4 +1,5 @@
 ﻿using Chopsticks.Dependencies.Containers;
+using Chopsticks.Dependencies.Services;
 using UnityEngine;
 
 namespace Chopsticks.Dependencies.Initialization
@@ -7,7 +8,7 @@ namespace Chopsticks.Dependencies.Initialization
     {
         private void Awake()
         {
-            var container = new DependencyContainer();
+            var container = MonoContainerService.GlobalContainer;
             RegisterDependencies(container);
 
             // TODO :: Finalize registration and instantiate singletons.

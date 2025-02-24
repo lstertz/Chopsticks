@@ -1,11 +1,12 @@
 ﻿using Chopsticks.Dependencies.Containers;
+using Chopsticks.Dependencies.Services;
 using MonoContainerTests.Mocks;
 using NSubstitute;
 using NUnit.Framework;
 using TestHelpers;
 using UnityEngine;
 using UnityEngine.TestTools;
-using ParentSetting = Chopsticks.Dependencies.Containers.ContainerParentSetting;
+using ParentSetting = Chopsticks.Dependencies.Containers.ContainerSetting;
 
 namespace MonoContainerTests
 {
@@ -63,7 +64,7 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.Parent,
                 Is.EqualTo(parentContainer.InternalContainer));
-            container.ContainerService.Sub.Received(1).FindParentContainer(
+            serviceSub.Received(1).FindParentContainer(
                 (ContainerRetrievalSetting)parentSetting, container, parentContainer);
         }
 
@@ -72,14 +73,14 @@ namespace MonoContainerTests
         {
             // Set up
             var container = SetUp.StandardContainer(ParentSetting.None,
-                out var containerGameObject, out var parentContainer, out _);
+                out var containerGameObject, out var parentContainer, out var serviceSub);
 
             // Act
             containerGameObject.SetActive(true);
 
             // Assert
             Assert.That(container.InternalContainer.Parent, Is.Null);
-            container.ContainerService.Sub.DidNotReceiveWithAnyArgs().FindParentContainer(
+            serviceSub.DidNotReceiveWithAnyArgs().FindParentContainer(
                 ContainerRetrievalSetting.Global, container, parentContainer);
         }
 
@@ -103,7 +104,7 @@ namespace MonoContainerTests
             container.GetSerializedProperty("_overrideParent", out var overrideParent);
 
             Assert.That(overrideParent, Is.Null);
-            container.ContainerService.Sub.Received(1).FindParentContainer(
+            serviceSub.Received(1).FindParentContainer(
                 ContainerRetrievalSetting.Override, container, parentContainer);
         }
 
@@ -130,7 +131,7 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.Parent,
                 Is.EqualTo(parentContainer.InternalContainer));
-            container.ContainerService.Sub.Received(1).FindParentContainer(
+            serviceSub.Received(1).FindParentContainer(
                 (ContainerRetrievalSetting)parentSetting, container, parentContainer);
         }
 
@@ -139,14 +140,14 @@ namespace MonoContainerTests
         {
             // Set up
             var container = SetUp.StandardContainer(ParentSetting.None,
-                out _, out var parentContainer, out _);
+                out _, out var parentContainer, out var serviceSub);
 
             // Act
             container.OnTransformParentChanged();
 
             // Assert
             Assert.That(container.InternalContainer.Parent, Is.Null);
-            container.ContainerService.Sub.DidNotReceiveWithAnyArgs().FindParentContainer(
+            serviceSub.DidNotReceiveWithAnyArgs().FindParentContainer(
                 ContainerRetrievalSetting.Global, container, parentContainer);
         }
 
@@ -170,7 +171,7 @@ namespace MonoContainerTests
             container.GetSerializedProperty("_overrideParent", out var overrideParent);
 
             Assert.That(overrideParent, Is.Null);
-            container.ContainerService.Sub.Received(1).FindParentContainer(
+            serviceSub.Received(1).FindParentContainer(
                 ContainerRetrievalSetting.Override, container, parentContainer);
         }
 
@@ -197,7 +198,7 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.Parent,
                 Is.EqualTo(parentContainer.InternalContainer));
-            container.ContainerService.Sub.Received(1).FindParentContainer(
+            serviceSub.Received(1).FindParentContainer(
                 (ContainerRetrievalSetting)parentSetting, container, parentContainer);
         }
 
@@ -206,14 +207,14 @@ namespace MonoContainerTests
         {
             // Set up
             var container = SetUp.StandardContainer(ParentSetting.None,
-                out _, out var parentContainer, out _);
+                out _, out var parentContainer, out var serviceSub);
 
             // Act
             container.OnValidate();
 
             // Assert
             Assert.That(container.InternalContainer.Parent, Is.Null);
-            container.ContainerService.Sub.DidNotReceiveWithAnyArgs().FindParentContainer(
+            serviceSub.DidNotReceiveWithAnyArgs().FindParentContainer(
                 ContainerRetrievalSetting.Global, container, parentContainer);
         }
 
@@ -238,7 +239,7 @@ namespace MonoContainerTests
             container.GetSerializedProperty("_overrideParent", out var overrideParent);
 
             Assert.That(overrideParent, Is.Null);
-            container.ContainerService.Sub.Received(1).FindParentContainer(
+            serviceSub.Received(1).FindParentContainer(
                 ContainerRetrievalSetting.Override, container, parentContainer);
         }
     }
