@@ -92,9 +92,10 @@ namespace Chopsticks.Dependencies.Contained
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
         {
-            // TODO :: Deregisters all tracked registrations.
+            foreach (var registration in dependency.Registrations)
+                dependency.Container.Deregister(registration);
+            dependency.Registrations.Clear();
         }
-
 
         public static DependencyRegistration RegisterAs<TNativeContainer, 
                 TUnityContainerService, TContract>(
