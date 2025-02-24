@@ -3,8 +3,11 @@ using MonoContainerTests.Mocks;
 
 namespace IUnityDependencyExtensionsTests.Mocks
 {
+    public interface IMockMonoDependency { }
+
     public class MockMonoDependency :
-        BaseMonoDependency<MockDependencyContainer, MockMonoContainerService>
+        BaseMonoDependency<MockDependencyContainer, MockMonoContainerService>,
+        IMockMonoDependency
     {
         protected override void OnRegistration() { }
     }

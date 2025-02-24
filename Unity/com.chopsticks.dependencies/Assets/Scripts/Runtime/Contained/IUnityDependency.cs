@@ -2,6 +2,7 @@
 using Chopsticks.Dependencies.Resolutions;
 using Chopsticks.Dependencies.Services;
 using System;
+using System.Collections.Generic;
 
 namespace Chopsticks.Dependencies.Contained
 {
@@ -17,6 +18,12 @@ namespace Chopsticks.Dependencies.Contained
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
         where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {
+        /// <summary>
+        /// The registrations that represent this dependency as its various 
+        /// registered contracts within its current container.
+        /// </summary>
+        List<DependencyRegistration> Registrations { get; }
+
         /// <summary>
         /// Performed when the Unity object is disabled.
         /// This performs any deregistration that may be appropriate.

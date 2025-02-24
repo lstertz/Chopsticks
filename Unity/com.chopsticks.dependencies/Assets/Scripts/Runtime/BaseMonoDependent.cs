@@ -19,7 +19,7 @@ namespace Chopsticks.Dependencies
 
         ContainerSetting IUnityContained<TNativeContainer>.ContainerSetting => _containerSetting;
         [SerializeField]
-        protected ContainerSetting _containerSetting;
+        protected ContainerSetting _containerSetting = ContainerSetting.HierarchyWithGlobal;
 
         /// <summary>
         /// The container that may serve as an overriding container for this dependent.

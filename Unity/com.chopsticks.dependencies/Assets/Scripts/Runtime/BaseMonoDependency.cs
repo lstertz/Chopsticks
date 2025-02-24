@@ -3,6 +3,7 @@ using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Resolutions;
 using Chopsticks.Dependencies.Services;
 using System;
+using System.Collections.Generic;
 
 namespace Chopsticks.Dependencies
 {
@@ -14,12 +15,18 @@ namespace Chopsticks.Dependencies
         where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {
         ///<inheritdoc/>
+        List<DependencyRegistration> IUnityDependency<TNativeContainer, TUnityContainerService>.Registrations => 
+            _registrations;
+        private readonly List<DependencyRegistration> _registrations = new(1);
+
+
+        ///<inheritdoc/>
         public override void OnEnable() =>
             this.SetContainer(this, OverrideContainer, OnRegistration);
 
         ///<inheritdoc/>
         public virtual void OnDisable() => 
-            this.Deregister();
+            this.DeregisterAll();
 
         ///<inheritdoc/>
         public override void OnTransformParentChanged() => 
@@ -37,7 +44,9 @@ namespace Chopsticks.Dependencies
         /// Registers this dependency as the specified contract.
         /// </summary>
         /// <typeparam name="TContract">The contract to be registered as.</typeparam>
-        protected void RegisterAs<TContract>() =>
+        /// <returns>The registration, to be used for manual deregistration, if needed.
+        /// This will be null if the attempt to register failed.</returns>
+        protected DependencyRegistration RegisterAs<TContract>() =>
             this.RegisterAs<TNativeContainer, TUnityContainerService, TContract>();
     }
 }

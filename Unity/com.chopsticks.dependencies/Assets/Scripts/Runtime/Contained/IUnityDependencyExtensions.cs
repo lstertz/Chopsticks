@@ -76,7 +76,7 @@ namespace Chopsticks.Dependencies.Contained
             dependency.UpdateContainer(unityContained, overrideContainer,
                 () =>
                 {
-                    dependency.Deregister();
+                    dependency.DeregisterAll();
                     onPreContainerChanged?.Invoke();
                 },
                 () =>
@@ -87,7 +87,7 @@ namespace Chopsticks.Dependencies.Contained
         }
 
 
-        public static void Deregister<TNativeContainer, TUnityContainerService>(
+        public static void DeregisterAll<TNativeContainer, TUnityContainerService>(
             this IUnityDependency<TNativeContainer, TUnityContainerService> dependency)
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
@@ -96,12 +96,22 @@ namespace Chopsticks.Dependencies.Contained
         }
 
 
-        public static void RegisterAs<TNativeContainer, TUnityContainerService, TContract>(
+        public static DependencyRegistration RegisterAs<TNativeContainer, 
+                TUnityContainerService, TContract>(
             this IUnityDependency<TNativeContainer, TUnityContainerService> dependency)
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
         {
-            // TODO :: Registers the dependency as the contract.
+            if (dependency is not TContract asContract)
+            {
+                Debug.LogError($"Failed to register a dependency of type " +
+                    $"{dependency.GetType().FullName} as a contract of type {nameof(TContract)}.");
+                return null;
+            }
+
+            dependency.Container.Register(asContract, out var registration);
+            dependency.Registrations.Add(registration);
+            return registration;
         }
     }
 }
