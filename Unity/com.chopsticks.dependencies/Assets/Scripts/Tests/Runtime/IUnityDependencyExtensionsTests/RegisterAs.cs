@@ -1,10 +1,11 @@
 ﻿using Chopsticks.Dependencies;
 using Chopsticks.Dependencies.Contained;
+using Chopsticks.Dependencies.Containers;
 using IUnityDependencyExtensionsTests.Mocks;
 using MonoContainerTests.Mocks;
 using NSubstitute;
 using NUnit.Framework;
-using UnityEngine;
+using System.Collections.Generic;
 using UnityEngine.TestTools;
 
 namespace IUnityDependencyExtensionsTests
@@ -15,8 +16,7 @@ namespace IUnityDependencyExtensionsTests
         public void RegisterAs_InvalidContract_ReturnsNull()
         {
             // Set up
-            var unityDependency = new GameObject().AddComponent<MockMonoDependency>()
-                as IUnityDependency<MockDependencyContainer, MockMonoContainerService>;
+            var unityDependency = Substitute.For<IMockMonoDependency>();
             unityDependency.Container = Substitute.For<MockDependencyContainer>();
 
             // Act
@@ -33,35 +33,39 @@ namespace IUnityDependencyExtensionsTests
         public void RegisterAs_ValidContract_AddsToDependencyRegistrations()
         {
             // Set up
-            var unityDependency = new GameObject().AddComponent<MockMonoDependency>()
-                as IUnityDependency<MockDependencyContainer, MockMonoContainerService>;
+            List<DependencyRegistration> registrations = new();
+
+            var unityDependency = Substitute.For<IMockMonoDependency>();
             unityDependency.Container = Substitute.For<MockDependencyContainer>();
+            unityDependency.Registrations.Returns(registrations);
 
             // Act
             var registration = unityDependency.RegisterAs<MockDependencyContainer,
-                MockMonoContainerService, IMockMonoDependency>();
+                MockMonoContainerService, ITestContract>();
 
             // Assert
-            Assert.That(unityDependency.Registrations.Contains(registration), Is.True);
+            Assert.That(registrations.Contains(registration), Is.True);
         }
 
         [Test]
         public void RegisterAs_ValidContract_RegistersWithContainer()
         {
             // Set up
-            var unityDependency = new GameObject().AddComponent<MockRegistrationMonoDependency>()
-                as IUnityDependency<MockRegistrationDependencyContainer, MockRegistrationContainerService>;
+            List<DependencyRegistration> registrations = new();
+
+            var unityDependency = Substitute.For<IMockRegistrationMonoDependency>();
             unityDependency.Container = new MockRegistrationDependencyContainer();
+            unityDependency.Registrations.Returns(registrations);
 
             // Act
             var registration = unityDependency.RegisterAs<MockRegistrationDependencyContainer,
-                MockRegistrationContainerService, IMockMonoDependency>();
+                MockRegistrationContainerService, ITestContract>();
 
             // Assert
             Assert.That(unityDependency.Container.RegistrationWasCalled, Is.True);
             Assert.That(unityDependency.Container.ProvidedRegistration, Is.EqualTo(registration));
             Assert.That(unityDependency.Container.RegistrationSpecification.Contract, 
-                Is.EqualTo(typeof(IMockMonoDependency)));
+                Is.EqualTo(typeof(ITestContract)));
             Assert.That(unityDependency.Container.RegistrationSpecification.Lifetime,
                 Is.EqualTo(DependencyLifetime.Singleton));
             Assert.That(unityDependency.Container.RegistrationSpecification.ImplementationFactory(null),

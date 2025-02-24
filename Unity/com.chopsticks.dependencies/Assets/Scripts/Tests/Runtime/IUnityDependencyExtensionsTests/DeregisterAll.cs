@@ -1,20 +1,35 @@
 ﻿using Chopsticks.Dependencies.Contained;
 using Chopsticks.Dependencies.Containers;
+using IUnityDependencyExtensionsTests.Mocks;
 using MonoContainerTests.Mocks;
 using NSubstitute;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace IUnityDependencyExtensionsTests
 {
     public class DeregisterAll
     {
         [Test]
-        public void DeregisterAll_WithRegistrations_DeregistersAll()
+        public void DeregisterAll_WithoutRegistrations_DoesNothing()
         {
             // Set up
-            var unityDependency = Substitute.For<IUnityDependency<MockDependencyContainer, 
-                MockMonoContainerService>>();
+            var unityDependency = Substitute.For<IMockMonoDependency>();
+            unityDependency.Registrations.Returns(new List<DependencyRegistration>());
+            unityDependency.Container = Substitute.For<MockDependencyContainer>();
 
+            // Act
+            unityDependency.DeregisterAll();
+
+            // Assert
+            unityDependency.Container.DidNotReceiveWithAnyArgs().Deregister(
+                Arg.Any<DependencyRegistration>());
+        }
+
+        [Test]
+        public void DeregisterAll_WithRegistrations_ClearsRegistrations()
+        {
+            // Set up
             DependencyRegistration registrationA = new()
             {
                 Contract = typeof(object)
@@ -23,32 +38,51 @@ namespace IUnityDependencyExtensionsTests
             {
                 Contract = typeof(object)
             };
-            unityDependency.Registrations.Add(registrationA);
-            unityDependency.Registrations.Add(registrationB);
+            List<DependencyRegistration> registrations = new()
+            {
+                registrationA,
+                registrationB
+            };
+
+            var unityDependency = Substitute.For<IMockMonoDependency>();
+            unityDependency.Container = Substitute.For<MockDependencyContainer>();
+            unityDependency.Registrations.Returns(registrations);
 
             // Act
             unityDependency.DeregisterAll();
 
             // Assert
-            Assert.That(unityDependency.Registrations, Is.Empty);
-            unityDependency.Container.Received().Deregister(registrationA);
-            unityDependency.Container.Received().Deregister(registrationB);
+            Assert.That(registrations, Is.Empty);
         }
 
         [Test]
-        public void DeregisterAll_WithoutRegistrations_DoesNothing()
+        public void DeregisterAll_WithRegistrations_DeregistersAll()
         {
             // Set up
-            var unityDependency = Substitute.For<IUnityDependency<MockDependencyContainer,
-                MockMonoContainerService>>();
+            DependencyRegistration registrationA = new()
+            {
+                Contract = typeof(object)
+            };
+            DependencyRegistration registrationB = new()
+            {
+                Contract = typeof(object)
+            };
+            List<DependencyRegistration> registrations = new()
+            {
+                registrationA,
+                registrationB
+            };
+
+            var unityDependency = Substitute.For<IMockMonoDependency>();
+            unityDependency.Container = Substitute.For<MockDependencyContainer>();
+            unityDependency.Registrations.Returns(registrations);
 
             // Act
             unityDependency.DeregisterAll();
 
             // Assert
-            Assert.That(unityDependency.Registrations, Is.Empty);
-            unityDependency.Container.DidNotReceiveWithAnyArgs().Deregister(
-                Arg.Any<DependencyRegistration>());
+            unityDependency.Container.Received().Deregister(registrationA);
+            unityDependency.Container.Received().Deregister(registrationB);
         }
     }
 }

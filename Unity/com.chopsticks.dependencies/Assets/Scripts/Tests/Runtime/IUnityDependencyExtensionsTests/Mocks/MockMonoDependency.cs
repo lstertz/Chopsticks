@@ -1,9 +1,14 @@
 ﻿using Chopsticks.Dependencies;
+using Chopsticks.Dependencies.Contained;
 using MonoContainerTests.Mocks;
 
 namespace IUnityDependencyExtensionsTests.Mocks
 {
-    public interface IMockMonoDependency { }
+    public interface ITestContract { }
+
+    public interface IMockMonoDependency : 
+        IUnityDependency<MockDependencyContainer, MockMonoContainerService>, ITestContract
+    { }
 
     public class MockMonoDependency :
         BaseMonoDependency<MockDependencyContainer, MockMonoContainerService>,
