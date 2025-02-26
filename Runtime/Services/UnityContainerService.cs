@@ -79,16 +79,16 @@ namespace Chopsticks.Dependencies.Services
         /// <see cref="ContainerRetrievalSetting"/>is not supported.</exception>
         public virtual TNativeContainer GetContainer<TOverrideContainer>(
             ContainerRetrievalSetting setting, bool includeSelf, 
-            Transform unityContainer, TOverrideContainer overrideContainer)
+            Transform unityContained, TOverrideContainer overrideContainer)
             where TOverrideContainer : IUnityContainer<TNativeContainer> =>
             setting switch
             {
                 ContainerRetrievalSetting.HierarchyWithGlobal =>
                     FindContainerInHierarchy(includeSelf ? 
-                        unityContainer : unityContainer.parent, true),
+                        unityContained : unityContained.parent, true),
                 ContainerRetrievalSetting.HierarchyWithoutGlobal =>
                     FindContainerInHierarchy(includeSelf ? 
-                        unityContainer : unityContainer.parent, false),
+                        unityContained : unityContained.parent, false),
                 ContainerRetrievalSetting.Global =>
                     _globalContainer,
                 ContainerRetrievalSetting.Override => 
