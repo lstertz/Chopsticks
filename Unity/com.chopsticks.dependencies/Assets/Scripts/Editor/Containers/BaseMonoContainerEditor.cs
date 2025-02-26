@@ -19,8 +19,7 @@ namespace Chopsticks.Dependencies.Editor
 
         public override VisualElement CreateInspectorGUI()
         {
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                "Assets/Scripts/Editor/Containers/BaseMonoContainerEditor.uxml");
+            var visualTree = LoadAsset<VisualTreeAsset>("BaseMonoContainerEditor.uxml");
             _root = visualTree.Instantiate();
 
             ApplyStylesheet();
@@ -103,8 +102,7 @@ namespace Chopsticks.Dependencies.Editor
 
         private void ApplyStylesheet()
         {
-            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(
-                "Assets/Scripts/Editor/Containers/BaseMonoContainerEditor.uss");
+            var styleSheet = LoadAsset<StyleSheet>("BaseMonoContainerEditor.uss");
             if (styleSheet != null)
                 _root.styleSheets.Add(styleSheet);
         }
@@ -126,6 +124,20 @@ namespace Chopsticks.Dependencies.Editor
             _currentParentField = _root.Q<ObjectField>("currentParent");
             _currentParentField.objectType = typeof(BaseUnityContainer);
             _currentParentField.SetEnabled(false);
+        }
+
+
+        private T LoadAsset<T>(string assetFile)
+            where T : UnityEngine.Object
+        {
+            var visualTree = AssetDatabase.LoadAssetAtPath<T>(
+                $"Packages/com.chopsticks.dependencies/Editor/Containers/{assetFile}");
+
+            if (visualTree == null)  // Running in development package environment.
+                visualTree = AssetDatabase.LoadAssetAtPath<T>(
+                    $"Assets/Scripts/Editor/Containers/{assetFile}");
+
+            return visualTree;
         }
     }
 } 
