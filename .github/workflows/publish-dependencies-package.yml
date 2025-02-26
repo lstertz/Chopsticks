@@ -58,7 +58,7 @@ jobs:
           cp Unity/com.chopsticks.dependencies/package.json.meta $TEMP_DEPLOYMENT_DIR/
           cp -r Unity/com.chopsticks.dependencies/Assets/Scripts/Editor/* $TEMP_DEPLOYMENT_DIR/Editor/
           cp -r Unity/com.chopsticks.dependencies/Assets/Scripts/Editor.meta $TEMP_DEPLOYMENT_DIR/
-          cp -r Unity/com.chopsticks.dependencies/Assets/Scripts/Runtime/* $TEMP_DEPLOYMENT_DIR/Runtime/.meta
+          cp -r Unity/com.chopsticks.dependencies/Assets/Scripts/Runtime/* $TEMP_DEPLOYMENT_DIR/Runtime/
           cp -r Unity/com.chopsticks.dependencies/Assets/Scripts/Runtime.meta $TEMP_DEPLOYMENT_DIR/
           cp -r Unity/com.chopsticks.dependencies/Assets/Plugins/* $TEMP_DEPLOYMENT_DIR/Plugins/
           cp -r Unity/com.chopsticks.dependencies/Assets/Plugins.meta $TEMP_DEPLOYMENT_DIR/
