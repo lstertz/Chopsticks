@@ -97,16 +97,22 @@ namespace Chopsticks.Dependencies.Services
                                         $"{setting} is not supported."),
             };
 
+        /// <inheritdoc/>
+        public virtual TNativeContainer GetContainerFromHierarchy(Transform unityContained,
+            bool includeSelf = true, bool fallbackToGlobal = true) =>
+                FindContainerInHierarchy(includeSelf ?
+                    unityContained : unityContained.parent, fallbackToGlobal);
+
 
         private TNativeContainer FindContainerInHierarchy(
-            Transform transform, bool defaultToGlobal)
+            Transform transform, bool fallbackToGlobal)
         {
             var container = transform == null ? null :
                     transform.GetComponentInParent<IUnityContainer<TNativeContainer>>();
 
             if (container == null)
             {
-                if (defaultToGlobal)
+                if (fallbackToGlobal)
                     return _globalContainer;
                 return default;
             }

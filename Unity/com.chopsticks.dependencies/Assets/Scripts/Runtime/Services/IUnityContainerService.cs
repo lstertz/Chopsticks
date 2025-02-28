@@ -58,6 +58,20 @@ namespace Chopsticks.Dependencies.Services
             ContainerRetrievalSetting setting, bool includeSelf,
             Transform unityContained, TOverrideContainer overrideContainer)
             where TOverrideContainer : IUnityContainer<TNativeContainer>;
+
+        /// <summary>
+        /// Provides a dependency container from the parent hierarchy of the 
+        /// provided contained Unity transform.
+        /// </summary>
+        /// <param name="includeSelf">Whether the provided Unity container considers 
+        /// itself to be part of the hierarchy to be searched.</param>
+        /// <param name="fallbackToGlobal">Whether the global container will be 
+        /// provided if there is no other container in the hierarchy.</param>
+        /// <param name="unityContained">The contained Unity transform from which 
+        /// retrieval will start.</param>
+        /// <returns>A container retrieved, or null if no such container could be found.</returns>
+        TNativeContainer GetContainerFromHierarchy(Transform unityContained,
+            bool includeSelf = true, bool fallbackToGlobal = true);
     }
 
 
