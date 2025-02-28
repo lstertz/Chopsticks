@@ -22,5 +22,9 @@ namespace IUnityDependencyExtensionsTests.Mocks
             TOverrideContainer overrideContainer)
             where TOverrideContainer : IUnityContainer<MockRegistrationDependencyContainer> => 
                 Sub.GetContainer(setting, includeSelf, unityContained, overrideContainer);
+
+        public MockRegistrationDependencyContainer GetContainerFromHierarchy(
+            Transform unityContained, bool includeSelf = true, bool fallbackToGlobal = true) => 
+            Sub.GetContainerFromHierarchy(unityContained, includeSelf, fallbackToGlobal);
     }
 }
