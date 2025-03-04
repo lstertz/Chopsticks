@@ -1,12 +1,12 @@
 ﻿using Chopsticks.Dependencies;
-using Chopsticks.Samples.ExampleDependencies.System;
+using Chopsticks.Samples.ExampleDependencies.ExampleSystem;
 using UnityEngine;
 
 namespace Chopsticks.Samples.ExampleDependents.InputHandler
 {
     public class HardLazyInputHandler : MonoDependent
     {
-        private ISystem System => AssertiveResolve<ISystem>();
+        private IExampleSystem System => AssertiveResolve<IExampleSystem>();
 
 
         public void Awake() =>

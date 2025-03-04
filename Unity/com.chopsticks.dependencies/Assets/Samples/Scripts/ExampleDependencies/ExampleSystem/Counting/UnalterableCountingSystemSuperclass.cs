@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
 
-namespace Chopsticks.Samples.ExampleDependencies.System.Counting
+namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
 {
-    public abstract class UnalterableCountingSystemSuperclass : MonoBehaviour, ISystem
+    public abstract class UnalterableCountingSystemSuperclass : MonoBehaviour, IExampleSystem
     {
         private int _count;
 

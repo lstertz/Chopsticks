@@ -4,7 +4,7 @@ using Chopsticks.Dependencies.Services;
 using System.Collections.Generic;
 
 
-namespace Chopsticks.Samples.ExampleDependencies.System.Counting
+namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
 {
     public class CountingSystem : UnalterableCountingSystemSuperclass, IMonoDependency
     {
@@ -26,7 +26,7 @@ namespace Chopsticks.Samples.ExampleDependencies.System.Counting
 
         protected void OnRegistration()
         {
-            this.RegisterAs<DependencyContainer, MonoContainerService, ISystem>();
+            this.RegisterAs<DependencyContainer, MonoContainerService, IExampleSystem>();
         }
     }
 }

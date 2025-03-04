@@ -3,7 +3,7 @@ using Chopsticks.Dependencies.Services;
 using UnityEngine;
 
 
-namespace Chopsticks.Samples.ExampleDependencies.System.Native
+namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Native
 {
     public class NativeSystemGlobalContainerWrapper : MonoBehaviour
     {
@@ -12,7 +12,7 @@ namespace Chopsticks.Samples.ExampleDependencies.System.Native
 
         public void OnEnable()
         {
-            MonoContainerService.GlobalContainer.Register<ISystem>(
+            MonoContainerService.GlobalContainer.Register<IExampleSystem>(
                 new NativeSystem(), out _registration);
         }
 

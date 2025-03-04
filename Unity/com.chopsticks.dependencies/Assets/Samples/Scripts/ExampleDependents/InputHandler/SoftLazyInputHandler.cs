@@ -1,20 +1,20 @@
 ﻿using Chopsticks.Dependencies;
-using Chopsticks.Samples.ExampleDependencies.System;
+using Chopsticks.Samples.ExampleDependencies.ExampleSystem;
 using UnityEngine;
 
 namespace Chopsticks.Samples.ExampleDependents.InputHandler
 {
     public class SoftLazyInputHandler : MonoDependent
     {
-        private ISystem System
+        private IExampleSystem System
         {
             get
             {
-                if (Resolve(out ISystem system))
+                if (Resolve(out IExampleSystem system))
                     return system;
 
                 UnityEngine.Debug.LogWarning($"{nameof(SoftLazyInputHandler)} could not " +
-                    $"resolve its {nameof(ISystem)} dependency. Dependent features " +
+                    $"resolve its {nameof(IExampleSystem)} dependency. Dependent features " +
                     $"will be disabled.");
 
                 return null;

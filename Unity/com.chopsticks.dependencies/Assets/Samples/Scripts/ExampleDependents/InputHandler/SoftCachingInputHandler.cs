@@ -1,12 +1,12 @@
 ﻿using Chopsticks.Dependencies;
-using Chopsticks.Samples.ExampleDependencies.System;
+using Chopsticks.Samples.ExampleDependencies.ExampleSystem;
 using UnityEngine;
 
 namespace Chopsticks.Samples.ExampleDependents.InputHandler
 {
     public class SoftCachingInputHandler : MonoDependent
     {
-        private ISystem _system;
+        private IExampleSystem _system;
 
 
         public void Awake() =>
@@ -19,7 +19,7 @@ namespace Chopsticks.Samples.ExampleDependents.InputHandler
 
             if (!Resolve(out _system))
                 Debug.LogWarning($"{nameof(SoftCachingInputHandler)} could not " +
-                    $"resolve its {nameof(ISystem)} dependency. Dependent features " +
+                    $"resolve its {nameof(IExampleSystem)} dependency. Dependent features " +
                     $"will be disabled.");
         }
 

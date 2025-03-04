@@ -2,9 +2,9 @@ using Chopsticks.Dependencies;
 using UnityEngine;
 
 
-namespace Chopsticks.Samples.ExampleDependencies.System.Output
+namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Output
 {
-    public class OutputSystem : MonoDependency, ISystem
+    public class OutputSystem : MonoDependency, IExampleSystem
     {
         [SerializeField]
         private string _configuredOutput;
@@ -17,7 +17,7 @@ namespace Chopsticks.Samples.ExampleDependencies.System.Output
 
         protected override void OnRegistration()
         {
-            RegisterAs<ISystem>();
+            RegisterAs<IExampleSystem>();
         }
     }
 }

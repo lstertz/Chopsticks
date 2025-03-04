@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Chopsticks.Samples.ExampleDependencies.System.Native
+namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Native
 {
-    public class NativeSystem : ISystem
+    public class NativeSystem : IExampleSystem
     {
         public void Perform()
         {

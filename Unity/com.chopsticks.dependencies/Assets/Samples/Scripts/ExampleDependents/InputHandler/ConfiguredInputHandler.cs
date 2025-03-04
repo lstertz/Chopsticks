@@ -1,13 +1,13 @@
 ﻿using Chopsticks.Dependencies;
-using Chopsticks.Samples.ExampleDependencies.System;
+using Chopsticks.Samples.ExampleDependencies.ExampleSystem;
 using UnityEngine;
 
 namespace Chopsticks.Samples.ExampleDependents.InputHandler
 {
     public class ConfiguredInputHandler : MonoDependent
     {
-        private ISystem System => _system ??= AssertiveResolve<ISystem>();
-        private ISystem _system;
+        private IExampleSystem System => _system ??= AssertiveResolve<IExampleSystem>();
+        private IExampleSystem _system;
 
 
         public void Awake() =>
