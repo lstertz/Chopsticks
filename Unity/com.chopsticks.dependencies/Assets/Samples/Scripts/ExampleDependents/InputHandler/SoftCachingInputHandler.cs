@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Dependencies;
 using Chopsticks.Samples.ExampleDependencies.System;
+using UnityEngine;
 
 namespace Chopsticks.Samples.ExampleDependents.InputHandler
 {
@@ -8,10 +9,16 @@ namespace Chopsticks.Samples.ExampleDependents.InputHandler
         private ISystem _system;
 
 
-        protected override void OnPostContainerChanged()
+        public void Awake() =>
+            GetComponent<Renderer>().material.color = Color.blue;
+
+
+        public override void OnEnable()
         {
+            base.OnEnable();
+
             if (!Resolve(out _system))
-                UnityEngine.Debug.LogWarning($"{nameof(SoftCachingInputHandler)} could not " +
+                Debug.LogWarning($"{nameof(SoftCachingInputHandler)} could not " +
                     $"resolve its {nameof(ISystem)} dependency. Dependent features " +
                     $"will be disabled.");
         }

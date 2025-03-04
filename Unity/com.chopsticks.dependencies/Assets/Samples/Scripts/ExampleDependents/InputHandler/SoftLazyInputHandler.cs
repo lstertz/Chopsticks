@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Dependencies;
 using Chopsticks.Samples.ExampleDependencies.System;
+using UnityEngine;
 
 namespace Chopsticks.Samples.ExampleDependents.InputHandler
 {
@@ -20,6 +21,10 @@ namespace Chopsticks.Samples.ExampleDependents.InputHandler
             }
 
         }
+
+
+        public void Awake() =>
+            GetComponent<Renderer>().material.color = Color.green;
 
 
         public void OnMouseUp()

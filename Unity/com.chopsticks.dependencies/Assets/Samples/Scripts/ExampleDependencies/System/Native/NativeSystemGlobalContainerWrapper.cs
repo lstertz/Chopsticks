@@ -12,7 +12,7 @@ namespace Chopsticks.Samples.ExampleDependencies.System.Native
 
         public void OnEnable()
         {
-            MonoContainerService.GlobalContainer.Register(
+            MonoContainerService.GlobalContainer.Register<ISystem>(
                 new NativeSystem(), out _registration);
         }
 

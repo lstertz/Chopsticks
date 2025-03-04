@@ -16,7 +16,7 @@ namespace Chopsticks.Samples.ExampleDependencies.System.Native
         public void OnEnable()
         {
             _container = _containerService.GetContainerFromHierarchy(transform);
-            _container.Register(new NativeSystem(), out _registration);
+            _container.Register<ISystem>(new NativeSystem(), out _registration);
         }
 
         public void OnDisable()
