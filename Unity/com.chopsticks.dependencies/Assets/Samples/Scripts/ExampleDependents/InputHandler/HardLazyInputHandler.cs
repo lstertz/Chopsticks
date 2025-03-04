@@ -1,6 +1,7 @@
 ﻿using Chopsticks.Dependencies;
+using Chopsticks.Samples.ExampleDependencies.System;
 
-namespace Chopsticks.Samples.ExampleDependents
+namespace Chopsticks.Samples.ExampleDependents.InputHandler
 {
     public class HardLazyInputHandler : MonoDependent
     {
