@@ -64,7 +64,7 @@ namespace Chopsticks.Dependencies
 
         /// <inheritdoc cref="IUnityContainedExtensions
         /// .AssertiveResolve{TNativeContainer, TContract}(IUnityContained{TNativeContainer}, string)"/>
-        protected TContract AssertiveResolve<TContract>(string customErrorMessage = "") => 
+        protected TContract AssertiveResolve<TContract>(string customErrorMessage = null) => 
             this.AssertiveResolve<TNativeContainer, TContract>(customErrorMessage);
 
         /// <inheritdoc cref="IUnityContainedExtensions
