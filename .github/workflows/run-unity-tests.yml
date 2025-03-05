@@ -1,0 +1,60 @@
+name: Run Unity Tests
+
+on:
+  pull_request:
+    branches:
+      - setup-automated-tests
+
+jobs:
+  set-up-unity:
+    name: Set Up Unity
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Unity
+        id: unity-install
+        uses: game-ci/unity-setup@v2
+        with:
+          unityVersion: 6000.0.25f1
+          cache: true
+
+    outputs:
+      unity_version: 6000.0.25f1
+    
+  run-tests:
+    name: Run Dependencies Tests
+    needs: set-up-unity
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: 
+          - Unity/com.chopsticks.dependencies  # Add future package projects here.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Library folder
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.project }}/Library
+          key: Library-${{ runner.os }}-${{ matrix.project }}-${{ github.sha }}
+          restore-keys: |
+            Library-${{ runner.os }}-${{ matrix.project }}-
+
+      - name: Run Play Mode Tests for ${{ matrix.project }}
+        uses: game-ci/unity-test-runner@v2
+        with:
+          projectPath: ${{ matrix.project }}
+          unityVersion: ${{ needs.setup-unity.outputs.unity_version }}
+          testMode: PlayMode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Test Results for ${{ matrix.project }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: TestResults-${{ matrix.project }}
+          path: ${{ matrix.project }}/artifacts
