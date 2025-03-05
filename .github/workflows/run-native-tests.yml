@@ -88,7 +88,7 @@ jobs:
           dotnet-version: '7.0.x'
 
       - name: Download Foundation Build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Foundation-Build
           path: Native/Foundation/bin/Release/
