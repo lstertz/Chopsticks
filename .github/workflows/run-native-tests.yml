@@ -31,10 +31,10 @@ jobs:
           dotnet-version: '7.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore Native/Dependencies/Tests
+        run: dotnet restore ${{ matrix.project }}/Tests
 
       - name: Build the test project
-        run: dotnet build Native/Dependencies/Tests --configuration Release --no-restore
+        run: dotnet build ${{ matrix.project }}/Tests --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test Native/Dependencies/Tests --configuration Release --no-build --verbosity normal  --collect:"XPlat Code Coverage"
+        run: dotnet test ${{ matrix.project }}/Tests --configuration Release --no-build --verbosity normal  --collect:"XPlat Code Coverage"
