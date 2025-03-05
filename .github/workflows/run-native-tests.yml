@@ -56,7 +56,7 @@ jobs:
         run: dotnet restore Native/Foundation
 
       - name: Build Foundation
-        run: dotnet build Native/Foundation --configuration Release --no-restore
+        run: dotnet build Native/Foundation --configuration Debug --no-restore
 
       - name: Store Foundation artifacts
         uses: actions/upload-artifact@v4
