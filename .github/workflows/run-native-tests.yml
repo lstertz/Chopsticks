@@ -1,0 +1,40 @@
+name: Run Native Tests
+
+on:
+  pull_request:
+    branches:
+      - setup-automated-tests
+  workflow_dispatch: 
+
+jobs:
+  run-tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: 
+          - Native/Foundation
+          - Native/Dependencies  # Add future projects here.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup .NET 9 (for tests)
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup .NET 7 (for .NET Standard 2.1 compatibility)
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Native/Dependencies/Tests
+
+      - name: Build the test project
+        run: dotnet build Native/Dependencies/Tests --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test Native/Dependencies/Tests --configuration Release --no-build --verbosity normal  --collect:"XPlat Code Coverage"
