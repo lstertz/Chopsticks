@@ -13,9 +13,9 @@ namespace Chopsticks.Dependencies.Contained
         /// <inheritdoc cref="IDependencyContainerExtensions
         /// .AssertiveResolve{TContract}(IDependencyContainer, string?)"/>
         public static TContract AssertiveResolve<TNativeContainer, TContract>(
-            this IUnityContained<TNativeContainer> contained, string customErrorMessage = "")
-            where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable => 
-            contained.Container.AssertiveResolve<TContract>(customErrorMessage);
+            this IUnityContained<TNativeContainer> contained, string customErrorMessage = null)
+            where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable =>
+                contained.Container.AssertiveResolve<TContract>(customErrorMessage);
 
         /// <inheritdoc cref="IDependencyContainerExtensions
         /// .Resolve{TContract}(IDependencyContainer, out TContract)"/>
@@ -23,13 +23,13 @@ namespace Chopsticks.Dependencies.Contained
             this IUnityContained<TNativeContainer> contained,
             out TContract implementation)
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable => 
-            contained.Container.Resolve(out implementation);
+                contained.Container.Resolve(out implementation);
 
         /// <inheritdoc cref="IDependencyContainerExtensions
         /// .ResolveAll{TContract}(IDependencyContainer)"/>
         public static IEnumerable<TContract> ResolveAll<TNativeContainer, TContract>(
             this IUnityContained<TNativeContainer> contained)
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable =>
-            contained.Container.ResolveAll<TContract>();
+                contained.Container.ResolveAll<TContract>();
     }
 }
