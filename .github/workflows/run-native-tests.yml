@@ -54,7 +54,7 @@ jobs:
         run: dotnet build Native/Foundation --configuration Release --no-restore
 
       - name: Store Foundation artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Foundation-Build
           path: Native/Foundation/bin/Release/
