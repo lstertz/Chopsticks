@@ -4,7 +4,7 @@ name: Run Unity Tests
 on:
   pull_request:
     branches:
-      - setup-automated-tests
+      - dev
   workflow_dispatch: 
 
 jobs:
