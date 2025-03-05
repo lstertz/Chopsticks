@@ -1,4 +1,5 @@
 name: Run Unity Tests
+# Reference https://game.ci/docs/github/getting-started for future changes.
 
 on:
   pull_request:
@@ -7,27 +8,8 @@ on:
   workflow_dispatch: 
 
 jobs:
-  set-up-unity:
-    name: Set Up Unity
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Unity
-        id: unity-install
-        uses: game-ci/unity-setup@v2
-        with:
-          unityVersion: 6000.0.25f1
-          cache: true
-
-    outputs:
-      unity_version: 6000.0.25f1
-    
   run-tests:
-    name: Run Dependencies Tests
-    needs: set-up-unity
+    name: Run Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -42,16 +24,17 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ matrix.project }}/Library
-          key: Library-${{ runner.os }}-${{ matrix.project }}-${{ github.sha }}
+          key: Library-${{ matrix.project }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-${{ runner.os }}-${{ matrix.project }}-
+            Library-${{ matrix.project }}-
 
       - name: Run Play Mode Tests for ${{ matrix.project }}
-        uses: game-ci/unity-test-runner@v2
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          projectPath: ${{ matrix.project }}
-          unityVersion: ${{ needs.setup-unity.outputs.unity_version }}
-          testMode: PlayMode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Test Results for ${{ matrix.project }}
