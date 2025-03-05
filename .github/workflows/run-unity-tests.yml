@@ -1,0 +1,40 @@
+name: Unity Tests
+# Reference https://game.ci/docs/github/getting-started for future changes.
+
+on:
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch: 
+
+jobs:
+  run-tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: 
+          - Unity/com.chopsticks.dependencies  # Add future package projects here.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Library folder
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.project }}/Library
+          key: Library-${{ matrix.project }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-${{ matrix.project }}-
+
+      - name: Run Play Mode Tests for ${{ matrix.project }}
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ matrix.project }}
+          unityVersion: 6000.0.25f1
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
