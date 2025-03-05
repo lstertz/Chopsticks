@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - setup-automated-tests
-  workflow-dispatch: 
+  workflow_dispatch: 
 
 jobs:
   set-up-unity:
