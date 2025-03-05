@@ -3,7 +3,7 @@ name: Unity Tests
 
 on:
   workflow_run:
-    workflows: ["Native Tests"]
+    workflows: [Native Tests]
     types:
       - completed
 
