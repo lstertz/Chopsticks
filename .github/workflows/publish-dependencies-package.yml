@@ -54,12 +54,15 @@ jobs:
           mkdir -p $TEMP_DEPLOYMENT_DIR/Editor/
           mkdir -p $TEMP_DEPLOYMENT_DIR/Runtime/
           mkdir -p $TEMP_DEPLOYMENT_DIR/Plugins/
+          mkdir -p $TEMP_DEPLOYMENT_DIR/~Samples/
           cp Unity/com.chopsticks.dependencies/package.json $TEMP_DEPLOYMENT_DIR/
           cp Unity/com.chopsticks.dependencies/package.json.meta $TEMP_DEPLOYMENT_DIR/
           cp -r Unity/com.chopsticks.dependencies/Assets/Scripts/Editor/* $TEMP_DEPLOYMENT_DIR/Editor/
           cp Unity/com.chopsticks.dependencies/Assets/Scripts/Editor.meta $TEMP_DEPLOYMENT_DIR/
           cp -r Unity/com.chopsticks.dependencies/Assets/Scripts/Runtime/* $TEMP_DEPLOYMENT_DIR/Runtime/
           cp Unity/com.chopsticks.dependencies/Assets/Scripts/Runtime.meta $TEMP_DEPLOYMENT_DIR/
+          cp -r Unity/com.chopsticks.dependencies/Assets/Samples/* $TEMP_DEPLOYMENT_DIR/~Samples/
+          cp Unity/com.chopsticks.dependencies/Assets/Samples.meta $TEMP_DEPLOYMENT_DIR/~Samples.meta
           cp -r Unity/com.chopsticks.dependencies/Assets/Plugins/* $TEMP_DEPLOYMENT_DIR/Plugins/
           cp Unity/com.chopsticks.dependencies/Assets/Plugins.meta $TEMP_DEPLOYMENT_DIR/
           
