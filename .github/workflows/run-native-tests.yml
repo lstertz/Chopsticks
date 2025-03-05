@@ -41,6 +41,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: Setup .NET 9 (for lang version)
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
 
       - name: Setup .NET 7 (for .NET Standard 2.1 compatibility)
         uses: actions/setup-dotnet@v3
