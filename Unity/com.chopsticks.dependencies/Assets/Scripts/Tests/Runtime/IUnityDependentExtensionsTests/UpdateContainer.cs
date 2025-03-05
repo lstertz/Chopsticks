@@ -10,6 +10,7 @@ using MonoContainerService = Chopsticks.Dependencies.Services.IUnityContainerSer
     MonoContainerTests.Mocks.MockDependencyContainer, 
     MonoContainerTests.Mocks.MockDependencyContainer.Definition>;
 using IUnityDependentExtensionsTests.Mocks;
+using UnityEngine.SceneManagement;
 
 namespace IUnityDependentExtensionsTests
 {
@@ -60,6 +61,12 @@ namespace IUnityDependentExtensionsTests
 
                 return unityDependency;
             }
+        }
+
+        [SetUp]
+        public void SetUpScene()
+        {
+            SceneManager.LoadScene("StandardTestScene");
         }
 
 

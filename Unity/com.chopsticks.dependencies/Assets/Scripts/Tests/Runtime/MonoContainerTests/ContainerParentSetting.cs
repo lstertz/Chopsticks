@@ -5,6 +5,7 @@ using NSubstitute;
 using NUnit.Framework;
 using TestHelpers;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using ParentSetting = Chopsticks.Dependencies.Containers.ContainerSetting;
 
@@ -39,6 +40,12 @@ namespace MonoContainerTests
 
                 return container;
             }
+        }
+
+        [SetUp]
+        public void SetUpScene()
+        {
+            SceneManager.LoadScene("StandardTestScene");
         }
 
 

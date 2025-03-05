@@ -5,12 +5,21 @@ using MonoContainerTests.Mocks;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace IUnityDependentExtensionsTests
 {
 
     public class FindContainer
     {
+
+        [SetUp]
+        public void SetUpScene()
+        {
+            SceneManager.LoadScene("StandardTestScene");
+        }
+
+
         [Test]
         public void FindContainer_StandardCall_ReturnsFromServiceGetContainer()
         {

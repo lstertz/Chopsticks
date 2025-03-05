@@ -1,7 +1,7 @@
 ﻿using Chopsticks.Dependencies.Containers;
 using NUnit.Framework;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 using ContainerService = Chopsticks.Dependencies.Services.UnityContainerService<
     Chopsticks.Dependencies.Containers.DependencyContainer,
     Chopsticks.Dependencies.Factories.DefaultDependencyContainerFactory,
@@ -43,6 +43,12 @@ namespace UnityContainerServiceTests
 
                 return service;
             }
+        }
+
+        [SetUp]
+        public void SetUpScene()
+        {
+            SceneManager.LoadScene("StandardTestScene");
         }
 
 
