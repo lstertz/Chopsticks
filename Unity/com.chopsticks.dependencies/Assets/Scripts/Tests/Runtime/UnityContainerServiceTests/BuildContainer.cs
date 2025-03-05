@@ -1,11 +1,19 @@
 ﻿using Chopsticks.Dependencies.Services;
 using MonoContainerTests.Mocks;
 using NUnit.Framework;
+using UnityEngine.SceneManagement;
 
 namespace UnityContainerServiceTests
 {
     public class BuildContainer
     {
+        [SetUp]
+        public void SetUpScene()
+        {
+            SceneManager.LoadScene("StandardTestScene");
+        }
+
+
         [Test]
         public void BuildContainer_WithDefinition_UsesFactoryWithDefintion()
         {

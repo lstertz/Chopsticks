@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MonoContainerTests
 {
@@ -13,6 +14,13 @@ namespace MonoContainerTests
         {
             public interface IContract { }
         }
+
+        [SetUp]
+        public void SetUpScene()
+        {
+            SceneManager.LoadScene("StandardTestScene");
+        }
+
 
         [Test]
         public void ResolveAll_StandardCall_ProvidesFromInternalContainer()

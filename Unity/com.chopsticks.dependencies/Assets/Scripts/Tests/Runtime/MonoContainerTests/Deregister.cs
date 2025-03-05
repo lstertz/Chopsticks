@@ -3,6 +3,7 @@ using MonoContainerTests.Mocks;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MonoContainerTests
 {
@@ -11,6 +12,12 @@ namespace MonoContainerTests
         public static class Mock
         {
             public interface IContract { }
+        }
+
+        [SetUp]
+        public void SetUpScene()
+        {
+            SceneManager.LoadScene("StandardTestScene");
         }
 
 

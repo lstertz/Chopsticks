@@ -2,11 +2,19 @@
 using NUnit.Framework;
 using TestHelpers;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MonoContainerTests
 {
     public class InheritParentDependencies
     {
+        [SetUp]
+        public void SetUpScene()
+        {
+            SceneManager.LoadScene("StandardTestScene");
+        }
+
+
         [Test]
         public void InheritParentDependencies_FalseThroughSerializedFieldOnAwake_Sets()
         {
