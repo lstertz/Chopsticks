@@ -1,4 +1,4 @@
-name: Run Unity Tests
+name: Unity Tests
 # Reference https://game.ci/docs/github/getting-started for future changes.
 
 on:
