@@ -7,14 +7,9 @@ on:
   workflow_dispatch: 
 
 jobs:
-  run-tests:
-    name: Run Tests
+  run-foundation-tests:
+    name: Run Foundation Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        project: 
-          - Native/Foundation
-          - Native/Dependencies  # Add future projects here.
 
     steps:
       - name: Checkout repository
@@ -29,6 +24,69 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Native/Foundation/Tests
+
+      - name: Build the test project
+        run: dotnet build Native/Foundation/Tests --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test Native/Foundation/Tests --configuration Release --no-build --verbosity normal  --collect:"XPlat Code Coverage"
+  
+  build-foundation:
+    name: Build Foundation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 7 (for .NET Standard 2.1 compatibility)
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Native/Foundation
+
+      - name: Build Foundation
+        run: dotnet build Native/Foundation --configuration Release --no-restore
+
+      - name: Store Foundation artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Foundation-Build
+          path: Native/Foundation/bin/Release/
+    
+  run-tests:
+    name: Run Package Tests
+    runs-on: ubuntu-latest
+    needs: build-foundation 
+    strategy:
+      matrix:
+        project: 
+          - Native/Dependencies  # Add future package projects here.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup .NET 9 (for tests)
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup .NET 7 (for .NET Standard 2.1 compatibility)
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Download Foundation Build
+        uses: actions/download-artifact@v3
+        with:
+          name: Foundation-Build
+          path: Native/Foundation/bin/Release/
 
       - name: Restore dependencies
         run: dotnet restore ${{ matrix.project }}/Tests
