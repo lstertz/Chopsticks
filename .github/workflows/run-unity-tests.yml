@@ -2,10 +2,10 @@ name: Unity Tests
 # Reference https://game.ci/docs/github/getting-started for future changes.
 
 on:
-  workflow_run:
-    workflows: [Native Tests]
-    types:
-      - completed
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch: 
 
 jobs:
   run-tests:
