@@ -97,7 +97,7 @@ jobs:
         run: dotnet restore ${{ matrix.project }}/Tests
 
       - name: Build the test project
-        run: dotnet build ${{ matrix.project }}/Tests --configuration Release --no-restore
+        run: dotnet build ${{ matrix.project }}/Tests --configuration Release --no-restore --property:TestBuild=true
 
       - name: Run tests
         run: dotnet test ${{ matrix.project }}/Tests --configuration Release --no-build --verbosity normal  --collect:"XPlat Code Coverage"

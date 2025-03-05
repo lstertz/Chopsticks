@@ -20,7 +20,7 @@
 	  </Reference>
 	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TestBuild)' != 'true'">
 		<Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy /Y /I &quot;$(TargetDir)&quot; &quot;..\..\Unity\com.chopsticks.dependencies\Assets\Plugins\&quot;" />
 		<Exec Condition=" '$(OS)' != 'Windows_NT' " Command="mkdir -p ../../Unity/com.chopsticks.dependencies/Assets/Plugins/ %26%26 cp -f $(TargetDir) ../../Unity/com.chopsticks.dependencies/Assets/Plugins/" />
 	</Target>
