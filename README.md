@@ -1,3 +1,6 @@
+[![Native Tests](https://github.com/lstertz/Chopsticks/actions/workflows/run-native-tests.yml/badge.svg?event=pull_request)](https://github.com/lstertz/Chopsticks/actions/workflows/run-native-tests.yml?query=event%3Apull_request)
+[![Unity Tests](https://github.com/lstertz/Chopsticks/actions/workflows/run-unity-tests.yml/badge.svg?event=pull_request)](https://github.com/lstertz/Chopsticks/actions/workflows/run-unity-tests.yml?query=event%3Apull_request)
+
 # Chopsticks
 A suite of Unity-first SDKs, each referred to as a Chopstick, to support rapid iteration and scalable development of all types of applications.
 
