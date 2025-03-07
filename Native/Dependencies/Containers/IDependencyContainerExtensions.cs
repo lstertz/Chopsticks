@@ -183,12 +183,13 @@ namespace Chopsticks.Dependencies.Containers
         /// </summary>
         /// <typeparam name="TContract">The type of the contract is to be resolved.</typeparam>
         /// <param name="container">The container resolving the dependency.</param>
-        /// <returns>The collection of all resolving implementations..</returns>
+        /// <returns>The collection of all resolving implementations.</returns>
         public static IEnumerable<TContract> ResolveAll<TContract>(
             this IDependencyContainer container)
         {
-            foreach (var implementation in container.ResolveAll(typeof(TContract)))
-                yield return (TContract)implementation;
+            foreach (var uncastImplementation in container.ResolveAll(typeof(TContract)))
+                if (uncastImplementation is TContract implementation)
+                    yield return implementation;
         }
     }
 }
