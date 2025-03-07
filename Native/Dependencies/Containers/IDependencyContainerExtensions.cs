@@ -168,7 +168,13 @@ namespace Chopsticks.Dependencies.Containers
             out TContract? implementation)
         {
             var wasResolved = container.Resolve(typeof(TContract), out var uncastImplementation);
-            implementation = (TContract?)uncastImplementation;
+            if (uncastImplementation is not TContract castImplementation)
+            {
+                implementation = default;
+                return false;
+            }
+
+            implementation = castImplementation;
             return wasResolved;
         }
 
