@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Dependencies.Contained;
 using Chopsticks.Dependencies.Containers;
+using Chopsticks.Dependencies.Services;
 using IUnityDependentExtensionsTests.Mocks;
 using MonoContainerTests.Mocks;
 using NSubstitute;
@@ -25,7 +26,7 @@ namespace IUnityDependentExtensionsTests
         {
             // Set up
             var expectedContainer = Substitute.For<MockDependencyContainer>();
-            var mockService = (expectedContainer as IUnityContainerConsumer<MockDependencyContainer, 
+            var mockService = (expectedContainer as IUnityContainerServiceProvider<MockDependencyContainer, 
                 MockMonoContainerService>).Service.Sub;
             var unityDependent = Substitute.For<MockUnityDependent>();
             unityDependent.Container = null;

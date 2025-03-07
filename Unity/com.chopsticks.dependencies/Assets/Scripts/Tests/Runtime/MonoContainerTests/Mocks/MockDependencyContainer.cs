@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Dependencies.Containers;
 using Chopsticks.Dependencies.Resolutions;
+using Chopsticks.Dependencies.Services;
 using System;
 using System.Collections.Generic;
 
@@ -7,7 +8,7 @@ namespace MonoContainerTests.Mocks
 {
     public abstract class MockDependencyContainer :
         IDependencyContainer, IDependencyResolutionProvider, IDisposable,
-        IUnityContainerConsumer<MockDependencyContainer, MockMonoContainerService>
+        IUnityContainerServiceProvider<MockDependencyContainer, MockMonoContainerService>
     {
         public class Definition { }
 
