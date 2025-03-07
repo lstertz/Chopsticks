@@ -162,7 +162,8 @@ namespace Chopsticks.Dependencies.Containers
         /// <param name="container">The container resolving the dependency.</param>
         /// <param name="implementation">The resolving dependency implementation, or null 
         /// if it could not be resolved.</param>
-        /// <returns>Whether the dependency was successfully resolved.</returns>
+        /// <returns>Whether the dependency was successfully resolved with an 
+        /// implementation of the specific contract type.</returns>
         public static bool Resolve<TContract>(
             this IDependencyContainer container,
             out TContract? implementation)
@@ -183,7 +184,8 @@ namespace Chopsticks.Dependencies.Containers
         /// </summary>
         /// <typeparam name="TContract">The type of the contract is to be resolved.</typeparam>
         /// <param name="container">The container resolving the dependency.</param>
-        /// <returns>The collection of all resolving implementations.</returns>
+        /// <returns>The collection of all resolving implementations that 
+        /// conform to the specified contract type.</returns>
         public static IEnumerable<TContract> ResolveAll<TContract>(
             this IDependencyContainer container)
         {
