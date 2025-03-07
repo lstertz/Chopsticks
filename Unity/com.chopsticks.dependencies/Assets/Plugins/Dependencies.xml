@@ -143,7 +143,7 @@
             Resolves the dependency of the specified type with all registered implementations.
             </summary>
             <param name="contract">The type of the contract to be resolved.</param>
-            <returns>The collection of all resolving implementations..</returns>
+            <returns>The collection of all resolving implementations.</returns>
         </member>
         <member name="T:Chopsticks.Dependencies.Containers.IDependencyContainerExtensions">
             <summary>
@@ -248,7 +248,7 @@
             </summary>
             <typeparam name="TContract">The type of the contract is to be resolved.</typeparam>
             <param name="container">The container resolving the dependency.</param>
-            <returns>The collection of all resolving implementations..</returns>
+            <returns>The collection of all resolving implementations.</returns>
         </member>
         <member name="T:Chopsticks.Dependencies.Dependency`1">
             <summary>
