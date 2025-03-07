@@ -43,7 +43,7 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
         /// </summary>
         protected void PerformRegistration()
         {
-            this.RegisterAs<DependencyContainer, MonoContainerService, IExampleSystem>();
+            this.RegisterAs<IExampleSystem>();
         }
     }
 }
