@@ -25,7 +25,7 @@ namespace Chopsticks.Dependencies.Containers
     public abstract class BaseMonoContainer<TNativeContainer, TNativeContainerFactory,
         TNativeContainerDefinition, TUnityContainerService> :
         BaseUnityContainer<TNativeContainer>, 
-        IUnityContainerConsumer<TNativeContainer, TUnityContainerService>
+        IUnityContainerServiceProvider<TNativeContainer, TUnityContainerService>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
         where TNativeContainerFactory : IDependencyContainerFactory<TNativeContainer,
             TNativeContainerDefinition>, new()
@@ -36,7 +36,7 @@ namespace Chopsticks.Dependencies.Containers
         /// The Unity container service that provides Unity-specific services for containers.
         /// </summary>
         protected TUnityContainerService ContainerService =>
-            (this as IUnityContainerConsumer<TNativeContainer, TUnityContainerService>).Service;
+            (this as IUnityContainerServiceProvider<TNativeContainer, TUnityContainerService>).Service;
 
         /// <inheritdoc/>
         protected override TNativeContainer InternalContainer =>

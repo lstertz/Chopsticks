@@ -14,7 +14,7 @@ namespace Chopsticks.Dependencies.Contained
     /// provides Unity-specific services.</typeparam>
     public interface IUnityDependent<TNativeContainer, TUnityContainerService> : 
         IUnityContained<TNativeContainer>, 
-        IUnityContainerConsumer<TNativeContainer, TUnityContainerService>
+        IUnityContainerServiceProvider<TNativeContainer, TUnityContainerService>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
         where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {
