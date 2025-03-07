@@ -8,22 +8,32 @@ public class ResolveAll
     public static class Mock
     {
         public interface IContract { }
+
+        public interface IInvalidContract { }
     }
 
 
     [Test]
-    public void ResolveAll_GenericCall_EnforcesGenericTyping()
+    public void ResolveAll_SomeValidSomeInvalid_IncludesValidlyCast()
     {
         // Set up
         var implementationA = Substitute.For<Mock.IContract>();
-        var implementationB = Substitute.For<Mock.IContract>();
+        var implementationB = Substitute.For<Mock.IInvalidContract>();
+        var implementationC = Substitute.For<Mock.IContract>();
+        var implementationD = Substitute.For<Mock.IInvalidContract>();
+        IEnumerable<object> allImplementations = [
+            implementationA,
+            implementationB,  // Registered non-generically where actual typing isn't enforced.
+            implementationC,
+            implementationD   // Registered non-generically where actual typing isn't enforced.
+            ];
         IEnumerable<object> expectedImplementations = [
             implementationA,
-            implementationB
+            implementationC
             ];
 
         var container = Substitute.For<IDependencyContainer>();
-        container.ResolveAll(typeof(Mock.IContract)).Returns(expectedImplementations);
+        container.ResolveAll(typeof(Mock.IContract)).Returns(allImplementations);
 
         // Act
         var implementations = container.ResolveAll<Mock.IContract>().ToArray();
