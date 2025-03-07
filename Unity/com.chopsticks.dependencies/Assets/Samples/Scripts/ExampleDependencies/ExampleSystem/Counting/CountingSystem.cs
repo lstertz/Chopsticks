@@ -14,13 +14,15 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
     public class CountingSystem : UnalterableCountingSystemSuperclass, IMonoDependency
     {
         /// <inheritdoc/>
-        public List<DependencyRegistration> Registrations { get; } = new();
+        List<DependencyRegistration> IUnityDependency<DependencyContainer, MonoContainerService>
+            .Registrations { get; } = new();
 
         /// <inheritdoc/>
-        public DependencyContainer Container { get; set; }
+        DependencyContainer IUnityContained<DependencyContainer>.Container { get; set; }
 
         /// <inheritdoc/>
-        public ContainerSetting ContainerSetting => ContainerSetting.HierarchyWithGlobal;
+        ContainerSetting IUnityContained<DependencyContainer>.ContainerSetting => 
+            ContainerSetting.HierarchyWithGlobal;
 
 
         /// <inheritdoc/>
