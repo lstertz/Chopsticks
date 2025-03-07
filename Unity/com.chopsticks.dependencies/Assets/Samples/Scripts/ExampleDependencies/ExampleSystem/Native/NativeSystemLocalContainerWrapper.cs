@@ -20,12 +20,6 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Native
         private DependencyRegistration _registration;
 
         /// <summary>
-        /// The specific instance of the container service that will enable retrieval 
-        /// of the local container.
-        /// </summary>
-        private MonoContainerService _containerService;
-
-        /// <summary>
         /// The last known local container.
         /// </summary>
         private DependencyContainer _container;
@@ -37,7 +31,7 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Native
         /// </summary>
         public void OnEnable()
         {
-            _container = _containerService.GetContainerFromHierarchy(transform);
+            _container = MonoContainerService.Shared.GetContainerFromHierarchy(transform);
             _container.Register<IExampleSystem>(new NativeSystem(), out _registration);
         }
 
@@ -62,7 +56,7 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Native
         {
             _container.Deregister(_registration);
 
-            _container = _containerService.GetContainerFromHierarchy(transform);
+            _container = MonoContainerService.Shared.GetContainerFromHierarchy(transform);
             _container.Register(new NativeSystem(), out _registration);
         }
     }
