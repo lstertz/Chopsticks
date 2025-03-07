@@ -45,7 +45,7 @@ namespace Chopsticks.Dependencies.Containers
         /// Resolves the dependency of the specified type with all registered implementations.
         /// </summary>
         /// <param name="contract">The type of the contract to be resolved.</param>
-        /// <returns>The collection of all resolving implementations..</returns>
+        /// <returns>The collection of all resolving implementations.</returns>
         IEnumerable<object> ResolveAll(Type contract);
     }
 }
