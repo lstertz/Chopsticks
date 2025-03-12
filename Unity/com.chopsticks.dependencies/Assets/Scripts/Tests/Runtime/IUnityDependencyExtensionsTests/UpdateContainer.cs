@@ -81,7 +81,7 @@ namespace IUnityDependencyExtensionsTests
         [TestCase(ContainerSetting.HierarchyWithoutGlobal, false)]
         [TestCase(ContainerSetting.Override, true)]
         [TestCase(ContainerSetting.Override, false)]
-        public void SetContainer_AllContainerSettings_InvokesOnRegistrationWhenContainerChanges(
+        public void SetContainer_AllContainerSettings_InvokesOnPostContainerChangedWhenContainerChanges(
             ContainerSetting containerSetting, bool containerChanged)
         {
             // Set up
@@ -92,45 +92,12 @@ namespace IUnityDependencyExtensionsTests
                 initContainerIsNull, out var monoBehaviour, 
                 out var overrideContainer, out var serviceSub);
 
-            bool calledOnRegistration = false;
-            void onRegistration() => calledOnRegistration = true;
-
-            // Act
-            unityDependency.UpdateContainer(monoBehaviour, overrideContainer, 
-                null, null, onRegistration);
-
-            // Assert
-            Assert.That(calledOnRegistration, Is.EqualTo(containerChanged));
-        }
-
-        [Test]
-        [TestCase(ContainerSetting.None, true)]
-        [TestCase(ContainerSetting.None, false)]
-        [TestCase(ContainerSetting.Global, true)]
-        [TestCase(ContainerSetting.Global, false)]
-        [TestCase(ContainerSetting.HierarchyWithGlobal, true)]
-        [TestCase(ContainerSetting.HierarchyWithGlobal, false)]
-        [TestCase(ContainerSetting.HierarchyWithoutGlobal, true)]
-        [TestCase(ContainerSetting.HierarchyWithoutGlobal, false)]
-        [TestCase(ContainerSetting.Override, true)]
-        [TestCase(ContainerSetting.Override, false)]
-        public void SetContainer_AllContainerSettings_InvokesPostContainerChangedWhenContainerChanges(
-            ContainerSetting containerSetting, bool containerChanged)
-        {
-            // Set up
-            var initContainerIsNull = containerSetting != ContainerSetting.None ?
-                containerChanged : !containerChanged;
-
-            var unityDependency = SetUp.ChangeableContainer(containerSetting,
-                initContainerIsNull, out var monoBehaviour,
-                out var overrideContainer, out var serviceSub);
-
             bool calledOnPostContainerChanged = false;
             void onPostContainerChanged() => calledOnPostContainerChanged = true;
 
             // Act
             unityDependency.UpdateContainer(monoBehaviour, overrideContainer, 
-                null, onPostContainerChanged, null);
+                null, onPostContainerChanged);
 
             // Assert
             Assert.That(calledOnPostContainerChanged, Is.EqualTo(containerChanged));
@@ -163,7 +130,7 @@ namespace IUnityDependencyExtensionsTests
 
             // Act
             unityDependency.UpdateContainer(monoBehaviour, overrideContainer, 
-                onPreContainerChanged, null, null);
+                onPreContainerChanged, null);
 
             // Assert
             Assert.That(calledOnPreContainerChanged, Is.EqualTo(containerChanged));
@@ -211,7 +178,7 @@ namespace IUnityDependencyExtensionsTests
 
             // Act
             unityDependency.UpdateContainer(monoBehaviour, overrideContainer, 
-                null, null, null);
+                null, null);
 
             // Assert
             Assert.That(unityDependency.Registrations, Is.Empty);
@@ -227,7 +194,7 @@ namespace IUnityDependencyExtensionsTests
                 out var monoBehaviour, out _, out var serviceSub);
 
             // Act
-            unityDependent.UpdateContainer(monoBehaviour, null, null, null, null);
+            unityDependent.UpdateContainer(monoBehaviour, null, null, null);
 
             // Assert
             Assert.That(unityDependent.Container, Is.Null);
@@ -248,7 +215,7 @@ namespace IUnityDependencyExtensionsTests
 
             // Act
             unityDependency.UpdateContainer(monoBehaviour, overrideContainer, 
-                null, null, null);
+                null, null);
 
             // Assert
             Assert.That(unityDependency.Container, Is.Null);
@@ -280,7 +247,7 @@ namespace IUnityDependencyExtensionsTests
 
             // Act
             unityDependency.UpdateContainer(monoBehaviour, overrideContainer,
-                null, null, null);
+                null, null);
 
             // Assert
             Assert.That(unityDependency.Container, Is.EqualTo(expectedContainer));

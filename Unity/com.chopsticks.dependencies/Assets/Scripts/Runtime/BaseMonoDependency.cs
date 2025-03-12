@@ -22,7 +22,7 @@ namespace Chopsticks.Dependencies
 
         ///<inheritdoc/>
         public override void OnEnable() =>
-            this.SetContainer(this, OverrideContainer, OnRegistration);
+            this.UpdateContainer(this, OverrideContainer, null, OnPostContainerChanged);
 
         ///<inheritdoc/>
         public virtual void OnDisable() => 
@@ -30,8 +30,7 @@ namespace Chopsticks.Dependencies
 
         ///<inheritdoc/>
         public override void OnTransformParentChanged() => 
-            this.UpdateContainer(this, OverrideContainer, 
-                OnPreContainerChanged, OnPostContainerChanged, OnRegistration);
+            this.UpdateContainer(this, OverrideContainer, null, OnPostContainerChanged);
 
 
         /// <summary>
@@ -48,5 +47,12 @@ namespace Chopsticks.Dependencies
         /// This will be null if the attempt to register failed.</returns>
         protected DependencyRegistration RegisterAs<TContract>() =>
             this.RegisterAs<TNativeContainer, TUnityContainerService, TContract>();
+
+
+        private void OnPostContainerChanged()
+        {
+            PerformRegistration();
+            ResolveDependencies();
+        }
     }
 }

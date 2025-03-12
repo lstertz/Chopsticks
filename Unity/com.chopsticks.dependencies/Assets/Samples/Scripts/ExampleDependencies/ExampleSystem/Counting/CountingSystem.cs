@@ -31,11 +31,11 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
 
         /// <inheritdoc/>
         public void OnEnable() =>
-            this.SetContainer(this, null, PerformRegistration);
+            this.UpdateContainer(this, null, null, PerformRegistration);
 
         /// <inheritdoc/>
         public void OnTransformParentChanged() =>
-            this.UpdateContainer(this, null, null, null);
+            this.UpdateContainer(this, null, null, PerformRegistration);
 
 
         /// <summary>
