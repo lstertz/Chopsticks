@@ -37,7 +37,7 @@ namespace Chopsticks.Dependencies
         /// Performs registration of this dependency for each of its contracts 
         /// using <see cref="RegisterAs{T}"/>.
         /// </summary>
-        protected abstract void OnRegistration();
+        protected abstract void PerformRegistration();
 
         /// <summary>
         /// Registers this dependency as the specified contract.

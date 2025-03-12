@@ -26,7 +26,7 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Output
 
 
         /// <inheritdoc/>
-        protected override void OnRegistration()
+        protected override void PerformRegistration()
         {
             RegisterAs<IExampleSystem>();
         }
