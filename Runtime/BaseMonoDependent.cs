@@ -31,14 +31,15 @@ namespace Chopsticks.Dependencies
 
 
         ///<inheritdoc/>
-        public virtual void OnEnable() =>
-            this.UpdateContainer(this, _overrideContainer,
-                null, ResolveDependencies);
+        public virtual void OnEnable()
+        {
+            this.UpdateContainer(this, _overrideContainer);
+            ResolveDependencies();
+        }
 
         ///<inheritdoc/>
         public virtual void OnTransformParentChanged() => 
-            this.UpdateContainer(this, _overrideContainer, 
-                null, ResolveDependencies);
+            this.UpdateContainer(this, _overrideContainer, null, ResolveDependencies);
 
 
         /// <summary>
