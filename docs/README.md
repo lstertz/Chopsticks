@@ -17,13 +17,6 @@ layout:
     visible: true
 ---
 
-# A General Introduction to Contextual Programming
-
-**First Edition - October 2024**\
-By Lucas Stertz
-
-
-
-## Overview
+# Overview
 
 These docs describe the expected use and capabilities of the SDKs included in Chopsticks.
