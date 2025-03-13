@@ -30,12 +30,15 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
             this.DeregisterAll();
 
         /// <inheritdoc/>
-        public void OnEnable() =>
-            this.UpdateContainer(this, null, null, PerformRegistration);
+        public void OnEnable()
+        {
+            this.UpdateContainer(this, null);
+            PerformRegistration();
+        }
 
         /// <inheritdoc/>
         public void OnTransformParentChanged() =>
-            this.UpdateContainer(this, null, null, PerformRegistration);
+            this.UpdateContainer(this, null, this.DeregisterAll, PerformRegistration);
 
 
         /// <summary>
