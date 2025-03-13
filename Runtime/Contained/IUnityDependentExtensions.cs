@@ -38,39 +38,8 @@ namespace Chopsticks.Dependencies.Contained
                     true, unityContained, overrideContainer);
 
         /// <summary>
-        /// Sets the container of the dependent based on its current transform hierarchy.
-        /// </summary>
-        /// <remarks>
-        /// Usually called as part of 
-        /// <see cref="IUnityDependent{TNativeContainer, TUnityContainerService}.OnEnable"/>.
-        /// </remarks>
-        /// <typeparam name="TNativeContainer">The type of the internal, non-Unity 
-        /// dependency container.</typeparam>
-        /// <typeparam name="TUnityContainerService">The type of the Unity container service that 
-        /// provides Unity-specific services.</typeparam>
-        /// <param name="dependent">This dependent that is having its container set.</param>
-        /// <param name="unityContained">The MonoBehaviour of this dependent.</param>
-        /// <param name="overrideContainer">The container that may be used as an override 
-        /// when setting the container.</param>
-        public static void SetContainer<TNativeContainer, TUnityContainerService>(
-            this IUnityDependent<TNativeContainer, TUnityContainerService> dependent,
-            MonoBehaviour unityContained,
-            IUnityContainer<TNativeContainer> overrideContainer)
-            where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
-            where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
-        {
-            TNativeContainer updatedContainer = default;
-            if (dependent.ContainerSetting != ContainerSetting.None)
-                updatedContainer = dependent.Service.GetContainer(
-                    (ContainerRetrievalSetting)dependent.ContainerSetting,
-                    true, unityContained.transform, overrideContainer);
-
-            dependent.Container = updatedContainer;
-        }
-
-        /// <summary>
         /// Updates the container of the dependent based on its current transform hierarchy, 
-        /// and invokes the provided change handler upon a container change.
+        /// and invokes the provided change handlers upon a container change.
         /// </summary>
         /// <remarks>
         /// Usually called as part of 
@@ -82,8 +51,8 @@ namespace Chopsticks.Dependencies.Contained
         /// when setting the container.</param>
         /// <param name="onPreContainerChanged">The method called prior to when the container 
         /// is being updated.</param>
-        /// <param name="onPreContainerChanged">The method called after the container 
-        /// has been updated.</param>
+        /// <param name="onPostContainerChanged">The method called after the container 
+        /// has been updated, generally to resolve dependencies or similar functionality.</param>
         public static void UpdateContainer<TNativeContainer, TUnityContainerService>(
             this IUnityDependent<TNativeContainer, TUnityContainerService> dependent,
             MonoBehaviour unityContained,

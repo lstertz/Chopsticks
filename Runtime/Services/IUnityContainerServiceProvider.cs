@@ -1,25 +1,24 @@
-﻿using Chopsticks.Dependencies.Resolutions;
-using Chopsticks.Dependencies.Services;
+﻿using Chopsticks.Dependencies.Containers;
+using Chopsticks.Dependencies.Resolutions;
 using System;
 
-namespace Chopsticks.Dependencies.Containers
+namespace Chopsticks.Dependencies.Services
 {
     /// <summary>
-    /// Defines a Unity container consumer that is serviced 
-    /// by <see cref="IUnityContainerService{TNativeContainer}"/>.
+    /// Defines a <see cref="IUnityContainerService{TNativeContainer}"/> provider.
     /// </summary>
     /// <typeparam name="TNativeContainer">The type of the internal, non-Unity 
     /// dependency container that is consumed by the Unity contianer.</typeparam>
     /// <typeparam name="TUnityContainerService">The type of service provider 
     /// for working with Unity containers.</typeparam>
-    public interface IUnityContainerConsumer<TNativeContainer, TUnityContainerService>
+    public interface IUnityContainerServiceProvider<TNativeContainer, TUnityContainerService>
         where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
         where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {
         /// <summary>
-        /// The Unity service that provides container services for Unity container consumers.
+        /// The provided Unity container service.
         /// </summary>
-        TUnityContainerService Service => _unityContainerService;
-        private static readonly TUnityContainerService _unityContainerService = new();
+        TUnityContainerService Service => InternalService;
+        protected static TUnityContainerService InternalService { get; } = new();
     }
 }

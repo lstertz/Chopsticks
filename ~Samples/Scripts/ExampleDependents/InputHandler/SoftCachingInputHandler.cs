@@ -32,10 +32,8 @@ namespace Chopsticks.Samples.ExampleDependents.InputHandler
         /// Resolves the dependencies of the handler, caching them and logging a warning if 
         /// a dependency could not be resolved.
         /// </summary>
-        public override void OnEnable()
+        protected override void ResolveDependencies()
         {
-            base.OnEnable();
-
             if (!Resolve(out _system))
                 Debug.LogWarning($"{nameof(SoftCachingInputHandler)} could not " +
                     $"resolve its {nameof(IExampleSystem)} dependency. Dependent features " +

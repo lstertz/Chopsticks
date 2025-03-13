@@ -14,13 +14,15 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
     public class CountingSystem : UnalterableCountingSystemSuperclass, IMonoDependency
     {
         /// <inheritdoc/>
-        public List<DependencyRegistration> Registrations { get; } = new();
+        List<DependencyRegistration> IUnityDependency<DependencyContainer, MonoContainerService>
+            .Registrations { get; } = new();
 
         /// <inheritdoc/>
-        public DependencyContainer Container { get; set; }
+        DependencyContainer IUnityContained<DependencyContainer>.Container { get; set; }
 
         /// <inheritdoc/>
-        public ContainerSetting ContainerSetting => ContainerSetting.HierarchyWithGlobal;
+        ContainerSetting IUnityContained<DependencyContainer>.ContainerSetting => 
+            ContainerSetting.HierarchyWithGlobal;
 
 
         /// <inheritdoc/>
@@ -29,11 +31,11 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
 
         /// <inheritdoc/>
         public void OnEnable() =>
-            this.SetContainer(this, null, PerformRegistration);
+            this.UpdateContainer(this, null, null, PerformRegistration);
 
         /// <inheritdoc/>
         public void OnTransformParentChanged() =>
-            this.UpdateContainer(this, null, null, null);
+            this.UpdateContainer(this, null, null, PerformRegistration);
 
 
         /// <summary>
@@ -41,7 +43,7 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
         /// </summary>
         protected void PerformRegistration()
         {
-            this.RegisterAs<DependencyContainer, MonoContainerService, IExampleSystem>();
+            this.RegisterAs<IExampleSystem>();
         }
     }
 }

@@ -17,9 +17,10 @@ namespace Chopsticks.Dependencies
         ///<inheritdoc/>
         TNativeContainer IUnityContained<TNativeContainer>.Container { get; set; }
 
+        ///<inheritdoc/>
         ContainerSetting IUnityContained<TNativeContainer>.ContainerSetting => _containerSetting;
         [SerializeField]
-        protected ContainerSetting _containerSetting = ContainerSetting.HierarchyWithGlobal;
+        private ContainerSetting _containerSetting = ContainerSetting.HierarchyWithGlobal;
 
         /// <summary>
         /// The container that may serve as an overriding container for this dependent.
@@ -30,36 +31,25 @@ namespace Chopsticks.Dependencies
 
 
         ///<inheritdoc/>
-        public virtual void OnEnable() => 
-            this.SetContainer(this, _overrideContainer);
+        public virtual void OnEnable() =>
+            this.UpdateContainer(this, _overrideContainer,
+                null, ResolveDependencies);
 
         ///<inheritdoc/>
         public virtual void OnTransformParentChanged() => 
             this.UpdateContainer(this, _overrideContainer, 
-                OnPreContainerChanged, OnPostContainerChanged);
+                null, ResolveDependencies);
 
 
         /// <summary>
-        /// Invoked after to the container has been changed as the result of a change in the 
-        /// MonoBehaviour's parent hierarchy.
+        /// Invoked after to the container has been changed for resolving 
+        /// the dependencies of the dependent.
         /// </summary>
         /// <remarks>
-        /// This is not called if the MonoBehaviour is disabled. Handle any possible 
-        /// container changes that occur while disabled by extending the existing 
-        /// functionality of <see cref="OnEnable"/>.
+        /// Cached dependencies should be re-resolved and re-cached here since 
+        /// the container that may have provided them could have changed.
         /// </remarks>
-        protected virtual void OnPostContainerChanged() { }
-
-        /// <summary>
-        /// Invoked prior to the container being changed as the result of a change in the 
-        /// MonoBehaviour's parent hierarchy.
-        /// </summary>
-        /// <remarks>
-        /// This is not called if the MonoBehaviour is disabled. Handle any possible 
-        /// container changes that occur while disabled by extending the existing 
-        /// functionality of <see cref="OnEnable"/>.
-        /// </remarks>
-        protected virtual void OnPreContainerChanged() { }
+        protected virtual void ResolveDependencies() { }
 
 
         /// <inheritdoc cref="IUnityContainedExtensions
