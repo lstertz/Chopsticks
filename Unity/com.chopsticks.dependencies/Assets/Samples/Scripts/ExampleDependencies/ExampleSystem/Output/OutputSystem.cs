@@ -25,8 +25,11 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Output
         }
 
 
-        /// <inheritdoc/>
-        protected override void OnRegistration()
+        /// <summary>
+        /// Performs registrations for this dependency as its contracts, 
+        /// for its container.
+        /// </summary>
+        protected override void PerformRegistration()
         {
             RegisterAs<IExampleSystem>();
         }

@@ -14,6 +14,6 @@ namespace IUnityDependencyExtensionsTests.Mocks
         BaseMonoDependency<MockDependencyContainer, MockMonoContainerService>,
         IMockMonoDependency
     {
-        protected override void OnRegistration() { }
+        protected override void PerformRegistration() { }
     }
 }
