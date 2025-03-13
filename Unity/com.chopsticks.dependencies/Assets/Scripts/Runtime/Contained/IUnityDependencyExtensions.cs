@@ -12,48 +12,6 @@ namespace Chopsticks.Dependencies.Contained
     public static class IUnityDependencyExtensions
     {
         /// <summary>
-        /// Updates the container of the dependency based on its current transform hierarchy, 
-        /// and invokes the provided change handler and registration method upon a container change.
-        /// </summary>
-        /// <remarks>
-        /// Usually called as part of 
-        /// <see cref="IUnityDependent{TNativeContainer, TUnityContainerService}.OnTransformParentChanged"/>.
-        /// </remarks>
-        /// <typeparam name="TNativeContainer">The type of the internal, non-Unity 
-        /// dependency container.</typeparam>
-        /// <typeparam name="TUnityContainerService">The type of the Unity container service that 
-        /// provides Unity-specific services.</typeparam>
-        /// <param name="dependency">This dependency that is having its container set.</param>
-        /// <param name="unityContained">The MonoBehaviour of this dependency.</param>
-        /// <param name="overrideContainer">The container that may be used as an override 
-        /// when setting the container.</param>
-        /// <param name="onPreContainerChanged">The method called prior to when the container 
-        /// is being updated.</param>
-        /// <param name="onPostContainerChanged">The method called after the container 
-        /// has been updated, generally used for registering the dependency 
-        /// as its contracts with the new container, to resolve dependencies, 
-        /// or similar functionality.</param>
-        public static void UpdateContainer<TNativeContainer, TUnityContainerService>(
-            this IUnityDependency<TNativeContainer, TUnityContainerService> dependency,
-            MonoBehaviour unityContained,
-            IUnityContainer<TNativeContainer> overrideContainer,
-            Action onPreContainerChanged,
-            Action onPostContainerChanged)
-            where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
-            where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
-        {
-            (dependency as IUnityDependent<TNativeContainer, TUnityContainerService>)
-                .UpdateContainer(unityContained, overrideContainer,
-                    () =>
-                    {
-                        dependency.DeregisterAll();
-                        onPreContainerChanged?.Invoke();
-                    },
-                    onPostContainerChanged);
-        }
-
-
-        /// <summary>
         /// Deregisters all of this dependency's registrations with its container.
         /// </summary>
         /// <typeparam name="TNativeContainer">The type of the internal, non-Unity 
