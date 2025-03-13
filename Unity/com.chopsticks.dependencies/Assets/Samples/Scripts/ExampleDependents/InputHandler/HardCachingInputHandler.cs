@@ -30,10 +30,8 @@ namespace Chopsticks.Samples.ExampleDependents.InputHandler
         /// <summary>
         /// Resolves the dependencies of the handler, caching them.
         /// </summary>
-        public override void OnEnable()
+        protected override void ResolveDependencies()
         {
-            base.OnEnable();  // Must be called for the MonoDependent to operate correctly.
-
             _system = AssertiveResolve<IExampleSystem>();
         }
 
