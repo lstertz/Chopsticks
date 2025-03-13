@@ -57,7 +57,8 @@ namespace Chopsticks.Dependencies.Contained
             this IUnityDependent<TNativeContainer, TUnityContainerService> dependent,
             MonoBehaviour unityContained,
             IUnityContainer<TNativeContainer> overrideContainer, 
-            Action onPreContainerChanged, Action onPostContainerChanged)
+            Action onPreContainerChanged = null, 
+            Action onPostContainerChanged = null)
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
         {
