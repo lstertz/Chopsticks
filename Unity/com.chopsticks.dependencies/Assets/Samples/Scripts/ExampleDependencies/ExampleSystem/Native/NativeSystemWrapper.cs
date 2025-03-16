@@ -6,11 +6,11 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Native
     /// An example wrapper of a native system, to enable registration of 
     /// a system that exists outside of Unity.
     /// </summary>
-    public class NativeSystemWrapper : MonoDependency
+    public class NativeSystemWrapper : MonoDependencyWrapper
     {
         protected override void PerformRegistration()
         {
-            RegisterAs<IExampleSystem>(new NativeSystem());
+            Register<IExampleSystem>(new NativeSystem());
         }
     }
 }
