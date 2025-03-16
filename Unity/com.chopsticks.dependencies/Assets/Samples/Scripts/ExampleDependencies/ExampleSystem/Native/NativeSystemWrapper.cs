@@ -8,9 +8,11 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Native
     /// </summary>
     public class NativeSystemWrapper : MonoDependencyWrapper
     {
+        private readonly NativeSystem _system = new();
+
         protected override void PerformRegistration()
         {
-            Register<IExampleSystem>(new NativeSystem());
+            Register<IExampleSystem>(_system);
         }
     }
 }
