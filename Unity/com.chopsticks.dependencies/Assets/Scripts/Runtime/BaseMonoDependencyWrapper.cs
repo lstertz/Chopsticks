@@ -56,11 +56,9 @@ namespace Chopsticks.Dependencies
         /// <param name="dependency">The dependency instance to be registered.</param>
         /// <returns>The registration, to be used for manual deregistration, if needed.
         /// This will be null if the attempt to register failed.</returns>
-        protected DependencyRegistration Register<TContract>(TContract dependency)
-        {
-            // TODO :: Implement extension method.
-            return null;
-        }
+        protected DependencyRegistration Register<TContract>(TContract dependency) =>
+            this.Register<TNativeContainer, TUnityContainerService, TContract>(dependency);
+
 
         /// <summary>
         /// Registers the specified implementation factory to fulfill the specified contract.
@@ -79,11 +77,9 @@ namespace Chopsticks.Dependencies
         /// This will be null if the attempt to register failed.</returns>
         protected DependencyRegistration Register<TContract>(
             Func<IDependencyContainer, TContract> implementationFactory,
-            DependencyLifetime lifetime = DependencyLifetime.Singleton)
-        {
-            // TODO :: Implement extension method.
-            return null;
-        }
+            DependencyLifetime lifetime = DependencyLifetime.Singleton) =>
+            this.Register<TNativeContainer, TUnityContainerService, TContract>(
+                implementationFactory, lifetime);
 
 
         private void OnContainerSet()
