@@ -2,7 +2,6 @@
 using Chopsticks.Dependencies.Resolutions;
 using Chopsticks.Dependencies.Services;
 using System;
-using System.ComponentModel;
 
 namespace Chopsticks.Dependencies.Contained
 {
