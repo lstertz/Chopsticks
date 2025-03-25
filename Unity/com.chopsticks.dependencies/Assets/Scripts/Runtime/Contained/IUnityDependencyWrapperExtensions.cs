@@ -2,6 +2,7 @@
 using Chopsticks.Dependencies.Resolutions;
 using Chopsticks.Dependencies.Services;
 using System;
+using System.ComponentModel;
 
 namespace Chopsticks.Dependencies.Contained
 {
@@ -49,8 +50,15 @@ namespace Chopsticks.Dependencies.Contained
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
         {
-            // TODO :: Implement registration with the wrapper's container.
-            return null;
+            wrapper.Container.Register(new DependencySpecification()
+            {
+                Contract = typeof(TContract),
+                ImplementationFactory = c => dependency,
+                Lifetime = DependencyLifetime.Singleton,
+            }, out var registration);
+            wrapper.Registrations.Add(registration);
+
+            return registration;
         }
 
         /// <summary>
@@ -73,8 +81,15 @@ namespace Chopsticks.Dependencies.Contained
             where TNativeContainer : IDependencyContainer, IDependencyResolutionProvider, IDisposable
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
         {
-            // TODO :: Implement registration with the wrapper's container.
-            return null;
+            wrapper.Container.Register(new DependencySpecification()
+            {
+                Contract = typeof(TContract),
+                ImplementationFactory = c => implementationFactory(c),
+                Lifetime = lifetime,
+            }, out var registration);
+            wrapper.Registrations.Add(registration);
+
+            return registration;
         }
     }
 }
