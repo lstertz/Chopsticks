@@ -15,8 +15,8 @@ namespace Chopsticks.Dependencies
         where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
     {
         ///<inheritdoc/>
-        List<DependencyRegistration> IUnityDependency<TNativeContainer, TUnityContainerService>.Registrations => 
-            _registrations;
+        List<DependencyRegistration> IUnityDependency<TNativeContainer, TUnityContainerService>
+            .Registrations => _registrations;
         private readonly List<DependencyRegistration> _registrations = new(1);
 
 
