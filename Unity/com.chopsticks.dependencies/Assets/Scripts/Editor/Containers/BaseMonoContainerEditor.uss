@@ -38,6 +38,14 @@ PropertyField {
     border-color: var(--unity-colors-default-border);
 }
 
+.configuration-container {
+    margin: 4px;
+    padding: 6px;
+    border-width: 1px;
+    border-radius: 3px;
+    border-color: var(--unity-colors-default-border);
+}
+
 .parent-state-label {
     margin-top: 3px;
     margin-bottom: 3px;
