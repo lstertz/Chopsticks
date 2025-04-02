@@ -16,7 +16,6 @@ namespace Chopsticks.Dependencies.Editor
 
         private static readonly HashSet<string> ExcludedProperties = new()
         {
-            "m_Script",
             ContainerParentSetting,
             InheritParentDependencies,
             OverrideParent
