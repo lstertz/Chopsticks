@@ -13,4 +13,7 @@
         <ui:Label text="None" name="parentStateLabel" class="parent-state-label" />
         <uie:ObjectField name="currentParent"/>
     </ui:VisualElement>
+    <ui:VisualElement name="configurationContainer" class="configuration-container">
+        <ui:Label class="section-header" text="Configuration"/>
+    </ui:VisualElement>
 </UXML> 
