@@ -21,8 +21,8 @@ namespace Chopsticks.Samples.ExampleDependencies.ExampleSystem.Counting
         DependencyContainer IUnityContained<DependencyContainer>.Container { get; set; }
 
         /// <inheritdoc/>
-        ContainerSetting IUnityContained<DependencyContainer>.ContainerSetting => 
-            ContainerSetting.HierarchyWithGlobal;
+        ContainerRetrievalSetting IUnityContained<DependencyContainer>.ContainerSetting =>
+            ContainerRetrievalSetting.Hierarchy;
 
 
         /// <inheritdoc/>
