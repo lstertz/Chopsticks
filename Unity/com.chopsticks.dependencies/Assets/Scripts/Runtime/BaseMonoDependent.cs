@@ -18,9 +18,9 @@ namespace Chopsticks.Dependencies
         TNativeContainer IUnityContained<TNativeContainer>.Container { get; set; }
 
         ///<inheritdoc/>
-        ContainerSetting IUnityContained<TNativeContainer>.ContainerSetting => _containerSetting;
+        ContainerRetrievalSetting IUnityContained<TNativeContainer>.ContainerSetting => _containerSetting;
         [SerializeField]
-        private ContainerSetting _containerSetting = ContainerSetting.HierarchyWithGlobal;
+        private ContainerRetrievalSetting _containerSetting = ContainerRetrievalSetting.Hierarchy;
 
         /// <summary>
         /// The container that may serve as an overriding container for this dependent.
@@ -40,6 +40,10 @@ namespace Chopsticks.Dependencies
         ///<inheritdoc/>
         public virtual void OnTransformParentChanged() => 
             this.UpdateContainer(this, _overrideContainer, null, ResolveDependencies);
+
+        ///<inheritdoc/>
+        protected virtual void OnValidate() =>
+            this.UpdateContainer(this, _overrideContainer, null, null);
 
 
         /// <summary>

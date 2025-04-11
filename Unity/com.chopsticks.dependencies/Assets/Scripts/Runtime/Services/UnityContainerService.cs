@@ -53,23 +53,24 @@ namespace Chopsticks.Dependencies.Services
 
         /// <inheritdoc/>
         /// <exception cref="NotSupportedException">Thrown if a  
-        /// <see cref="ContainerRetrievalSetting"/>is not supported.</exception>
+        /// <see cref="ContainerSetting"/>is not supported.</exception>
         public virtual TNativeContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
-            ContainerRetrievalSetting setting, TUnityContainer unityContainer,
+            ContainerSetting setting, TUnityContainer unityContainer,
             TOverrideContainer overrideContainer)
             where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>
             where TOverrideContainer : IUnityContainer<TNativeContainer> =>
             setting switch
             {
-                ContainerRetrievalSetting.HierarchyWithGlobal =>
+                ContainerSetting.HierarchyWithGlobal =>
                     GetContainer(setting, false, unityContainer.transform, overrideContainer),
-                ContainerRetrievalSetting.HierarchyWithoutGlobal =>
+                ContainerSetting.HierarchyWithoutGlobal =>
                     GetContainer(setting, false, unityContainer.transform, overrideContainer),
-                ContainerRetrievalSetting.Global => 
+                ContainerSetting.Global => 
                     _globalContainer,
-                ContainerRetrievalSetting.Override =>
+                ContainerSetting.Override =>
                     ValidateOverrideParent(unityContainer, overrideContainer) == null ? default : 
                         overrideContainer.NativeContainer,
+                ContainerSetting.None => default,
                 _ => throw new NotSupportedException($"The container retrieval setting of " +
                                         $"{setting} is not supported."),
             };
@@ -78,21 +79,22 @@ namespace Chopsticks.Dependencies.Services
         /// <exception cref="NotSupportedException">Thrown if a  
         /// <see cref="ContainerRetrievalSetting"/>is not supported.</exception>
         public virtual TNativeContainer GetContainer<TOverrideContainer>(
-            ContainerRetrievalSetting setting, bool includeSelf, 
+            ContainerSetting setting, bool includeSelf, 
             Transform unityContained, TOverrideContainer overrideContainer)
             where TOverrideContainer : IUnityContainer<TNativeContainer> =>
             setting switch
             {
-                ContainerRetrievalSetting.HierarchyWithGlobal =>
+                ContainerSetting.HierarchyWithGlobal =>
                     FindContainerInHierarchy(includeSelf ? 
                         unityContained : unityContained.parent, true),
-                ContainerRetrievalSetting.HierarchyWithoutGlobal =>
+                ContainerSetting.HierarchyWithoutGlobal =>
                     FindContainerInHierarchy(includeSelf ? 
                         unityContained : unityContained.parent, false),
-                ContainerRetrievalSetting.Global =>
+                ContainerSetting.Global =>
                     _globalContainer,
-                ContainerRetrievalSetting.Override => 
+                ContainerSetting.Override => 
                     overrideContainer == null ? default : overrideContainer.NativeContainer,
+                ContainerSetting.None => default,
                 _ => throw new NotSupportedException($"The container retrieval setting of " +
                                         $"{setting} is not supported."),
             };

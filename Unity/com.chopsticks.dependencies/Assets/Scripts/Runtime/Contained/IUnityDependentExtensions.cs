@@ -34,7 +34,7 @@ namespace Chopsticks.Dependencies.Contained
             where TUnityContainerService : IUnityContainerService<TNativeContainer>, new()
             where TOverrideContainer : IUnityContainer<TNativeContainer> =>
                 dependent.Service.GetContainer(
-                    (ContainerRetrievalSetting)dependent.ContainerSetting,
+                    (ContainerSetting)dependent.ContainerSetting,
                     true, unityContained, overrideContainer);
 
         /// <summary>
@@ -65,11 +65,9 @@ namespace Chopsticks.Dependencies.Contained
             if (!unityContained.enabled)
                 return;
 
-            TNativeContainer updatedContainer = default;
-            if (dependent.ContainerSetting != ContainerSetting.None)
-                updatedContainer = dependent.Service.GetContainer(
-                    (ContainerRetrievalSetting)dependent.ContainerSetting,
-                    true, unityContained.transform, overrideContainer);
+            TNativeContainer updatedContainer = dependent.Service.GetContainer(
+                (ContainerSetting)dependent.ContainerSetting, 
+                true, unityContained.transform, overrideContainer);
 
             if (dependent.Container == null)
             {

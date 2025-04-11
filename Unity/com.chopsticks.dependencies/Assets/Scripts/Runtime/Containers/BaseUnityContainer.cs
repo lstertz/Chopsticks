@@ -1,5 +1,4 @@
-﻿using Chopsticks.Dependencies.Contained;
-using Chopsticks.Dependencies.Resolutions;
+﻿using Chopsticks.Dependencies.Resolutions;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +10,7 @@ namespace Chopsticks.Dependencies.Containers
     /// are contained within this container. This enables the organization 
     /// of dependencies to be defined through the Unity hierarchy and prefabs.
     /// </summary>
-    public abstract class BaseUnityContainer : MonoBehaviour, IUnityContainerEditor
+    public abstract class BaseUnityContainer : MonoBehaviour
     {
     }
 

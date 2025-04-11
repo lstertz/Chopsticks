@@ -14,12 +14,12 @@ namespace MonoContainerTests.Mocks
 
 
         public override MockDependencyContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
-            ContainerRetrievalSetting setting, TUnityContainer unityContainer, 
+            ContainerSetting setting, TUnityContainer unityContainer, 
             TOverrideContainer overrideContainer) =>
             Sub.FindParentContainer(setting, unityContainer, overrideContainer);
 
         public override MockDependencyContainer GetContainer<TOverrideContainer>(
-            ContainerRetrievalSetting setting, bool includeSelf, Transform unityContainer,
+            ContainerSetting setting, bool includeSelf, Transform unityContainer,
             TOverrideContainer overrideContainer) => 
             Sub.GetContainer(setting, includeSelf, unityContainer, overrideContainer);
     }

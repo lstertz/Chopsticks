@@ -34,10 +34,10 @@ namespace IUnityDependentExtensionsTests
             var transform = new GameObject().transform;
             var overrideContainer = Substitute.For<IUnityContainer<MockDependencyContainer>>();
             
-            var setting = ContainerSetting.Override;
+            var setting = ContainerRetrievalSetting.Override;
             unityDependent.ContainerSetting.Returns(setting);
             
-            mockService.GetContainer((ContainerRetrievalSetting)setting, true, transform, 
+            mockService.GetContainer((ContainerSetting)setting, true, transform, 
                 overrideContainer).Returns(expectedContainer);
 
             // Act
@@ -45,7 +45,7 @@ namespace IUnityDependentExtensionsTests
 
             // Assert
             Assert.That(container, Is.EqualTo(expectedContainer));
-            mockService.Received(1).GetContainer((ContainerRetrievalSetting)setting, true, 
+            mockService.Received(1).GetContainer((ContainerSetting)setting, true, 
                 transform, overrideContainer);
         }
     }

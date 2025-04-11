@@ -142,7 +142,7 @@ namespace Chopsticks.Dependencies.Containers
             }
 
             InternalContainer.Parent = ContainerService.FindParentContainer(
-                (ContainerRetrievalSetting)_containerParentSetting, this, _overrideParent);
+                _containerParentSetting, this, _overrideParent);
 
             if (_containerParentSetting == ContainerSetting.Override &&
                 InternalContainer.Parent == null && _overrideParent != null)

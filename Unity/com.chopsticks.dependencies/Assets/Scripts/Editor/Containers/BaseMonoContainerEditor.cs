@@ -65,17 +65,18 @@ namespace Chopsticks.Dependencies.Editor
         private void UpdateCurrentParentContainer()
         {
             var parentSetting = (ContainerSetting)(serializedObject
-                .FindProperty(ContainerParentSetting).enumValueIndex - 1);
+                .FindProperty(ContainerParentSetting).enumValueIndex - 2);  // Offset, as None is -2.
             var overrideParent = (BaseUnityContainer)serializedObject
                 .FindProperty(OverrideParent).objectReferenceValue;
 
-            IUnityContainerEditor parentContainer = null;
+            MonoBehaviour parentContainer = null;
             if (parentSetting != ContainerSetting.None)
-                parentContainer = UnityEditorContainerService.FindParentUnityContainer(
-                    (ContainerRetrievalSetting)parentSetting, (BaseUnityContainer)target, 
+                parentContainer = UnityEditorContainerService.FindParentUnityContainer
+                    <BaseUnityContainer, BaseUnityContainer>(
+                    parentSetting, (MonoBehaviour)target, 
                     overrideParent);
 
-            _currentParentField.value = parentContainer as MonoBehaviour;
+            _currentParentField.value = parentContainer;
             var hasParent = parentContainer != null;
 
             bool showObjectField = parentSetting == ContainerSetting.Override ||
@@ -106,8 +107,8 @@ namespace Chopsticks.Dependencies.Editor
                 return;
 
             var parentSetting = (ContainerSetting)(serializedObject
-                .FindProperty(ContainerParentSetting).enumValueIndex - 1);
-            
+                .FindProperty(ContainerParentSetting).enumValueIndex - 2);  // Offset, as None is -2.
+
             _inheritDependenciesField.style.display = parentSetting != ContainerSetting.None ? 
                 DisplayStyle.Flex : DisplayStyle.None;
             _overrideParentField.style.display = parentSetting == ContainerSetting.Override ? 

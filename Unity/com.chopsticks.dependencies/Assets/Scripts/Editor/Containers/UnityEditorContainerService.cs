@@ -9,36 +9,35 @@ namespace Chopsticks.Dependencies.Containers
     public static class UnityEditorContainerService
     {
         /// <summary>
-        /// Finds the parent Unity container of the given Unity container, 
+        /// Finds the parent Unity container of the given MonoBehaviour, 
         /// per the specified <see cref="ContainerRetrievalSetting"/>.
         /// </summary>
-        /// <typeparam name="TUnityContainer">The type of the Unity container whose 
-        /// same typed parent will be searched for.</typeparam>
+        /// <typeparam name="TUnityContainer">The type of containing parent 
+        /// will be searched for.</typeparam>
         /// <param name="setting">The setting that defines the strategy applied 
         /// to find the parent container.</param>
-        /// <param name="unityContainer">The Unity container whose parent will be 
+        /// <param name="unityContainer">The MonoBehaviour whose parent will be 
         /// searched for.</param>
         /// <param name="overrideContainer">The wrapping Unity container of a container 
         /// that may be provided per some settings.</param>
-        /// <returns>The found parent container, or null if either no such 
-        /// container could be found or if the specified override is actually a child of the 
-        /// provided Unity container.</returns>
-        public static IUnityContainerEditor FindParentUnityContainer<
+        /// <returns>The found parent container, as a MonoBehaviour.</returns>
+        public static MonoBehaviour FindParentUnityContainer<
             TUnityContainer, TOverrideContainer>(
-            ContainerRetrievalSetting setting, TUnityContainer unityContainer, 
+            ContainerSetting setting, MonoBehaviour unityContainer, 
             TOverrideContainer overrideContainer)
-            where TUnityContainer : MonoBehaviour, IUnityContainerEditor
-            where TOverrideContainer : MonoBehaviour, IUnityContainerEditor =>
+            where TUnityContainer : MonoBehaviour
+            where TOverrideContainer : MonoBehaviour =>
             setting switch
             {
-                ContainerRetrievalSetting.HierarchyWithGlobal =>
+                ContainerSetting.HierarchyWithGlobal =>
                     unityContainer.transform.parent == null ? null : 
                         unityContainer.transform.parent.GetComponentInParent<TUnityContainer>(),
-                ContainerRetrievalSetting.HierarchyWithoutGlobal =>
+                ContainerSetting.HierarchyWithoutGlobal =>
                     unityContainer.transform.parent == null ? null : 
                         unityContainer.transform.parent.GetComponentInParent<TUnityContainer>(),
-                ContainerRetrievalSetting.Global => null,
-                ContainerRetrievalSetting.Override => overrideContainer,
+                ContainerSetting.Global => null,
+                ContainerSetting.Override => overrideContainer,
+                ContainerSetting.None => null,
                 _ => throw new NotSupportedException($"The container retrieval setting of " +
                                         $"{setting} is not supported."),
             };

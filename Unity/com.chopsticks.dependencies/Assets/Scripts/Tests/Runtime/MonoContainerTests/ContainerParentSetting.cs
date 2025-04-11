@@ -62,7 +62,7 @@ namespace MonoContainerTests
                 out var containerGameObject, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer)
+                parentSetting, container, parentContainer)
                 .Returns(parentContainer.InternalContainer);
 
             // Act
@@ -72,7 +72,7 @@ namespace MonoContainerTests
             Assert.That(container.InternalContainer.Parent,
                 Is.EqualTo(parentContainer.InternalContainer));
             serviceSub.Received(1).FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer);
+                parentSetting, container, parentContainer);
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.Parent, Is.Null);
             serviceSub.DidNotReceiveWithAnyArgs().FindParentContainer(
-                ContainerRetrievalSetting.Global, container, parentContainer);
+                ParentSetting.Global, container, parentContainer);
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace MonoContainerTests
                 out var containerGameObject, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer)
+                ParentSetting.Override, container, parentContainer)
                 .Returns((MockDependencyContainer)null);
 
             // Act
@@ -112,7 +112,7 @@ namespace MonoContainerTests
 
             Assert.That(overrideParent, Is.Null);
             serviceSub.Received(1).FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer);
+                ParentSetting.Override, container, parentContainer);
         }
 
 
@@ -129,7 +129,7 @@ namespace MonoContainerTests
                 out _, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer)
+                parentSetting, container, parentContainer)
                 .Returns(parentContainer.InternalContainer);
 
             // Act
@@ -139,7 +139,7 @@ namespace MonoContainerTests
             Assert.That(container.InternalContainer.Parent,
                 Is.EqualTo(parentContainer.InternalContainer));
             serviceSub.Received(1).FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer);
+                parentSetting, container, parentContainer);
         }
 
         [Test]
@@ -155,7 +155,7 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.Parent, Is.Null);
             serviceSub.DidNotReceiveWithAnyArgs().FindParentContainer(
-                ContainerRetrievalSetting.Global, container, parentContainer);
+                ParentSetting.Global, container, parentContainer);
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace MonoContainerTests
                 out _, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer)
+                ParentSetting.Override, container, parentContainer)
                 .Returns((MockDependencyContainer)null);
 
             // Act
@@ -179,7 +179,7 @@ namespace MonoContainerTests
 
             Assert.That(overrideParent, Is.Null);
             serviceSub.Received(1).FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer);
+                ParentSetting.Override, container, parentContainer);
         }
 
 
@@ -196,7 +196,7 @@ namespace MonoContainerTests
                 out _, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer)
+                parentSetting, container, parentContainer)
                 .Returns(parentContainer.InternalContainer);
 
             // Act
@@ -206,7 +206,7 @@ namespace MonoContainerTests
             Assert.That(container.InternalContainer.Parent,
                 Is.EqualTo(parentContainer.InternalContainer));
             serviceSub.Received(1).FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer);
+                parentSetting, container, parentContainer);
         }
 
         [Test]
@@ -222,7 +222,7 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.Parent, Is.Null);
             serviceSub.DidNotReceiveWithAnyArgs().FindParentContainer(
-                ContainerRetrievalSetting.Global, container, parentContainer);
+                ParentSetting.Global, container, parentContainer);
         }
 
         [Test]
@@ -233,9 +233,8 @@ namespace MonoContainerTests
                 out _, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer)
+                ParentSetting.Override, container, parentContainer)
                 .Returns((MockDependencyContainer)null);
-
 
             // Act
             LogAssert.ignoreFailingMessages = true;
@@ -247,7 +246,7 @@ namespace MonoContainerTests
 
             Assert.That(overrideParent, Is.Null);
             serviceSub.Received(1).FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer);
+                ParentSetting.Override, container, parentContainer);
         }
     }
 }

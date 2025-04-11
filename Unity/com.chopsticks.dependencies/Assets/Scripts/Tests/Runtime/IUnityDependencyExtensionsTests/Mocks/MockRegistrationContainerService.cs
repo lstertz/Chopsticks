@@ -12,13 +12,13 @@ namespace IUnityDependencyExtensionsTests.Mocks
             Substitute.For<IUnityContainerService<MockRegistrationDependencyContainer>>();
 
         public MockRegistrationDependencyContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
-            ContainerRetrievalSetting setting, TUnityContainer unityContainer, TOverrideContainer overrideContainer)
+            ContainerSetting setting, TUnityContainer unityContainer, TOverrideContainer overrideContainer)
             where TUnityContainer : MonoBehaviour, IUnityContainer<MockRegistrationDependencyContainer>
             where TOverrideContainer : IUnityContainer<MockRegistrationDependencyContainer> =>
                 Sub.FindParentContainer(setting, unityContainer, overrideContainer);
 
         public MockRegistrationDependencyContainer GetContainer<TOverrideContainer>(
-            ContainerRetrievalSetting setting, bool includeSelf, Transform unityContained, 
+            ContainerSetting setting, bool includeSelf, Transform unityContained, 
             TOverrideContainer overrideContainer)
             where TOverrideContainer : IUnityContainer<MockRegistrationDependencyContainer> => 
                 Sub.GetContainer(setting, includeSelf, unityContained, overrideContainer);
