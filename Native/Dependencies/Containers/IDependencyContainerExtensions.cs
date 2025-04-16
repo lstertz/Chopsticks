@@ -69,7 +69,7 @@ namespace Chopsticks.Dependencies.Containers
         /// <param name="container">The container registering the dependency.</param>
         /// <param name="implementationFactory">The factory for producing 
         /// resolving implementations.</param>
-        /// <param name="lifetime">The lifetime of that the registered 
+        /// <param name="lifetime">The lifetime that the registered 
         /// dependency will have.</param>
         /// <returns>This container, to chain additional manipulations.</returns>
         public static IDependencyContainer Register<TContract>(
@@ -92,7 +92,7 @@ namespace Chopsticks.Dependencies.Containers
         /// <param name="registration">The registration that can identify the dependency for 
         /// deregistration by <see cref="IDependencyContainer.Deregister(DependencyRegistration)"/>
         /// </param>
-        /// <param name="lifetime">The lifetime of that the registered 
+        /// <param name="lifetime">The lifetime that the registered 
         /// dependency will have.</param>
         /// <returns>This container, to chain additional manipulations.</returns>
         public static IDependencyContainer Register<TContract>(
