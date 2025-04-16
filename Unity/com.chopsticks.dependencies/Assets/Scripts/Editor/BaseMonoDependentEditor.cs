@@ -20,6 +20,9 @@ namespace Chopsticks.Dependencies.Editor
         };
 
 
+        /// <summary>
+        /// The title in the inspector.
+        /// </summary>
         protected virtual string Title => "Chopsticks Dependent";
 
         private VisualElement _root;
