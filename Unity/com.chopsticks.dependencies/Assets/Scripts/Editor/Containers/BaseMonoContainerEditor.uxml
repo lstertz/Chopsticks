@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:Label class="title" text="Chopsticks Dependency Container"/>
-    <ui:VisualElement class="settings-container">
-        <ui:Label class="section-header" text="Settings"/>
-        <uie:PropertyField name="parentSetting" label="Parent Setting"/>
-        <uie:PropertyField name="inheritDependencies" label="Inherit Parent Dependencies"/>
-        <uie:PropertyField name="overrideParent" label="Override Parent"/>
-    </ui:VisualElement>
-    <ui:VisualElement class="info-container">
-        <ui:Label class="section-header" text="Info"/>
-        <ui:Label class="subtitle" text="Current Parent"/>
-        <ui:Label text="None" name="parentStateLabel" class="parent-state-label" />
-        <uie:ObjectField name="currentParent"/>
-    </ui:VisualElement>
-    <ui:VisualElement name="configurationContainer" class="configuration-container">
-        <ui:Label class="section-header" text="Configuration"/>
-    </ui:VisualElement>
+    <ui:Foldout text="Settings" class="section-header">
+        <ui:VisualElement class="section-content">
+            <uie:PropertyField name="parentSetting" label="Parent Setting"/>
+            <uie:PropertyField name="inheritDependencies" label="Inherit Parent Dependencies"/>
+            <uie:PropertyField name="overrideParent" label="Override Parent"/>
+        </ui:VisualElement>
+    </ui:Foldout>
+    <ui:Foldout text="Info" class="section-header">
+        <ui:VisualElement class="section-content">
+            <ui:Label class="subtitle" text="Current Parent"/>
+            <ui:Label text="None" name="parentStateLabel" class="parent-state-label" />
+            <uie:ObjectField name="currentParent"/>
+        </ui:VisualElement>
+    </ui:Foldout>
+    <ui:Foldout name="configurationFoldout" text="Configuration" class="section-header">
+        <ui:VisualElement name="configurationContainer" class="section-content">
+        </ui:VisualElement>
+    </ui:Foldout>
 </UXML> 

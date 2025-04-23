@@ -22,12 +22,9 @@ PropertyField {
     margin: 2px 0;
 }
 
-.settings-container {
-    margin: 4px;
-    padding: 6px;
-    border-width: 1px;
-    border-radius: 3px;
-    border-color: var(--unity-colors-default-border);
+.section-content {
+    -unity-font-style: normal;
+    font-size: 12px;
 }
 
 .info-container {

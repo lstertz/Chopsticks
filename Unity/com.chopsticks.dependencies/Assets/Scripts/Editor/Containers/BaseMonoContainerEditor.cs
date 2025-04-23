@@ -23,6 +23,7 @@ namespace Chopsticks.Dependencies.Editor
 
 
         private VisualElement _root;
+        private Foldout _configurationFoldout;
         private VisualElement _configurationContainer;
         private PropertyField _parentSettingField;
         private PropertyField _inheritDependenciesField;
@@ -135,6 +136,7 @@ namespace Chopsticks.Dependencies.Editor
 
         private void SetUpConfigurationProperties()
         {
+            _configurationFoldout = _root.Q<Foldout>("configurationFoldout");
             _configurationContainer = _root.Q<VisualElement>("configurationContainer");
             SerializedProperty property = serializedObject.GetIterator();
             property.NextVisible(true); // Jump into the script reference's properties.
@@ -151,7 +153,7 @@ namespace Chopsticks.Dependencies.Editor
             }
 
             if (!hasDrawnProperty)
-                _configurationContainer.style.display = DisplayStyle.None;
+                _configurationFoldout.style.display = DisplayStyle.None;
         }
 
         private void SetUpFieldReferences()
