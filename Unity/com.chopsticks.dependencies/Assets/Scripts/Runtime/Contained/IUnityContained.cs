@@ -21,6 +21,6 @@ namespace Chopsticks.Dependencies.Contained
         /// <summary>
         /// The setting that specifies how the <see cref="Container"/> is found.
         /// </summary>
-        ContainerSetting ContainerSetting { get; }
+        ContainerRetrievalSetting ContainerSetting { get; }
     }
 }

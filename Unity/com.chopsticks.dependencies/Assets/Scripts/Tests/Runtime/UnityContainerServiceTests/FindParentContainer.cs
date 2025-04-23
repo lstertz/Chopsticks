@@ -60,7 +60,7 @@ namespace UnityContainerServiceTests
 
             // Act
             var parentContainer = service.FindParentContainer(
-                ContainerRetrievalSetting.Global, container, (MonoContainer)null);
+                ContainerSetting.Global, container, (MonoContainer)null);
 
             // Assert
             Assert.That(parentContainer, Is.EqualTo(ContainerService.GlobalContainer));
@@ -74,7 +74,7 @@ namespace UnityContainerServiceTests
 
             // Act
             var parentContainer = service.FindParentContainer(
-                ContainerRetrievalSetting.HierarchyWithGlobal, container, (MonoContainer)null);
+                ContainerSetting.HierarchyWithGlobal, container, (MonoContainer)null);
 
             // Assert
             Assert.That(parentContainer, Is.EqualTo(ContainerService.GlobalContainer));
@@ -88,7 +88,7 @@ namespace UnityContainerServiceTests
 
             // Act
             var parentContainer = service.FindParentContainer(
-                ContainerRetrievalSetting.HierarchyWithGlobal, child, (MonoContainer)null);
+                ContainerSetting.HierarchyWithGlobal, child, (MonoContainer)null);
 
             // Assert
             Assert.That(parentContainer, Is.EqualTo(
@@ -103,7 +103,7 @@ namespace UnityContainerServiceTests
 
             // Act
             var parentContainer = service.FindParentContainer(
-                ContainerRetrievalSetting.HierarchyWithoutGlobal, container, (MonoContainer)null);
+                ContainerSetting.HierarchyWithoutGlobal, container, (MonoContainer)null);
 
             // Assert
             Assert.That(parentContainer, Is.Null);
@@ -117,11 +117,25 @@ namespace UnityContainerServiceTests
 
             // Act
             var parentContainer = service.FindParentContainer(
-                ContainerRetrievalSetting.HierarchyWithoutGlobal, child, (MonoContainer)null);
+                ContainerSetting.HierarchyWithoutGlobal, child, (MonoContainer)null);
 
             // Assert
             Assert.That(parentContainer, Is.EqualTo(
                 (parent as IUnityContainer<DependencyContainer>).NativeContainer));
+        }
+
+        [Test]
+        public void FindParentContainer_NoneRetrievalSetting_Null()
+        {
+            // Set up
+            var service = SetUp.StandardContainer(out var container);
+
+            // Act
+            var parentContainer = service.FindParentContainer(
+                ContainerSetting.None, container, (MonoContainer)null);
+
+            // Assert
+            Assert.That(parentContainer, Is.Null);
         }
 
         [Test]
@@ -132,7 +146,7 @@ namespace UnityContainerServiceTests
 
             // Act
             var parentContainer = service.FindParentContainer(
-                ContainerRetrievalSetting.Override, parent, child);
+                ContainerSetting.Override, parent, child);
 
             // Assert
             Assert.That(parentContainer, Is.Null);
@@ -146,7 +160,7 @@ namespace UnityContainerServiceTests
 
             // Act
             var parentContainer = service.FindParentContainer(
-                ContainerRetrievalSetting.Override, container, container);
+                ContainerSetting.Override, container, container);
 
             // Assert
             Assert.That(parentContainer, Is.Null);
@@ -163,7 +177,7 @@ namespace UnityContainerServiceTests
 
             // Act
             var parentContainer = service.FindParentContainer(
-                ContainerRetrievalSetting.Override, container, overrideContainer);
+                ContainerSetting.Override, container, overrideContainer);
 
             // Assert
             Assert.That(parentContainer, Is.EqualTo(

@@ -15,7 +15,7 @@ namespace Chopsticks.Dependencies.Services
     {
         /// <summary>
         /// Finds the parent container of the given Unity container, 
-        /// per the specified <see cref="ContainerRetrievalSetting"/>.
+        /// per the specified <see cref="ContainerSetting"/>.
         /// </summary>
         /// <typeparam name="TUnityContainer">The type of the Unity container whose 
         /// parent will be searched for.</typeparam>
@@ -31,14 +31,14 @@ namespace Chopsticks.Dependencies.Services
         /// container could be found or if the specified override is actually a child of the 
         /// provided Unity container.</returns>
         TNativeContainer FindParentContainer<TUnityContainer, TOverrideContainer>(
-            ContainerRetrievalSetting setting, TUnityContainer unityContainer,
+            ContainerSetting setting, TUnityContainer unityContainer,
             TOverrideContainer overrideContainer)
             where TUnityContainer : MonoBehaviour, IUnityContainer<TNativeContainer>
             where TOverrideContainer : IUnityContainer<TNativeContainer>;
 
         /// <summary>
         /// Provides a dependency container per the specified 
-        /// <see cref="ContainerRetrievalSetting"/>, starting from the given contained 
+        /// <see cref="ContainerSetting"/>, starting from the given contained 
         /// Unity construct.
         /// </summary>
         /// <typeparam name="TOverrideContainer">The type of the container that may 
@@ -55,7 +55,7 @@ namespace Chopsticks.Dependencies.Services
         /// <returns>A container retrieved per the specified setting, 
         /// or null if no such container could be found.</returns>
         TNativeContainer GetContainer<TOverrideContainer>(
-            ContainerRetrievalSetting setting, bool includeSelf,
+            ContainerSetting setting, bool includeSelf,
             Transform unityContained, TOverrideContainer overrideContainer)
             where TOverrideContainer : IUnityContainer<TNativeContainer>;
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Label name="titleLabel" class="title" text="Chopsticks Dependent"/>
+    <ui:VisualElement class="settings-container">
+        <ui:Label class="section-header" text="Settings"/>
+        <uie:PropertyField name="containerSetting" label="Container Setting"/>
+        <uie:PropertyField name="overrideContainer" label="Override Container"/>
+    </ui:VisualElement>
+    <ui:VisualElement class="info-container">
+        <ui:Label class="section-header" text="Info"/>
+        <ui:Label class="subtitle" text="Current Container"/>
+        <ui:Label text="None" name="containerStateLabel" class="container-state-label" />
+        <uie:ObjectField name="currentContainer"/>
+    </ui:VisualElement>
+    <ui:VisualElement name="configurationContainer" class="configuration-container">
+        <ui:Label class="section-header" text="Configuration"/>
+    </ui:VisualElement>
+</UXML> 

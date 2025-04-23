@@ -19,7 +19,7 @@ namespace IUnityDependentExtensionsTests
         public static class SetUp
         {
             public static IUnityDependent<MockDependencyContainer, MockMonoContainerService> StandardDependent(
-                ContainerSetting containerSetting, MockDependencyContainer initialContainer,
+                ContainerRetrievalSetting containerSetting, MockDependencyContainer initialContainer,
                 bool enabledGameObject, out MockMonoDependent monoBehaviour, 
                 out IUnityContainer<MockDependencyContainer> overrideContainer,
                 out MonoContainerService serviceSub)
@@ -43,7 +43,7 @@ namespace IUnityDependentExtensionsTests
             }
 
             public static IUnityDependent<MockDependencyContainer, MockMonoContainerService> ChangeableContainer(
-                ContainerSetting containerSetting, bool initContainerIsNull,
+                ContainerRetrievalSetting containerSetting, bool initContainerIsNull,
                 out MockMonoDependent monoBehaviour,
                 out IUnityContainer<MockDependencyContainer> overrideContainer,
                 out MonoContainerService serviceSub)
@@ -54,7 +54,7 @@ namespace IUnityDependentExtensionsTests
                     true, out monoBehaviour, out overrideContainer, out serviceSub);
 
                 serviceSub.GetContainer(
-                    (ContainerRetrievalSetting)containerSetting,
+                    (ContainerSetting)containerSetting,
                     true,
                     monoBehaviour.transform,
                     overrideContainer).Returns(expectedContainer);
@@ -71,25 +71,18 @@ namespace IUnityDependentExtensionsTests
 
 
         [Test]
-        [TestCase(ContainerSetting.None, true)]
-        [TestCase(ContainerSetting.None, false)]
-        [TestCase(ContainerSetting.Global, true)]
-        [TestCase(ContainerSetting.Global, false)]
-        [TestCase(ContainerSetting.HierarchyWithGlobal, true)]
-        [TestCase(ContainerSetting.HierarchyWithGlobal, false)]
-        [TestCase(ContainerSetting.HierarchyWithoutGlobal, true)]
-        [TestCase(ContainerSetting.HierarchyWithoutGlobal, false)]
-        [TestCase(ContainerSetting.Override, true)]
-        [TestCase(ContainerSetting.Override, false)]
+        [TestCase(ContainerRetrievalSetting.Global, true)]
+        [TestCase(ContainerRetrievalSetting.Global, false)]
+        [TestCase(ContainerRetrievalSetting.Hierarchy, true)]
+        [TestCase(ContainerRetrievalSetting.Hierarchy, false)]
+        [TestCase(ContainerRetrievalSetting.Override, true)]
+        [TestCase(ContainerRetrievalSetting.Override, false)]
         public void SetContainer_AllContainerSettings_InvokesPostContainerChangedWhenContainerChanges(
-            ContainerSetting containerSetting, bool containerChanged)
+            ContainerRetrievalSetting containerSetting, bool containerChanged)
         {
             // Set up
-            var initContainerIsNull = containerSetting != ContainerSetting.None ?
-                containerChanged : !containerChanged;
-
             var unityDependent = SetUp.ChangeableContainer(containerSetting,
-                initContainerIsNull, out var monoBehaviour,
+                containerChanged, out var monoBehaviour,
                 out var overrideContainer, out var serviceSub);
 
             bool calledOnPostContainerChanged = false;
@@ -104,25 +97,18 @@ namespace IUnityDependentExtensionsTests
         }
 
         [Test]
-        [TestCase(ContainerSetting.None, true)]
-        [TestCase(ContainerSetting.None, false)]
-        [TestCase(ContainerSetting.Global, true)]
-        [TestCase(ContainerSetting.Global, false)]
-        [TestCase(ContainerSetting.HierarchyWithGlobal, true)]
-        [TestCase(ContainerSetting.HierarchyWithGlobal, false)]
-        [TestCase(ContainerSetting.HierarchyWithoutGlobal, true)]
-        [TestCase(ContainerSetting.HierarchyWithoutGlobal, false)]
-        [TestCase(ContainerSetting.Override, true)]
-        [TestCase(ContainerSetting.Override, false)]
+        [TestCase(ContainerRetrievalSetting.Global, true)]
+        [TestCase(ContainerRetrievalSetting.Global, false)]
+        [TestCase(ContainerRetrievalSetting.Hierarchy, true)]
+        [TestCase(ContainerRetrievalSetting.Hierarchy, false)]
+        [TestCase(ContainerRetrievalSetting.Override, true)]
+        [TestCase(ContainerRetrievalSetting.Override, false)]
         public void SetContainer_AllContainerSettings_InvokesPreContainerChangedWhenContainerChanges(
-            ContainerSetting containerSetting, bool containerChanged)
+            ContainerRetrievalSetting containerSetting, bool containerChanged)
         {
             // Set up
-            var initContainerIsNull = containerSetting != ContainerSetting.None ?
-                containerChanged : !containerChanged;
-
             var unityDependent = SetUp.ChangeableContainer(containerSetting,
-                initContainerIsNull, out var monoBehaviour,
+                containerChanged, out var monoBehaviour,
                 out var overrideContainer, out var serviceSub);
 
             bool calledOnPreContainerChanged = false;
@@ -137,55 +123,14 @@ namespace IUnityDependentExtensionsTests
         }
 
         [Test]
-        public void UpdateContainer_DisabledContained_DoesNothing()
-        {
-            // Set up
-            var unityDependent = SetUp.StandardDependent(ContainerSetting.None, null, false,
-                out var monoBehaviour, out _, out var serviceSub);
-
-            // Act
-            unityDependent.UpdateContainer(monoBehaviour, null, null, null);
-
-            // Assert
-            Assert.That(unityDependent.Container, Is.Null);
-            serviceSub.DidNotReceiveWithAnyArgs().GetContainer(
-                Arg.Any<ContainerRetrievalSetting>(),
-                Arg.Any<bool>(),
-                Arg.Any<Transform>(),
-                Arg.Any<IUnityContainer<MockDependencyContainer>>());
-        }
-
-        [Test]
-        public void UpdateContainer_NoneContainerSetting_ContainerSetToNull()
-        {
-            // Set up
-            var unityDependent = SetUp.StandardDependent(ContainerSetting.None,
-                Substitute.For<MockDependencyContainer>(), true,
-                out var monoBehaviour, out var overrideContainer, out var serviceSub);
-
-            // Act
-            unityDependent.UpdateContainer(monoBehaviour, overrideContainer, null, null);
-
-            // Assert
-            Assert.That(unityDependent.Container, Is.Null);
-            serviceSub.DidNotReceiveWithAnyArgs().GetContainer(
-                Arg.Any<ContainerRetrievalSetting>(),
-                Arg.Any<bool>(),
-                Arg.Any<Transform>(),
-                Arg.Any<IUnityContainer<MockDependencyContainer>>());
-        }
-
-        [Test]
-        [TestCase(ContainerSetting.Global, true)]
-        [TestCase(ContainerSetting.Global, false)]
-        [TestCase(ContainerSetting.HierarchyWithGlobal, true)]
-        [TestCase(ContainerSetting.HierarchyWithGlobal, false)]
-        [TestCase(ContainerSetting.HierarchyWithoutGlobal, true)]
-        [TestCase(ContainerSetting.HierarchyWithoutGlobal, false)]
-        [TestCase(ContainerSetting.Override, true)]
-        [TestCase(ContainerSetting.Override, false)]
+        [TestCase(ContainerRetrievalSetting.Global, true)]
+        [TestCase(ContainerRetrievalSetting.Global, false)]
+        [TestCase(ContainerRetrievalSetting.Hierarchy, true)]
+        [TestCase(ContainerRetrievalSetting.Hierarchy, false)]
+        [TestCase(ContainerRetrievalSetting.Override, true)]
+        [TestCase(ContainerRetrievalSetting.Override, false)]
         public void UpdateContainer_VariousContainerSettings_SetsToServiceProvidedContainer(
-            ContainerSetting containerSetting, bool containerChanged)
+            ContainerRetrievalSetting containerSetting, bool containerChanged)
         {
             // Set up
             var expectedContainer = Substitute.For<MockDependencyContainer>();
@@ -193,7 +138,7 @@ namespace IUnityDependentExtensionsTests
                 null, true, out var monoBehaviour, out var overrideContainer, out var serviceSub);
 
             serviceSub.GetContainer(
-                (ContainerRetrievalSetting)containerSetting,
+                (ContainerSetting)containerSetting,
                 true,
                 monoBehaviour.transform,
                 overrideContainer).Returns(expectedContainer);
@@ -204,7 +149,7 @@ namespace IUnityDependentExtensionsTests
             // Assert
             Assert.That(unityDependent.Container, Is.EqualTo(expectedContainer));
             serviceSub.Received().GetContainer(
-                (ContainerRetrievalSetting)containerSetting,
+                (ContainerSetting)containerSetting,
                 true,
                 monoBehaviour.transform,
                 overrideContainer);

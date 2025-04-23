@@ -7,33 +7,37 @@ using System.Collections.Generic;
 
 namespace Chopsticks.Dependencies.Editor
 {
-    [CustomEditor(typeof(BaseMonoContainer<,,,>), true)]
-    public class BaseMonoContainerEditor : UnityEditor.Editor
+    [CustomEditor(typeof(BaseMonoDependent<,>), true)]
+    public class BaseMonoDependentEditor : UnityEditor.Editor
     {
-        private const string ContainerParentSetting = "_containerParentSetting";
-        private const string InheritParentDependencies = "_inheritParentDependencies";
-        private const string OverrideParent = "_overrideParent";
+        private const string ContainerSetting = "_containerSetting";
+        private const string OverrideContainer = "_overrideContainer";
 
         private static readonly HashSet<string> ExcludedProperties = new()
         {
-            ContainerParentSetting,
-            InheritParentDependencies,
-            OverrideParent
+            ContainerSetting,
+            OverrideContainer
         };
 
 
+        /// <summary>
+        /// The title in the inspector.
+        /// </summary>
+        protected virtual string Title => "Chopsticks Dependent";
+
         private VisualElement _root;
+
         private VisualElement _configurationContainer;
-        private PropertyField _parentSettingField;
-        private PropertyField _inheritDependenciesField;
-        private PropertyField _overrideParentField;
+        private PropertyField _containerSettingField;
         private ObjectField _currentParentField;
+        private PropertyField _overrideContainerField;
         private Label _parentStateLabel;
+        private Label _titleLabel;
 
 
         public override VisualElement CreateInspectorGUI()
         {
-            var visualTree = LoadAsset<VisualTreeAsset>("BaseMonoContainerEditor.uxml");
+            var visualTree = LoadAsset<VisualTreeAsset>("BaseMonoDependentEditor.uxml");
             _root = visualTree.Instantiate();
 
             ApplyStylesheet();
@@ -64,24 +68,22 @@ namespace Chopsticks.Dependencies.Editor
 
         private void UpdateCurrentParentContainer()
         {
-            var parentSetting = (ContainerSetting)(serializedObject
-                .FindProperty(ContainerParentSetting).enumValueIndex - 2);  // Offset, as None is -2.
+            var containerSetting = (ContainerRetrievalSetting)serializedObject
+                .FindProperty(ContainerSetting).enumValueIndex;
             var overrideParent = (BaseUnityContainer)serializedObject
-                .FindProperty(OverrideParent).objectReferenceValue;
+                .FindProperty(OverrideContainer).objectReferenceValue;
 
-            MonoBehaviour parentContainer = null;
-            if (parentSetting != ContainerSetting.None)
-                parentContainer = UnityEditorContainerService.FindParentUnityContainer
-                    <BaseUnityContainer, BaseUnityContainer>(
-                    parentSetting, (MonoBehaviour)target, 
+            MonoBehaviour parentContainer = 
+                UnityEditorContainerService.FindParentUnityContainer
+                <BaseUnityContainer, BaseUnityContainer>(
+                    (ContainerSetting)containerSetting, (MonoBehaviour)target, 
                     overrideParent);
 
             _currentParentField.value = parentContainer;
             var hasParent = parentContainer != null;
 
-            bool showObjectField = parentSetting == ContainerSetting.Override ||
-                (parentSetting == ContainerSetting.HierarchyWithGlobal && hasParent) ||
-                (parentSetting == ContainerSetting.HierarchyWithoutGlobal && hasParent);
+            bool showObjectField = containerSetting == ContainerRetrievalSetting.Override ||
+                containerSetting == ContainerRetrievalSetting.Hierarchy && hasParent;
 
             _currentParentField.style.display = showObjectField ? 
                 DisplayStyle.Flex : DisplayStyle.None;
@@ -90,11 +92,10 @@ namespace Chopsticks.Dependencies.Editor
 
             if (!showObjectField)
             {
-                string stateText = parentSetting switch
+                string stateText = containerSetting switch
                 {
-                    ContainerSetting.Global => "Global",
-                    ContainerSetting.HierarchyWithGlobal when !hasParent => "Global",
-                    ContainerSetting.None => "None",
+                    ContainerRetrievalSetting.Global => "Global",
+                    ContainerRetrievalSetting.Hierarchy when !hasParent => "Global",
                     _ => "None (No Parent Found)"
                 };
                 _parentStateLabel.text = stateText;
@@ -106,31 +107,28 @@ namespace Chopsticks.Dependencies.Editor
             if (serializedObject == null)
                 return;
 
-            var parentSetting = (ContainerSetting)(serializedObject
-                .FindProperty(ContainerParentSetting).enumValueIndex - 2);  // Offset, as None is -2.
+            var containerSetting = (ContainerRetrievalSetting)serializedObject
+                .FindProperty(ContainerSetting).enumValueIndex;
 
-            _inheritDependenciesField.style.display = parentSetting != ContainerSetting.None ? 
-                DisplayStyle.Flex : DisplayStyle.None;
-            _overrideParentField.style.display = parentSetting == ContainerSetting.Override ? 
+            _overrideContainerField.style.display = 
+                containerSetting == ContainerRetrievalSetting.Override ?
                 DisplayStyle.Flex : DisplayStyle.None;
         }
 
 
         private void ApplyStylesheet()
         {
-            var styleSheet = LoadAsset<StyleSheet>("BaseMonoContainerEditor.uss");
+            var styleSheet = LoadAsset<StyleSheet>("BaseMonoDependentEditor.uss");
             if (styleSheet != null)
                 _root.styleSheets.Add(styleSheet);
         }
 
         private void BindFields()
         {
-            _parentSettingField.BindProperty(serializedObject
-                .FindProperty(ContainerParentSetting));
-            _inheritDependenciesField.BindProperty(serializedObject
-                .FindProperty(InheritParentDependencies));
-            _overrideParentField.BindProperty(serializedObject
-                .FindProperty(OverrideParent));
+            _containerSettingField.BindProperty(serializedObject
+                .FindProperty(ContainerSetting));
+            _overrideContainerField.BindProperty(serializedObject
+                .FindProperty(OverrideContainer));
         }
 
         private void SetUpConfigurationProperties()
@@ -156,12 +154,14 @@ namespace Chopsticks.Dependencies.Editor
 
         private void SetUpFieldReferences()
         {
-            _parentSettingField = _root.Q<PropertyField>("parentSetting");
-            _inheritDependenciesField = _root.Q<PropertyField>("inheritDependencies");
-            _overrideParentField = _root.Q<PropertyField>("overrideParent");
-            
-            _parentStateLabel = _root.Q<Label>("parentStateLabel");
-            _currentParentField = _root.Q<ObjectField>("currentParent");
+            _containerSettingField = _root.Q<PropertyField>("containerSetting");
+            _overrideContainerField = _root.Q<PropertyField>("overrideContainer");
+
+            _titleLabel = _root.Q<Label>("titleLabel");
+            _titleLabel.text = Title;
+            _parentStateLabel = _root.Q<Label>("containerStateLabel");
+
+            _currentParentField = _root.Q<ObjectField>("currentContainer");
             _currentParentField.objectType = typeof(BaseUnityContainer);
             _currentParentField.SetEnabled(false);
         }
@@ -171,11 +171,11 @@ namespace Chopsticks.Dependencies.Editor
             where T : Object
         {
             var visualTree = AssetDatabase.LoadAssetAtPath<T>(
-                $"Packages/com.chopsticks.dependencies/Editor/Containers/{assetFile}");
+                $"Packages/com.chopsticks.dependencies/Editor/{assetFile}");
 
             if (visualTree == null)  // Running in development package environment.
                 visualTree = AssetDatabase.LoadAssetAtPath<T>(
-                    $"Assets/Scripts/Editor/Containers/{assetFile}");
+                    $"Assets/Scripts/Editor/{assetFile}");
 
             return visualTree;
         }

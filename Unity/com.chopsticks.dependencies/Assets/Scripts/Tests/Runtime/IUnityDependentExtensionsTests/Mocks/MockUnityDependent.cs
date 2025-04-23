@@ -8,7 +8,7 @@ namespace IUnityDependentExtensionsTests.Mocks
         IUnityDependent<MockDependencyContainer, MockMonoContainerService>
     {
         public abstract MockDependencyContainer Container { get; set; }
-        public abstract ContainerSetting ContainerSetting { get; }
+        public abstract ContainerRetrievalSetting ContainerSetting { get; }
 
         public abstract void OnEnable();
         public abstract void OnTransformParentChanged();

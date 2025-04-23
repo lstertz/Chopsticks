@@ -30,9 +30,22 @@ namespace TestHelpers
 
             return container;
         }
+
         public static MonoBehaviour SetSerializedProperty(
             this MonoBehaviour container,
             string propertyName, Chopsticks.Dependencies.Containers.ContainerSetting value)
+        {
+            var serializedObject = new SerializedObject(container);
+            var serializedProperty = serializedObject.FindProperty(propertyName);
+
+            serializedProperty.enumValueFlag = (int)value;
+            serializedObject.ApplyModifiedProperties();
+
+            return container;
+        }
+        public static MonoBehaviour SetSerializedProperty(
+            this MonoBehaviour container,
+            string propertyName, Chopsticks.Dependencies.Containers.ContainerRetrievalSetting value)
         {
             var serializedObject = new SerializedObject(container);
             var serializedProperty = serializedObject.FindProperty(propertyName);

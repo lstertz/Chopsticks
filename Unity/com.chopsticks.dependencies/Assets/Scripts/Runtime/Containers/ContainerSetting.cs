@@ -9,17 +9,17 @@
         /// <summary>
         /// The contained will have no container.
         /// </summary>
-        None = -1,
-        /// <summary>
-        /// The contained will find its parent through the hierarchy, 
-        /// defaulting to the global container if no parent can be found.
-        /// </summary>
-        HierarchyWithGlobal = ContainerRetrievalSetting.HierarchyWithGlobal,
+        None = -2,
         /// <summary>
         /// The contained will find its parent through the hierarchy and 
         /// will have no parent if one cannot be found.
         /// </summary>
-        HierarchyWithoutGlobal = ContainerRetrievalSetting.HierarchyWithoutGlobal,
+        HierarchyWithoutGlobal = -1,
+        /// <summary>
+        /// The contained will find its parent through the hierarchy, 
+        /// defaulting to the global container if no parent can be found.
+        /// </summary>
+        HierarchyWithGlobal = ContainerRetrievalSetting.Hierarchy,
         /// <summary>
         /// The contained will be a child of the global container.
         /// </summary>

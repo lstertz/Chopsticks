@@ -62,7 +62,7 @@ namespace MonoContainerTests
                 out var containerGameObject, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer)
+                parentSetting, container, parentContainer)
                 .Returns(parentContainer.InternalContainer);
 
             // Act
@@ -72,7 +72,7 @@ namespace MonoContainerTests
             Assert.That(container.InternalContainer.Parent,
                 Is.EqualTo(parentContainer.InternalContainer));
             serviceSub.Received(1).FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer);
+                parentSetting, container, parentContainer);
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.Parent, Is.Null);
             serviceSub.DidNotReceiveWithAnyArgs().FindParentContainer(
-                ContainerRetrievalSetting.Global, container, parentContainer);
+                ParentSetting.Global, container, parentContainer);
         }
 
         [Test]
@@ -99,20 +99,22 @@ namespace MonoContainerTests
                 out var containerGameObject, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer)
+                ParentSetting.Override, container, parentContainer)
                 .Returns((MockDependencyContainer)null);
 
             // Act
-            LogAssert.ignoreFailingMessages = true;
+            LogAssert.Expect(LogType.Error, 
+                $"BaseMonoContainer :: Override parent was reset to 'null' " +
+                $"on the GameObject called '{containerGameObject.name}' to prevent a parent loop " +
+                $"with the GameObject called '{parentContainer.name}'.");
             containerGameObject.SetActive(true);
-            LogAssert.ignoreFailingMessages = false;
 
             // Assert
             container.GetSerializedProperty("_overrideParent", out var overrideParent);
 
             Assert.That(overrideParent, Is.Null);
             serviceSub.Received(1).FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer);
+                ParentSetting.Override, container, parentContainer);
         }
 
 
@@ -129,7 +131,7 @@ namespace MonoContainerTests
                 out _, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer)
+                parentSetting, container, parentContainer)
                 .Returns(parentContainer.InternalContainer);
 
             // Act
@@ -139,7 +141,7 @@ namespace MonoContainerTests
             Assert.That(container.InternalContainer.Parent,
                 Is.EqualTo(parentContainer.InternalContainer));
             serviceSub.Received(1).FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer);
+                parentSetting, container, parentContainer);
         }
 
         [Test]
@@ -155,7 +157,7 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.Parent, Is.Null);
             serviceSub.DidNotReceiveWithAnyArgs().FindParentContainer(
-                ContainerRetrievalSetting.Global, container, parentContainer);
+                ParentSetting.Global, container, parentContainer);
         }
 
         [Test]
@@ -163,23 +165,25 @@ namespace MonoContainerTests
         {
             // Set up
             var container = SetUp.StandardContainer(ParentSetting.Override,
-                out _, out var parentContainer, out var serviceSub);
+                out var containerGameObject, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer)
+                ParentSetting.Override, container, parentContainer)
                 .Returns((MockDependencyContainer)null);
 
             // Act
-            LogAssert.ignoreFailingMessages = true;
+            LogAssert.Expect(LogType.Error,
+                $"BaseMonoContainer :: Override parent was reset to 'null' " +
+                $"on the GameObject called '{containerGameObject.name}' to prevent a parent loop " +
+                $"with the GameObject called '{parentContainer.name}'.");
             container.OnTransformParentChanged();
-            LogAssert.ignoreFailingMessages = false;
 
             // Assert
             container.GetSerializedProperty("_overrideParent", out var overrideParent);
 
             Assert.That(overrideParent, Is.Null);
             serviceSub.Received(1).FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer);
+                ParentSetting.Override, container, parentContainer);
         }
 
 
@@ -196,7 +200,7 @@ namespace MonoContainerTests
                 out _, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer)
+                parentSetting, container, parentContainer)
                 .Returns(parentContainer.InternalContainer);
 
             // Act
@@ -206,7 +210,7 @@ namespace MonoContainerTests
             Assert.That(container.InternalContainer.Parent,
                 Is.EqualTo(parentContainer.InternalContainer));
             serviceSub.Received(1).FindParentContainer(
-                (ContainerRetrievalSetting)parentSetting, container, parentContainer);
+                parentSetting, container, parentContainer);
         }
 
         [Test]
@@ -222,7 +226,7 @@ namespace MonoContainerTests
             // Assert
             Assert.That(container.InternalContainer.Parent, Is.Null);
             serviceSub.DidNotReceiveWithAnyArgs().FindParentContainer(
-                ContainerRetrievalSetting.Global, container, parentContainer);
+                ParentSetting.Global, container, parentContainer);
         }
 
         [Test]
@@ -230,24 +234,25 @@ namespace MonoContainerTests
         {
             // Set up
             var container = SetUp.StandardContainer(ParentSetting.Override,
-                out _, out var parentContainer, out var serviceSub);
+                out var containerGameObject, out var parentContainer, out var serviceSub);
 
             serviceSub.FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer)
+                ParentSetting.Override, container, parentContainer)
                 .Returns((MockDependencyContainer)null);
 
-
             // Act
-            LogAssert.ignoreFailingMessages = true;
+            LogAssert.Expect(LogType.Error,
+                $"BaseMonoContainer :: Override parent was reset to 'null' " +
+                $"on the GameObject called '{containerGameObject.name}' to prevent a parent loop " +
+                $"with the GameObject called '{parentContainer.name}'.");
             container.OnValidate();
-            LogAssert.ignoreFailingMessages = false;
 
             // Assert
             container.GetSerializedProperty("_overrideParent", out var overrideParent);
 
             Assert.That(overrideParent, Is.Null);
             serviceSub.Received(1).FindParentContainer(
-                ContainerRetrievalSetting.Override, container, parentContainer);
+                ParentSetting.Override, container, parentContainer);
         }
     }
 }
