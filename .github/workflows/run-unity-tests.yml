@@ -14,7 +14,9 @@ jobs:
     strategy:
       matrix:
         project: 
-          - Unity/com.chopsticks.dependencies  # Add future package projects here.
+          - Unity/com.chopsticks.dependencies
+          - Unity/com.chopsticks.messages
+          # Add future package projects here.
 
     steps:
       - name: Checkout repository

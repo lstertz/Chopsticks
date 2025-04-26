@@ -71,7 +71,9 @@ jobs:
     strategy:
       matrix:
         project: 
-          - Native/Dependencies  # Add future package projects here.
+          - Native/Dependencies
+          - Native/Messages
+          # Add future package projects here.
 
     steps:
       - name: Checkout repository

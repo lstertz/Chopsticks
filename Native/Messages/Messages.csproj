@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<LangVersion>13.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<RootNamespace>Chopsticks.Messages</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Tests\**" />
+	  <EmbeddedResource Remove="Tests\**" />
+	  <None Remove="Tests\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Foundation">
+	    <HintPath>..\Foundation\bin\Debug\netstandard2.1\Foundation.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TestBuild)' != 'true'">
+		<Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy /Y /I &quot;$(TargetDir)&quot; &quot;..\..\Unity\com.chopsticks.messages\Assets\Plugins\&quot;" />
+		<Exec Condition=" '$(OS)' != 'Windows_NT' " Command="mkdir -p ../../Unity/com.chopsticks.messages/Assets/Plugins/ %26%26 cp -f $(TargetDir) ../../Unity/com.chopsticks.messages/Assets/Plugins/" />
+	</Target>
+
+</Project>
