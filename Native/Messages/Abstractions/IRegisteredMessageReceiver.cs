@@ -1,4 +1,4 @@
-﻿namespace Chopsticks.Messages
+﻿namespace Chopsticks.Messages.Abstractions
 {
     public interface IRegisteredMessageReceiver<TCollective>
         where TCollective : new()

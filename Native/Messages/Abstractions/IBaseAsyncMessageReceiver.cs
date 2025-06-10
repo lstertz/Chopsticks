@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Chopsticks.Messages
+namespace Chopsticks.Messages.Abstractions
 {
     public interface IBaseAsyncMessageReceiver<TMessage, TAsync>
     {

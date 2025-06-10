@@ -1,4 +1,4 @@
-﻿namespace Chopsticks.Messages
+﻿namespace Chopsticks.Messages.Abstractions
 {
     public interface IBaseCollectiveMessageReceiver<TReceiver, TMessage>
         where TReceiver : IBaseMessageReceiver<TMessage>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Chopsticks.Messages
+namespace Chopsticks.Messages.Abstractions
 {
     public abstract class BaseCollectiveMessageReceiver<TReceiver, TAsyncReceiver, TMessage, TAsync> : 
         IBaseCollectiveMessageReceiver<TReceiver, TMessage>,
@@ -9,18 +9,18 @@ namespace Chopsticks.Messages
         where TReceiver : IBaseMessageReceiver<TMessage>
         where TAsyncReceiver : IBaseAsyncMessageReceiver<TMessage, TAsync>
     {
-        protected List<TReceiver> Receivers { get; init; } = new();
-        protected List<TAsyncReceiver> AsyncReceivers { get; init; } = new();
+        protected List<TReceiver> Receivers { get; init; } = [];
+        protected List<TAsyncReceiver> AsyncReceivers { get; init; } = [];
 
 
         public void Deregister(TReceiver handler)
         {
-            throw new NotImplementedException();
+            // TODO :: Deregister.
         }
 
         public void Deregister(TAsyncReceiver handler)
         {
-            throw new NotImplementedException();
+            // TODO :: Deregister.
         }
 
 
