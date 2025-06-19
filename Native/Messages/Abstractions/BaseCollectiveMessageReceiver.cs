@@ -12,20 +12,22 @@ namespace Chopsticks.Messages.Abstractions
         protected List<IRegisteredMessageReceiver<TMessage, TAsync>> Receivers { get; init; } = [];
 
 
-        public void Deregister(IRegisteredMessageReceiver<TMessage, TAsync> handler)
+        public virtual void Deregister(IRegisteredMessageReceiver<TMessage, TAsync> handler)
         {
             // TODO :: Deregister.
         }
 
 
-        public void Register(IRegisteredMessageReceiver<TMessage, TAsync> receiver, RegistrationSettings settings = default) =>
-            Register(receiver, settings, []);
+        public void Register(IRegisteredMessageReceiver<TMessage, TAsync> receiver, 
+            RegistrationSettings settings = default) =>
+                Register(receiver, settings, []);
 
-        public void Register(IRegisteredMessageReceiver<TMessage, TAsync> receiver, params IIntercept<TMessage>[] interceptors) =>
-            Register(receiver, default, interceptors);
+        public void Register(IRegisteredMessageReceiver<TMessage, TAsync> receiver, 
+            params IIntercept<TMessage>[] interceptors) =>
+                Register(receiver, default, interceptors);
 
-        public void Register(IRegisteredMessageReceiver<TMessage, TAsync> receiver, RegistrationSettings settings,
-            params IIntercept<TMessage>[] interceptors)
+        public virtual void Register(IRegisteredMessageReceiver<TMessage, TAsync> receiver, 
+            RegistrationSettings settings, params IIntercept<TMessage>[] interceptors)
         {
             // TODO :: Register.
         }
