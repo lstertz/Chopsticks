@@ -1,5 +1,7 @@
-﻿using Chopsticks.Messages.TaskBased.Commands;
+﻿using Chopsticks.Messages.Abstractions;
+using Chopsticks.Messages.TaskBased;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chopsticks.Messages
@@ -11,8 +13,11 @@ namespace Chopsticks.Messages
     {
         public async Task Run()
         {
-            var sender = new OnCommandSender();
-            var receiver = new OnCommandReceiver();
+            var collective = ITaskMessageReceiver<Message>.Collective;
+            var registrar = ITaskMessageReceiver<Message>.Collective;
+
+            var sender = new OnCommandSender(collective);
+            var receiver = new OnCommandReceiver(registrar);
 
             await sender.Send();
 
@@ -22,42 +27,69 @@ namespace Chopsticks.Messages
 
 
 
-    public class OnCommand
+    public class Message
     {
         public string Value { get; set; }
     }
 
 
-
     public class OnCommandSender
     {
-        public IAsyncTaskCommandReceiver<OnCommand> Receiver { get; set; } =
-            IAsyncTaskCommandReceiver<OnCommand>.All;
+        private ITaskMessageReceiver<Message> _receiver;
+
+        public OnCommandSender(ITaskMessageReceiver<Message> receiver) =>
+            _receiver = receiver;
 
         public async Task Send()
         {
             Console.WriteLine("Sending OnCommand");
-            await Receiver.ReceiveAsync(new OnCommand());
+            await _receiver.ReceiveAsync(new Message());
             Console.WriteLine("Sent OnCommand");
         }
     }
 
-    public class OnCommandReceiver : ITaskCommandReceiver<OnCommand>, IDisposable
+    public class OnCommandReceiver : ITaskMessageReceiver<Message>, IDisposable
     {
-        public OnCommandReceiver()
+        private ICollectiveTaskMessageReceiver<Message> _registrar;
+
+        public OnCommandReceiver(ICollectiveTaskMessageReceiver<Message> registrar)
         {
-            ITaskCommandReceiver<OnCommand>.Collective.Register(this);
+            _registrar = registrar;
+            _registrar.Register(this);
         }
 
         public void Dispose()
         {
-            ITaskCommandReceiver<OnCommand>.Collective.Deregister(this);
+            _registrar.Deregister(this);
         }
 
-        public void Receive(OnCommand command)
+        MessageResult ITaskMessageReceiver<Message>.Receive(Message command)
         {
             Console.WriteLine($"Received OnCommand, Value: {command.Value}.");
+            return new MessageResult();
+        }
+    }
+
+    public class OnCommandAsyncReceiver : ITaskMessageAsyncReceiver<Message>, IDisposable
+    {
+        private ICollectiveTaskMessageReceiver<Message> _registrar;
+
+        public OnCommandAsyncReceiver(ICollectiveTaskMessageReceiver<Message> registrar)
+        {
+            _registrar = registrar;
+            _registrar.Register(this);
         }
 
+        public void Dispose()
+        {
+            _registrar.Deregister(this);
+        }
+
+        async Task<MessageResult> ITaskMessageAsyncReceiver<Message>.ReceiveAsync(
+            Message message, CancellationToken token)
+        {
+            Console.WriteLine($"Received OnCommand, Value: {message.Value}.");
+            return new MessageResult();
+        }
     }
 }

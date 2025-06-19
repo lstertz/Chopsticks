@@ -5,33 +5,33 @@ using System.Threading.Tasks;
 namespace Chopsticks.Messages.TaskBased
 {
     public class CollectiveTaskMessageReceiver<TMessage> :
-        BaseCollectiveMessageReceiver<IBaseMessageReceiver<TMessage>,
-            IBaseAsyncMessageReceiver<TMessage, Task>, TMessage, Task>
+        BaseCollectiveMessageReceiver<TMessage, Task<MessageResult>>,
+        ITaskMessageReceiver<TMessage>,
+        ICollectiveTaskMessageReceiver<TMessage>
     {
-        // TODO :: Support registering interceptors for the collective.
-        //           Support intercepting before entire run and before each receiver.
-        protected IIntercept<TMessage>[] Intercepters { get; private set; } = [];
-
-
-        // TODO :: Note in docs that async handlers are internally managed and awaited.
-        public virtual void Receive(TMessage e)  // TODO :: Possibly return result object.
+        // TODO :: Note in docs that async handlers are captured with updates propagated through MessageResult.
+        public virtual MessageResult Receive(TMessage e)  // TODO :: Possibly return result object.
         {
             // TODO :: Progress through both collections based on their registration settings (order).
+           // foreach (var receiver in Receivers)
+             //   receiver.Receive(e);
             foreach (var receiver in Receivers)
-                receiver.Receive(e);
-            foreach (var receiver in AsyncReceivers)
-                _ = receiver.ReceiveAsync(e);  // TODO :: Manage these.
+                _ = receiver.Receive(e);  // TODO :: Manage these.
+
+            return new MessageResult(); // TODO :: Return a meaningful result.
         }
 
-        public virtual async Task ReceiveAsync(TMessage e, 
-            CancellationToken token = default, bool runParallel = false)
+        public virtual async Task<MessageResult> ReceiveAsync(TMessage e, 
+            CancellationToken token = default)
         {
             // TODO :: Progress through both collections based on their registration settings (order).
             // TODO :: Account for the setting of parallel handling and cancellation.
+            //foreach (var receiver in Receivers)
+              //  receiver.Receive(e);
             foreach (var receiver in Receivers)
-                receiver.Receive(e);
-            foreach (var receiver in AsyncReceivers)
-                await receiver.ReceiveAsync(e);
+                await receiver.Receive(e, token);
+
+            return new MessageResult(); // TODO :: Return a meaningful result.
         }
     }
 }
