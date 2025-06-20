@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace Chopsticks.Messages
 {
     /// <summary>
@@ -13,11 +14,8 @@ namespace Chopsticks.Messages
     {
         public async Task Run()
         {
-            var collective = ITaskMessageReceiver<Message>.Collective;
-            var registrar = ITaskMessageReceiver<Message>.Collective;
-
-            var sender = new OnCommandSender(collective);
-            var receiver = new OnCommandReceiver(registrar);
+            var sender = new OnCommandSender(ITaskMessageReceiver<Message>.DefaultCollective);
+            var receiver = new OnCommandReceiver(ITaskMessageReceiver<Message>.DefaultCollective);
 
             await sender.Send();
 

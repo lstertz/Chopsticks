@@ -7,7 +7,7 @@ namespace Chopsticks.Messages.TaskBased
     public interface ITaskMessageAsyncReceiver<TMessage> :
         IRegisteredMessageReceiver<TMessage, Task<MessageResult>>
     {
-        public static ICollectiveTaskMessageReceiver<TMessage> Collective { get; } =
+        public static CollectiveTaskMessageReceiver<TMessage> DefaultCollective { get; } =
             new CollectiveTaskMessageReceiver<TMessage>();
 
 
