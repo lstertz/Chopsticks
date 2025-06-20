@@ -14,7 +14,7 @@
         /// </summary>
         /// <remarks>
         /// 0 is the default; more negative numbers will process earlier and more 
-        /// positive number will process later.</remarks>
+        /// positive numbers will process later.</remarks>
         public int Order { get; init; }
     }
 }

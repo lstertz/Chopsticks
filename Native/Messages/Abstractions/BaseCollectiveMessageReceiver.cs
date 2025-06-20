@@ -40,12 +40,14 @@ namespace Chopsticks.Messages.Abstractions
         protected List<Registration> RegisteredReceivers { get; init; } = new(8);
 
 
-        public virtual void Deregister(IRegisteredMessageReceiver<TMessage, TAsync> receiver)
+        void ICollectiveMessageReceiver<TMessage, TAsync>.Deregister(
+            IRegisteredMessageReceiver<TMessage, TAsync> receiver)
         {
             RegisteredReceivers.Remove(new(receiver));
         }
 
-        public virtual bool Register(IRegisteredMessageReceiver<TMessage, TAsync> receiver,
+        bool ICollectiveMessageReceiver<TMessage, TAsync>.Register(
+            IRegisteredMessageReceiver<TMessage, TAsync> receiver,
             RegistrationSettings settings, params IIntercept<TMessage>[] interceptors)
         {
             var registration = new Registration(receiver, interceptors);
