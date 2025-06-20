@@ -9,16 +9,15 @@ namespace Chopsticks.Messages.TaskBased
         ITaskMessageReceiver<TMessage>,
         ITaskMessageReceiverCollective<TMessage>
     {
-        // TODO :: Note in docs that async handlers are captured with updates propagated through MessageResult.
         public virtual MessageResult Receive(TMessage e)
         {
             if (RegisteredReceivers.Count == 0)
                 return MessageResult.NoReceivers;
 
             foreach (var registration in RegisteredReceivers)
-                _ = registration.Receiver.Receive(e);  // TODO :: Manage the async handling.
+                _ = registration.Receiver.Receive(e);
 
-            return MessageResult.Success; // TODO :: Return a meaningful result that accounts for async handling and exceptions.
+            return MessageResult.Success; // TODO :: Return a more meaningful result that accounts for async handling and exceptions.
         }
 
         public virtual async Task<MessageResult> ReceiveAsync(TMessage e, 
@@ -30,7 +29,7 @@ namespace Chopsticks.Messages.TaskBased
             foreach (var registration in RegisteredReceivers)
                 await registration.Receiver.Receive(e, token);
 
-            return MessageResult.Success; // TODO :: Return a meaningful result that accounts for async handling and exceptions.
+            return MessageResult.Success; // TODO :: Return a more meaningful result that accounts for async handling and exceptions.
         }
     }
 }
