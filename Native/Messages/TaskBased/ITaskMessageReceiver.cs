@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 namespace Chopsticks.Messages.TaskBased
 {
     public interface ITaskMessageReceiver<TMessage> :
-        ITaskMessageAsyncReceiver<TMessage>//,
-        //IRegisteredMessageReceiver<TMessage, Task<MessageResult>, CollectiveTaskMessageReceiver<TMessage>>
+        ITaskMessageAsyncReceiver<TMessage>
     {
-        private static Task<MessageResult> SuccessfulTaskResult = Task.FromResult(new MessageResult());
+        private static Task<MessageResult> Success = Task.FromResult(MessageResult.Success);
 
         Task<MessageResult> ITaskMessageAsyncReceiver<TMessage>.ReceiveAsync(TMessage message,
             CancellationToken token)
@@ -24,9 +23,8 @@ namespace Chopsticks.Messages.TaskBased
                 // TODO :: Build a failed result and wrap a task around around it.
             }
 
-            return SuccessfulTaskResult;
+            return Success;
         }
-
 
         MessageResult Receive(TMessage t);
     }

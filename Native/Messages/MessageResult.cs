@@ -1,7 +1,24 @@
 ﻿namespace Chopsticks.Messages
 {
-    public struct MessageResult
+    public readonly struct MessageResult
     {
+        public static MessageResult Success { get; } = new MessageResult
+        {
+            CurrentStatus = Status.Success
+        };
 
+
+        public enum Status
+        {
+            Success,
+            Failure,
+            Processing,
+            Unprocessed
+        }
+
+        public Status CurrentStatus { get; init; }
+
+
+        // TODO :: Support wrapping exceptions for failed results.
     }
 }
