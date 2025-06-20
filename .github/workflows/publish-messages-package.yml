@@ -1,0 +1,92 @@
+name: Publish com.chopsticks.messages
+
+on:
+  push:
+    branches:
+        - dev
+
+jobs:
+  deploy-shared-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Node.js for JSON parsing
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Configure git CLI user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Read the current package version
+        id: read_package_version
+        run: |
+          VERSION=$(jq -r '.version' Unity/com.chopsticks.messages/package.json)
+          echo "Package version is $VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "tag=com.chopsticks.messages-$VERSION" >> $GITHUB_ENV
+
+      - name: Check if version tag already exists
+        id: version_check
+        run: |
+          TAG="com.chopsticks.messages-${{ env.version }}"
+          if git ls-remote --tags origin | grep -q "refs/tags/${{ env.tag }}"; then
+            echo "Version ${{ env.version }} already released. Skipping branch creation."
+            echo "skip=true" >> $GITHUB_ENV
+          else
+            echo "skip=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create and push package branch
+        if: env.skip != 'true'
+        run: |
+          PACKAGE_BRANCH="com.chopsticks.messages"
+          TEMP_DEPLOYMENT_DIR="/tmp/com.chopsticks.messages"
+          
+          mkdir -p $TEMP_DEPLOYMENT_DIR/
+          mkdir -p $TEMP_DEPLOYMENT_DIR/Editor/
+          mkdir -p $TEMP_DEPLOYMENT_DIR/Runtime/
+          mkdir -p $TEMP_DEPLOYMENT_DIR/Plugins/
+          mkdir -p $TEMP_DEPLOYMENT_DIR/~Samples/
+          cp Unity/com.chopsticks.messages/package.json $TEMP_DEPLOYMENT_DIR/
+          cp Unity/com.chopsticks.messages/package.json.meta $TEMP_DEPLOYMENT_DIR/
+          cp -r Unity/com.chopsticks.messages/Assets/Scripts/Editor/* $TEMP_DEPLOYMENT_DIR/Editor/
+          cp Unity/com.chopsticks.messages/Assets/Scripts/Editor.meta $TEMP_DEPLOYMENT_DIR/
+          cp -r Unity/com.chopsticks.messages/Assets/Scripts/Runtime/* $TEMP_DEPLOYMENT_DIR/Runtime/
+          cp Unity/com.chopsticks.messages/Assets/Scripts/Runtime.meta $TEMP_DEPLOYMENT_DIR/
+          cp -r Unity/com.chopsticks.messages/Assets/Samples/* $TEMP_DEPLOYMENT_DIR/~Samples/
+          cp Unity/com.chopsticks.messages/Assets/Samples.meta $TEMP_DEPLOYMENT_DIR/~Samples.meta
+          cp -r Unity/com.chopsticks.messages/Assets/Plugins/* $TEMP_DEPLOYMENT_DIR/Plugins/
+          cp Unity/com.chopsticks.messages/Assets/Plugins.meta $TEMP_DEPLOYMENT_DIR/
+          
+          if git ls-remote --heads origin | grep -q "refs/heads/$PACKAGE_BRANCH"; then
+            echo "Branch $PACKAGE_BRANCH already exists. Checking it out."
+            git fetch origin $PACKAGE_BRANCH
+            git checkout $PACKAGE_BRANCH
+          else
+            echo "Branch $PACKAGE_BRANCH does not exist. Creating a new orphan branch."
+            git checkout --orphan $PACKAGE_BRANCH
+          fi
+          
+          # Clear content so the latest defines the only content.
+          git rm -rf .
+          mv $TEMP_DEPLOYMENT_DIR/* .
+          
+          git add .
+          git commit -m "Update package to version ${{ env.version }}"
+          
+          git remote set-url origin "https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push --set-upstream origin $PACKAGE_BRANCH --force
+
+      - name: Tag the new version
+        if: env.skip != 'true'
+        run: |
+          git tag -a "${{ env.tag }}" -m "Release ${{ env.tag }}"
+          git push origin "${{ env.tag }}"
