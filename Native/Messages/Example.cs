@@ -48,9 +48,9 @@ namespace Chopsticks.Messages
 
     public class OnCommandReceiver : ITaskMessageReceiver<Message>, IDisposable
     {
-        private ICollectiveTaskMessageReceiver<Message> _registrar;
+        private ITaskMessageReceiverCollective<Message> _registrar;
 
-        public OnCommandReceiver(ICollectiveTaskMessageReceiver<Message> registrar)
+        public OnCommandReceiver(ITaskMessageReceiverCollective<Message> registrar)
         {
             _registrar = registrar;
             _registrar.Register(this);
@@ -58,7 +58,7 @@ namespace Chopsticks.Messages
 
         public void Dispose()
         {
-            _registrar.Deregister(this);
+            _registrar.Unregister(this);
         }
 
         MessageResult ITaskMessageReceiver<Message>.Receive(Message command)
@@ -70,9 +70,9 @@ namespace Chopsticks.Messages
 
     public class OnCommandAsyncReceiver : ITaskMessageAsyncReceiver<Message>, IDisposable
     {
-        private ICollectiveTaskMessageReceiver<Message> _registrar;
+        private ITaskMessageReceiverCollective<Message> _registrar;
 
-        public OnCommandAsyncReceiver(ICollectiveTaskMessageReceiver<Message> registrar)
+        public OnCommandAsyncReceiver(ITaskMessageReceiverCollective<Message> registrar)
         {
             _registrar = registrar;
             _registrar.Register(this);
@@ -80,7 +80,7 @@ namespace Chopsticks.Messages
 
         public void Dispose()
         {
-            _registrar.Deregister(this);
+            _registrar.Unregister(this);
         }
 
         async Task<MessageResult> ITaskMessageAsyncReceiver<Message>.ReceiveAsync(

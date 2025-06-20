@@ -2,14 +2,14 @@
 {
     /// <summary>
     /// Settings to define how a receiver registered with a 
-    /// <see cref="Abstractions.ICollectiveMessageReceiver{TMessage, TAsync}"/> 
+    /// <see cref="Abstractions.IMessageReceiverCollective{TMessage, TAsync}"/> 
     /// will be processed.
     /// </summary>
     public struct RegistrationSettings
     {
         /// <summary>
         /// The relative order that this receiver will be handled by a 
-        /// <see cref="Abstractions.ICollectiveMessageReceiver{TMessage, TAsync}"/> 
+        /// <see cref="Abstractions.IMessageReceiverCollective{TMessage, TAsync}"/> 
         /// when message processing is to be done in sequence.
         /// </summary>
         /// <remarks>

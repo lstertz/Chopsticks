@@ -2,6 +2,11 @@
 {
     public readonly struct MessageResult
     {
+        public static MessageResult NoReceivers { get; } = new MessageResult
+        {
+            CurrentStatus = Status.Unprocessed
+        };
+
         public static MessageResult Success { get; } = new MessageResult
         {
             CurrentStatus = Status.Success

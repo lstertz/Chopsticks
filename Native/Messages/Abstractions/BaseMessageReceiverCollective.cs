@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Chopsticks.Messages.Abstractions
 {
-    public abstract class BaseCollectiveMessageReceiver<TMessage, TAsync> : 
-        ICollectiveMessageReceiver<TMessage, TAsync>
+    public abstract class BaseMessageReceiverCollective<TMessage, TAsync> : 
+        IMessageReceiverCollective<TMessage, TAsync>
     {
         protected class Registration : IEquatable<Registration>
         {
@@ -12,10 +12,10 @@ namespace Chopsticks.Messages.Abstractions
 
             public int Order { get; init; } = 0;
 
-            public IRegisteredMessageReceiver<TMessage, TAsync> Receiver { get; init; }
+            public IMessageReceiver<TMessage, TAsync> Receiver { get; init; }
 
 
-            public Registration(IRegisteredMessageReceiver<TMessage, TAsync> receiver,
+            public Registration(IMessageReceiver<TMessage, TAsync> receiver,
                 params IIntercept<TMessage>[] interceptors)
             {
                 Receiver = receiver ?? throw new ArgumentNullException(nameof(receiver));
@@ -40,14 +40,8 @@ namespace Chopsticks.Messages.Abstractions
         protected List<Registration> RegisteredReceivers { get; init; } = new(8);
 
 
-        void ICollectiveMessageReceiver<TMessage, TAsync>.Deregister(
-            IRegisteredMessageReceiver<TMessage, TAsync> receiver)
-        {
-            RegisteredReceivers.Remove(new(receiver));
-        }
-
-        bool ICollectiveMessageReceiver<TMessage, TAsync>.Register(
-            IRegisteredMessageReceiver<TMessage, TAsync> receiver,
+        bool IMessageReceiverCollective<TMessage, TAsync>.Register(
+            IMessageReceiver<TMessage, TAsync> receiver,
             RegistrationSettings settings, params IIntercept<TMessage>[] interceptors)
         {
             var registration = new Registration(receiver, interceptors);
@@ -65,6 +59,12 @@ namespace Chopsticks.Messages.Abstractions
             });
 
             return true;
+        }
+
+        void IMessageReceiverCollective<TMessage, TAsync>.Unregister(
+            IMessageReceiver<TMessage, TAsync> receiver)
+        {
+            RegisteredReceivers.Remove(new(receiver));
         }
     }
 }

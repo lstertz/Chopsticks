@@ -2,7 +2,7 @@
 
 namespace Chopsticks.Messages.Abstractions
 {
-    public interface IRegisteredMessageReceiver<TMessage, TAsync>
+    public interface IMessageReceiver<TMessage, TAsync>
     {
         TAsync Receive(TMessage message, CancellationToken token = default);
     }
