@@ -4,15 +4,33 @@
         <name>Messages</name>
     </assembly>
     <members>
+        <member name="M:Chopsticks.Messages.Abstractions.BaseMessageReceiverCollective`2.Registration.Equals(Chopsticks.Messages.Abstractions.BaseMessageReceiverCollective{`0,`1}.Registration)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Abstractions.BaseMessageReceiverCollective`2.Registration.GetHashCode">
+            <inheritdoc/>
+        </member>
         <member name="T:Chopsticks.Messages.Example">
             <summary>
             Example class for testing purposes.
             </summary>
         </member>
-        <member name="P:Chopsticks.Messages.Example.Test">
+        <member name="T:Chopsticks.Messages.RegistrationSettings">
             <summary>
-            A test property.
+            Settings to define how a receiver registered with a 
+            <see cref="T:Chopsticks.Messages.Abstractions.IMessageReceiverCollective`2"/> 
+            will be processed.
             </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.RegistrationSettings.Order">
+            <summary>
+            The relative order that this receiver will be handled by a 
+            <see cref="T:Chopsticks.Messages.Abstractions.IMessageReceiverCollective`2"/> 
+            when message processing is to be done in sequence.
+            </summary>
+            <remarks>
+            0 is the default; more negative numbers will process earlier and more 
+            positive numbers will process later.</remarks>
         </member>
         <member name="T:System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute">
             <summary>
