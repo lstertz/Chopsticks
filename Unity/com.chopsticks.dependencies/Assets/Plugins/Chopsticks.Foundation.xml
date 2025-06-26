@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>Foundation</name>
+        <name>Chopsticks.Foundation</name>
     </assembly>
     <members>
         <member name="T:System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute">

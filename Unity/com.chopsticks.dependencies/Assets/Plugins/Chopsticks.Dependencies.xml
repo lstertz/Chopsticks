@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>Dependencies</name>
+        <name>Chopsticks.Dependencies</name>
     </assembly>
     <members>
         <member name="T:Chopsticks.Dependencies.Containers.DependencyContainer">
@@ -187,7 +187,7 @@
             <param name="container">The container registering the dependency.</param>
             <param name="implementationFactory">The factory for producing 
             resolving implementations.</param>
-            <param name="lifetime">The lifetime of that the registered 
+            <param name="lifetime">The lifetime that the registered 
             dependency will have.</param>
             <returns>This container, to chain additional manipulations.</returns>
         </member>
@@ -201,7 +201,7 @@
             <param name="registration">The registration that can identify the dependency for 
             deregistration by <see cref="M:Chopsticks.Dependencies.Containers.IDependencyContainer.Deregister(Chopsticks.Dependencies.Containers.DependencyRegistration)"/>
             </param>
-            <param name="lifetime">The lifetime of that the registered 
+            <param name="lifetime">The lifetime that the registered 
             dependency will have.</param>
             <returns>This container, to chain additional manipulations.</returns>
         </member>
