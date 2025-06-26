@@ -4,25 +4,25 @@ using UnityEngine;
 
 namespace Chopsticks.Messages.Examples
 {
-    public class ReceiverBehaviour : MonoBehaviour, ITaskMessageReceiver<TestMessage>
+    public class HandlerBehaviour : MonoBehaviour, ITaskMessageHandler<TestMessage>
     {
         // Assume this is injected.
-        private ITaskMessageReceiverCollective<TestMessage> _collective = 
-            ITaskMessageReceiver<TestMessage>.DefaultCollective;
+        private ITaskMulticastMessageRegistrar<TestMessage> _registrar =
+            ITaskMulticastMessageHandler<TestMessage>.Default;
 
 
         public void OnEnable()
         {
-            _collective.Register(this);
+            _registrar.Register(this);
         }
 
         public void OnDisable()
         {
-            _collective.Unregister(this);
+            _registrar.Unregister(this);
         }
 
 
-        MessageResult ITaskMessageReceiver<TestMessage>.Receive(TestMessage message)
+        MessageResult ITaskMessageHandler<TestMessage>.Handle(TestMessage message)
         {
             UnityEngine.Debug.Log($"Received Test Message: {message.Content}.");
             return MessageResult.Success;

@@ -6,13 +6,13 @@ namespace Chopsticks.Messages.Examples
     public class TestMonoBehaviour : MonoBehaviour
     {
         // Assume this is injected.
-        private ITaskMessageReceiver<TestMessage> _testReceiver = 
-            ITaskMessageReceiver<TestMessage>.DefaultCollective;
+        private ITaskMessageHandler<TestMessage> _testHandler =
+            ITaskMulticastMessageHandler<TestMessage>.Default;
 
 
         public void Start()
         {
-            var result = _testReceiver.Receive(new()
+            var result = _testHandler.Handle(new()
             {
                 Content = "TestMonoBehaviour completed Start!"
             });
