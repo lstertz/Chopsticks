@@ -6,6 +6,7 @@
 		<Nullable>enable</Nullable>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<RootNamespace>Chopsticks.Messages</RootNamespace>
+		<AssemblyName>Chopsticks.Messages</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -16,7 +17,7 @@
 
 	<ItemGroup>
 	  <Reference Include="Foundation">
-	    <HintPath>..\Foundation\bin\Debug\netstandard2.1\Foundation.dll</HintPath>
+	    <HintPath>..\Foundation\bin\Debug\netstandard2.1\Chopsticks.Foundation.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 

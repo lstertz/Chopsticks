@@ -7,17 +7,17 @@
   "targets": {
     ".NETStandard,Version=v2.1": {},
     ".NETStandard,Version=v2.1/": {
-      "Dependencies/1.0.0": {
+      "Chopsticks.Dependencies/1.0.0": {
         "dependencies": {
-          "Foundation": "1.0.0.0"
+          "Chopsticks.Foundation": "1.0.0.0"
         },
         "runtime": {
-          "Dependencies.dll": {}
+          "Chopsticks.Dependencies.dll": {}
         }
       },
-      "Foundation/1.0.0.0": {
+      "Chopsticks.Foundation/1.0.0.0": {
         "runtime": {
-          "Foundation.dll": {
+          "Chopsticks.Foundation.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -26,12 +26,12 @@
     }
   },
   "libraries": {
-    "Dependencies/1.0.0": {
+    "Chopsticks.Dependencies/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "Foundation/1.0.0.0": {
+    "Chopsticks.Foundation/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

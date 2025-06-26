@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>Messages</name>
+        <name>Chopsticks.Messages</name>
     </assembly>
     <members>
         <member name="M:Chopsticks.Messages.Abstractions.BaseMessageReceiverCollective`2.Registration.Equals(Chopsticks.Messages.Abstractions.BaseMessageReceiverCollective{`0,`1}.Registration)">

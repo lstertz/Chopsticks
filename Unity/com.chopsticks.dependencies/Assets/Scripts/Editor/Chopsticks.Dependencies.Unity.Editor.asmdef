@@ -1,5 +1,9 @@
 {
-    "name": "Chopsticks.Messages",
+    "name": "Chopsticks.Dependencies.Unity.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Chopsticks.Dependencies.Unity"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

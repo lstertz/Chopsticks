@@ -6,6 +6,7 @@
 	<Nullable>enable</Nullable>
 	<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<RootNamespace>Chopsticks.Foundation</RootNamespace>
+	<AssemblyName>Chopsticks.Foundation</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
