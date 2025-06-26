@@ -4,28 +4,43 @@
         <name>Chopsticks.Messages</name>
     </assembly>
     <members>
-        <member name="M:Chopsticks.Messages.Abstractions.BaseMessageReceiverCollective`2.Registration.Equals(Chopsticks.Messages.Abstractions.BaseMessageReceiverCollective{`0,`1}.Registration)">
+        <member name="M:Chopsticks.Messages.Abstractions.BaseMulticastMessageHandler`2.Registration.Equals(Chopsticks.Messages.Abstractions.BaseMulticastMessageHandler{`0,`1}.Registration)">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Messages.Abstractions.BaseMessageReceiverCollective`2.Registration.GetHashCode">
+        <member name="M:Chopsticks.Messages.Abstractions.BaseMulticastMessageHandler`2.Registration.GetHashCode">
             <inheritdoc/>
+        </member>
+        <member name="P:Chopsticks.Messages.AsyncSettings.RunParallel">
+            <summary>
+            Specifies whether handlers should be run in parallel or sequentially.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.AsyncSettings.RunNonAsyncAsAsync">
+            <summary>
+            Specifies whether non-async handlers should be captured within 
+            async runners and executed asynchronously.
+            </summary>
+            <remarks>
+            If false, then non-async handlers will run synchronously while 
+            being represented by an async return value.</remarks>
         </member>
         <member name="T:Chopsticks.Messages.Example">
             <summary>
             Example class for testing purposes.
             </summary>
         </member>
-        <member name="T:Chopsticks.Messages.RegistrationSettings">
+        <member name="T:Chopsticks.Messages.RegistrationSetting">
             <summary>
-            Settings to define how a receiver registered with a 
-            <see cref="T:Chopsticks.Messages.Abstractions.IMessageReceiverCollective`2"/> 
+            Settings to define how a handler registered to a 
+            <see cref="T:Chopsticks.Messages.Abstractions.IMulticastMessageHandler`2"/> through a 
+            <see cref="T:Chopsticks.Messages.Abstractions.IMulticastMessageRegistrar`2"/>
             will be processed.
             </summary>
         </member>
-        <member name="P:Chopsticks.Messages.RegistrationSettings.Order">
+        <member name="P:Chopsticks.Messages.RegistrationSetting.Order">
             <summary>
-            The relative order that this receiver will be handled by a 
-            <see cref="T:Chopsticks.Messages.Abstractions.IMessageReceiverCollective`2"/> 
+            The relative order that this handler will be handled by a 
+            <see cref="T:Chopsticks.Messages.Abstractions.IMulticastMessageHandler`2"/> 
             when message processing is to be done in sequence.
             </summary>
             <remarks>
