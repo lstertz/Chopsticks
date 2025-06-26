@@ -1,7 +1,10 @@
 {
   "name": "com.chopsticks.messages",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "displayName": "Chopsticks Messages",
   "description": "Provides functionality to support messages within Unity.",
-  "unity": "2023.2"
+  "unity": "2023.2",
+  "author": {
+	"name" : "Lucas Stertz"
+  }
 }
