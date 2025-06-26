@@ -1,0 +1,74 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Chopsticks.Messages.Abstractions
+{
+    public abstract class BaseMulticastMessageHandler<TMessage, TAsync> : 
+        IMulticastMessageRegistrar<TMessage, TAsync>
+    {
+        protected class Registration : IEquatable<Registration>
+        {
+            public IIntercept<TMessage>[] Interceptors { get; init; }
+
+            public int Order { get; init; } = 0;
+
+            public IMessageHandler<TMessage, TAsync> Handler { get; init; }
+
+
+            public Registration(IMessageHandler<TMessage, TAsync> receiver,
+                params IIntercept<TMessage>[] interceptors)
+            {
+                Handler = receiver ?? throw new ArgumentNullException(nameof(receiver));
+                Interceptors = interceptors ?? [];
+            }
+
+            /// <inheritdoc/>
+            public bool Equals(Registration other) =>
+                Handler.Equals(other.Handler);
+
+            /// <inheritdoc/>
+            public override int GetHashCode() =>
+                Handler.GetHashCode();
+        }
+
+
+        // TODO :: Support registering interceptors for the multicast.
+        //           Support intercepting before entire run and before each handler.
+        protected IIntercept<TMessage>[] PreCollectiveRunIntercepters { get; private set; } = [];
+        protected IIntercept<TMessage>[] PerReceiverRunIntercepters { get; private set; } = [];
+
+        protected List<Registration> RegisteredHandlers { get; init; } = new(8);
+
+
+        bool IMulticastMessageRegistrar<TMessage, TAsync>.Register(
+            IMessageHandler<TMessage, TAsync> handler,
+            RegistrationSetting settings, params IIntercept<TMessage>[] interceptors)
+        {
+            var registration = new Registration(handler, interceptors)
+            {
+                Order = settings.Order
+            };
+
+            if (RegisteredHandlers.Contains(registration))
+                return false;
+
+            RegisteredHandlers.Add(registration);
+            RegisteredHandlers.Sort((x, y) =>
+            {
+                int orderComparison = x.Order.CompareTo(y.Order);
+                if (orderComparison != 0)
+                    return orderComparison;
+
+                return x.Handler.GetHashCode().CompareTo(y.Handler.GetHashCode());
+            });
+
+            return true;
+        }
+
+        void IMulticastMessageRegistrar<TMessage, TAsync>.Unregister(
+            IMessageHandler<TMessage, TAsync> receiver)
+        {
+            RegisteredHandlers.Remove(new(receiver));
+        }
+    }
+}
