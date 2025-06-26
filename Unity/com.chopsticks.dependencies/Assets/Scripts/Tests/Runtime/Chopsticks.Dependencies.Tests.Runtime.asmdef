@@ -2,9 +2,9 @@
     "name": "Chopsticks.Dependencies.Tests.Runtime",
     "rootNamespace": "",
     "references": [
-        "Chopsticks.Dependencies",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "Chopsticks.Dependencies.Unity"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -12,8 +12,9 @@
     "overrideReferences": true,
     "precompiledReferences": [
         "nunit.framework.dll",
-        "Dependencies.dll",
-        "NSubstitute.dll"
+        "NSubstitute.dll",
+        "Chopsticks.Foundation.dll",
+        "Chopsticks.Dependencies.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

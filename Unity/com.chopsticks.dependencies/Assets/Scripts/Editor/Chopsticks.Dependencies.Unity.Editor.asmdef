@@ -1,7 +1,8 @@
 {
-    "name": "Chopsticks.Dependencies.Editor",
+    "name": "Chopsticks.Dependencies.Unity.Editor",
+    "rootNamespace": "",
     "references": [
-        "Chopsticks.Dependencies"
+        "Chopsticks.Dependencies.Unity"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
