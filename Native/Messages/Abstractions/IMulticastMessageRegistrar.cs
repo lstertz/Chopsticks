@@ -4,7 +4,7 @@
     {
         // TODO :: Accommodate clearing all.
         bool Register(IMessageHandler<TMessage, TAsync> handler, 
-            RegistrationSetting settings, params IIntercept<TMessage>[] interceptors);
+            RegistrationSettings settings, params IIntercept<TMessage>[] interceptors);
 
         void Unregister(IMessageHandler<TMessage, TAsync> handler);
     }

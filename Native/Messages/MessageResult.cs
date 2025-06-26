@@ -2,7 +2,7 @@
 {
     public readonly struct MessageResult
     {
-        public static MessageResult NoReceivers { get; } = new MessageResult
+        public static MessageResult NoHandlers { get; } = new MessageResult
         {
             CurrentStatus = Status.Unprocessed
         };

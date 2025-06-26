@@ -5,7 +5,7 @@
         public static bool Register<TMessage, TAsync>(
             this IMulticastMessageRegistrar<TMessage, TAsync> registrar,
             IMessageHandler<TMessage, TAsync> receiver,
-            RegistrationSetting settings = default) => 
+            RegistrationSettings settings = default) => 
                 registrar.Register(receiver, settings);
 
         public static bool Register<TMessage, TAsync>(

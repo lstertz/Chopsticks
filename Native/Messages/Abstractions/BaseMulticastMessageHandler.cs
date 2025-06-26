@@ -42,7 +42,7 @@ namespace Chopsticks.Messages.Abstractions
 
         bool IMulticastMessageRegistrar<TMessage, TAsync>.Register(
             IMessageHandler<TMessage, TAsync> handler,
-            RegistrationSetting settings, params IIntercept<TMessage>[] interceptors)
+            RegistrationSettings settings, params IIntercept<TMessage>[] interceptors)
         {
             var registration = new Registration(handler, interceptors)
             {
