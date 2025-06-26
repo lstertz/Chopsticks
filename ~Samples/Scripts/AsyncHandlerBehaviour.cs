@@ -6,25 +6,25 @@ using UnityEngine;
 
 namespace Chopsticks.Messages.Examples
 {
-    public class AsyncReceiverBehaviour : MonoBehaviour, ITaskMessageAsyncReceiver<TestMessage>
+    public class AsyncHandlerBehaviour : MonoBehaviour, ITaskMessageAsyncHandler<TestMessage>
     {
         // Assume this is injected.
-        private ITaskMessageReceiverCollective<TestMessage> _collective =
-            ITaskMessageReceiver<TestMessage>.DefaultCollective;
+        private ITaskMulticastMessageRegistrar<TestMessage> _registrar =
+            ITaskMulticastMessageHandler<TestMessage>.Default;
 
 
         public void OnEnable()
         {
-            _collective.Register(this);
+            _registrar.Register(this);
         }
 
         public void OnDisable()
         {
-            _collective.Unregister(this);
+            _registrar.Unregister(this);
         }
 
 
-        async Task<MessageResult> ITaskMessageAsyncReceiver<TestMessage>.ReceiveAsync(
+        async Task<MessageResult> ITaskMessageAsyncHandler<TestMessage>.HandleAsync(
             TestMessage message, CancellationToken token)
         {
             await Task.Delay(2000);
