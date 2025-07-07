@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 
 namespace Chopsticks.Messages.TaskBased
 {
-    public class TaskMulticastMessageHandler<TMessage> :
+    public class MulticastTaskMessageHandler<TMessage> :
         BaseMulticastMessageHandler<TMessage, Task<MessageResult>>,
-        ITaskMulticastMessageHandler<TMessage>,
-        ITaskMulticastMessageRegistrar<TMessage>
+        IMulticastTaskMessageHandler<TMessage>,
+        ITaskMessageHandlerRegistrar<TMessage>
     {
         public virtual MessageResult Handle(TMessage e)
         {

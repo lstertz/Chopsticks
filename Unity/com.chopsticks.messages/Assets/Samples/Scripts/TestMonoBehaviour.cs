@@ -6,8 +6,8 @@ namespace Chopsticks.Messages.Examples
     public class TestMonoBehaviour : MonoBehaviour
     {
         // Assume this is injected.
-        private ITaskMessageHandler<TestMessage> _testHandler =
-            ITaskMulticastMessageHandler<TestMessage>.Default;
+        private ISyncTaskMessageHandler<TestMessage> _testHandler =
+            IMulticastTaskMessageHandler<TestMessage>.Default;
 
 
         public void Start()

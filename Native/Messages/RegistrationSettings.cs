@@ -3,7 +3,7 @@
     /// <summary>
     /// Settings to define how a handler registered to a 
     /// <see cref="Abstractions.IMulticastMessageHandler{TMessage, TAsync}"/> through a 
-    /// <see cref="Abstractions.IMulticastMessageRegistrar{TMessage, TAsync}"/>
+    /// <see cref="Abstractions.IMessageHandlerRegistrar{TMessage, TAsync}"/>
     /// will be processed.
     /// </summary>
     public readonly struct RegistrationSettings

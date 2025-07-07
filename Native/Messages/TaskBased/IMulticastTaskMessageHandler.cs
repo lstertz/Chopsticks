@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 namespace Chopsticks.Messages.TaskBased
 {
-    public interface ITaskMulticastMessageHandler<TMessage> :
-        ITaskMessageHandler<TMessage>,
+    public interface IMulticastTaskMessageHandler<TMessage> :
+        ISyncTaskMessageHandler<TMessage>,
         IMulticastMessageHandler<TMessage, Task<MessageResult>>
     {
         // TODO :: Leverage a builder pattern to create a multicast message handlers.
-        public static TaskMulticastMessageHandler<TMessage> Default { get; } =
-            new TaskMulticastMessageHandler<TMessage>();
+        public static MulticastTaskMessageHandler<TMessage> Default { get; } =
+            new MulticastTaskMessageHandler<TMessage>();
     }
 }
