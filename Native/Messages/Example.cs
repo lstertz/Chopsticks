@@ -61,10 +61,10 @@ namespace Chopsticks.Messages
             _registrar.Unregister(this);
         }
 
-        MessageResult ISyncTaskMessageHandler<Message>.Handle(Message command)
+        HandlingPromise ISyncTaskMessageHandler<Message>.Handle(Message command)
         {
             Console.WriteLine($"Received OnCommand, Value: {command.Value}.");
-            return MessageResult.Success;
+            return HandlingPromise.Success;
         }
     }
 
@@ -83,11 +83,11 @@ namespace Chopsticks.Messages
             _registrar.Unregister(this);
         }
 
-        async Task<MessageResult> ITaskMessageHandler<Message>.HandleAsync(
+        async Task<HandlingResult> ITaskMessageHandler<Message>.HandleAsync(
             Message message, CancellationToken token)
         {
             Console.WriteLine($"Received OnCommand, Value: {message.Value}.");
-            return MessageResult.Success;
+            return HandlingResult.Success;
         }
     }
 }

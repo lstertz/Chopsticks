@@ -24,14 +24,14 @@ namespace Chopsticks.Messages.Examples
         }
 
 
-        async Task<MessageResult> ITaskMessageHandler<TestMessage>.HandleAsync(
+        async Task<HandlingResult> ITaskMessageHandler<TestMessage>.HandleAsync(
             TestMessage message, CancellationToken token)
         {
             await Task.Delay(2000);
 
             UnityEngine.Debug.Log($"Received Test Message Asynchronously: {message.Content}.");
 
-            return MessageResult.Success;
+            return HandlingResult.Success;
         }
     }
 }

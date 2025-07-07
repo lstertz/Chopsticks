@@ -17,10 +17,11 @@ namespace Chopsticks.Messages.Examples
                 Content = "TestMonoBehaviour completed Start!"
             });
 
-            if (result.CurrentStatus == MessageResult.Status.Success)
-                Debug.Log("TestMonoBehaviour :: The message was received successfully!");
-            else
-                Debug.LogError("TestMonoBehaviour :: The message was not received successfully.");
+            result
+                .OnUnprocessed(_ => Debug.LogError(
+                    "TestMonoBehaviour :: The message was not received by any handlers."))
+                .OnSuccess(_ => Debug.Log(
+                    "TestMonoBehaviour :: The message was received successfully!"));
         }
     }
 }

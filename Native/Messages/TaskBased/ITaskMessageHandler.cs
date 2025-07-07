@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 namespace Chopsticks.Messages.TaskBased
 {
     public interface ITaskMessageHandler<TMessage> :
-        IMessageHandler<TMessage, Task<MessageResult>>
+        IMessageHandler<TMessage, Task<HandlingResult>>
     {
-        Task<MessageResult> IMessageHandler<TMessage, Task<MessageResult>>.Handle(
+        Task<HandlingResult> IMessageHandler<TMessage, Task<HandlingResult>>.Handle(
             TMessage message, CancellationToken token) => HandleAsync(message, token);
 
-        Task<MessageResult> HandleAsync(TMessage message, CancellationToken token = default);
+        Task<HandlingResult> HandleAsync(TMessage message, CancellationToken token = default);
     }
 }

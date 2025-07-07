@@ -8,9 +8,9 @@ namespace Chopsticks.Messages.TaskBased
     public interface ISyncTaskMessageHandler<TMessage> :
         ITaskMessageHandler<TMessage>
     {
-        private static Task<MessageResult> Success = Task.FromResult(MessageResult.Success);
+        private static Task<HandlingResult> Success = Task.FromResult(HandlingResult.Success);
 
-        Task<MessageResult> ITaskMessageHandler<TMessage>.HandleAsync(TMessage message,
+        Task<HandlingResult> ITaskMessageHandler<TMessage>.HandleAsync(TMessage message,
             CancellationToken token)
         {
             try
@@ -21,13 +21,13 @@ namespace Chopsticks.Messages.TaskBased
             catch (Exception e)
             {
                 // TODO :: Include the exception, maybe try to optimize from making the Task.
-                return Task.FromResult(new MessageResult()
+                return Task.FromResult(new HandlingResult()
                 {
-                    CurrentStatus = MessageResult.Status.Failure,
+                    Status = HandlingStatus.Failure,
                 });
             }
         }
 
-        MessageResult Handle(TMessage t);
+        HandlingPromise Handle(TMessage t);
     }
 }

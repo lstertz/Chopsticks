@@ -22,10 +22,10 @@ namespace Chopsticks.Messages.Examples
         }
 
 
-        MessageResult ISyncTaskMessageHandler<TestMessage>.Handle(TestMessage message)
+        HandlingPromise ISyncTaskMessageHandler<TestMessage>.Handle(TestMessage message)
         {
             UnityEngine.Debug.Log($"Received Test Message: {message.Content}.");
-            return MessageResult.Success;
+            return HandlingPromise.Success;
         }
     }
 }
