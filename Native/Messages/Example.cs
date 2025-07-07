@@ -14,8 +14,8 @@ namespace Chopsticks.Messages
     {
         public async Task Run()
         {
-            var sender = new MessageSender(ITaskMulticastMessageHandler<Message>.Default);
-            var receiver = new MessageHandler(ITaskMulticastMessageHandler<Message>.Default);
+            var sender = new MessageSender(DefaultTaskMessageHandler<Message>.Get());
+            var receiver = new MessageHandler(DefaultTaskMessageHandler<Message>.Get());
 
             await sender.Send();
 
@@ -33,9 +33,9 @@ namespace Chopsticks.Messages
 
     public class MessageSender
     {
-        private ITaskMessageHandler<Message> _handler;
+        private ISyncTaskMessageHandler<Message> _handler;
 
-        public MessageSender(ITaskMessageHandler<Message> handler) =>
+        public MessageSender(ISyncTaskMessageHandler<Message> handler) =>
             _handler = handler;
 
         public async Task Send()
@@ -46,11 +46,11 @@ namespace Chopsticks.Messages
         }
     }
 
-    public class MessageHandler : ITaskMessageHandler<Message>, IDisposable
+    public class MessageHandler : ISyncTaskMessageHandler<Message>, IDisposable
     {
-        private ITaskMulticastMessageRegistrar<Message> _registrar;
+        private ITaskMessageHandlerRegistrar<Message> _registrar;
 
-        public MessageHandler(ITaskMulticastMessageRegistrar<Message> registrar)
+        public MessageHandler(ITaskMessageHandlerRegistrar<Message> registrar)
         {
             _registrar = registrar;
             _registrar.Register(this);
@@ -61,18 +61,18 @@ namespace Chopsticks.Messages
             _registrar.Unregister(this);
         }
 
-        MessageResult ITaskMessageHandler<Message>.Handle(Message command)
+        HandlingPromise ISyncTaskMessageHandler<Message>.Handle(Message command)
         {
             Console.WriteLine($"Received OnCommand, Value: {command.Value}.");
-            return MessageResult.Success;
+            return HandlingPromise.Success;
         }
     }
 
-    public class MessageAsyncHandler : ITaskMessageAsyncHandler<Message>, IDisposable
+    public class MessageAsyncHandler : ITaskMessageHandler<Message>, IDisposable
     {
-        private ITaskMulticastMessageRegistrar<Message> _registrar;
+        private ITaskMessageHandlerRegistrar<Message> _registrar;
 
-        public MessageAsyncHandler(ITaskMulticastMessageRegistrar<Message> registrar)
+        public MessageAsyncHandler(ITaskMessageHandlerRegistrar<Message> registrar)
         {
             _registrar = registrar;
             _registrar.Register(this);
@@ -83,11 +83,11 @@ namespace Chopsticks.Messages
             _registrar.Unregister(this);
         }
 
-        async Task<MessageResult> ITaskMessageAsyncHandler<Message>.HandleAsync(
+        async Task<HandlingResult> ITaskMessageHandler<Message>.HandleAsync(
             Message message, CancellationToken token)
         {
             Console.WriteLine($"Received OnCommand, Value: {message.Value}.");
-            return MessageResult.Success;
+            return HandlingResult.Success;
         }
     }
 }

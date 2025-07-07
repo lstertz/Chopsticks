@@ -1,6 +1,6 @@
 ﻿namespace Chopsticks.Messages.Abstractions
 {
-    public interface IMulticastMessageRegistrar<TMessage, TAsync>
+    public interface IMessageHandlerRegistrar<TMessage, TAsync>
     {
         // TODO :: Accommodate clearing all.
         bool Register(IMessageHandler<TMessage, TAsync> handler, 

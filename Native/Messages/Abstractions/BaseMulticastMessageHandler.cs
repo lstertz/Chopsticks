@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Chopsticks.Messages.Abstractions
 {
     public abstract class BaseMulticastMessageHandler<TMessage, TAsync> : 
-        IMulticastMessageRegistrar<TMessage, TAsync>
+        IMessageHandlerRegistrar<TMessage, TAsync>
     {
         protected class Registration : IEquatable<Registration>
         {
@@ -40,9 +40,9 @@ namespace Chopsticks.Messages.Abstractions
         protected List<Registration> RegisteredHandlers { get; init; } = new(8);
 
 
-        bool IMulticastMessageRegistrar<TMessage, TAsync>.Register(
+        bool IMessageHandlerRegistrar<TMessage, TAsync>.Register(
             IMessageHandler<TMessage, TAsync> handler,
-            RegistrationSettings settings, params IIntercept<TMessage>[] interceptors)
+            RegistrationSettings settings = default, params IIntercept<TMessage>[] interceptors)
         {
             var registration = new Registration(handler, interceptors)
             {
@@ -65,7 +65,7 @@ namespace Chopsticks.Messages.Abstractions
             return true;
         }
 
-        void IMulticastMessageRegistrar<TMessage, TAsync>.Unregister(
+        void IMessageHandlerRegistrar<TMessage, TAsync>.Unregister(
             IMessageHandler<TMessage, TAsync> receiver)
         {
             RegisteredHandlers.Remove(new(receiver));

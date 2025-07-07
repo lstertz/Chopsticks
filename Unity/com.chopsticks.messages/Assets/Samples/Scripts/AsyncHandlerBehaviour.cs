@@ -6,11 +6,11 @@ using UnityEngine;
 
 namespace Chopsticks.Messages.Examples
 {
-    public class AsyncHandlerBehaviour : MonoBehaviour, ITaskMessageAsyncHandler<TestMessage>
+    public class AsyncHandlerBehaviour : MonoBehaviour, ITaskMessageHandler<TestMessage>
     {
         // Assume this is injected.
-        private ITaskMulticastMessageRegistrar<TestMessage> _registrar =
-            ITaskMulticastMessageHandler<TestMessage>.Default;
+        private ITaskMessageHandlerRegistrar<TestMessage> _registrar =
+            DefaultTaskMessageHandler<TestMessage>.Get();
 
 
         public void OnEnable()
@@ -24,14 +24,14 @@ namespace Chopsticks.Messages.Examples
         }
 
 
-        async Task<MessageResult> ITaskMessageAsyncHandler<TestMessage>.HandleAsync(
+        async Task<HandlingResult> ITaskMessageHandler<TestMessage>.HandleAsync(
             TestMessage message, CancellationToken token)
         {
             await Task.Delay(2000);
 
             UnityEngine.Debug.Log($"Received Test Message Asynchronously: {message.Content}.");
 
-            return MessageResult.Success;
+            return HandlingResult.Success;
         }
     }
 }

@@ -29,15 +29,15 @@
             Example class for testing purposes.
             </summary>
         </member>
-        <member name="T:Chopsticks.Messages.RegistrationSetting">
+        <member name="T:Chopsticks.Messages.RegistrationSettings">
             <summary>
             Settings to define how a handler registered to a 
             <see cref="T:Chopsticks.Messages.Abstractions.IMulticastMessageHandler`2"/> through a 
-            <see cref="T:Chopsticks.Messages.Abstractions.IMulticastMessageRegistrar`2"/>
+            <see cref="T:Chopsticks.Messages.Abstractions.IMessageHandlerRegistrar`2"/>
             will be processed.
             </summary>
         </member>
-        <member name="P:Chopsticks.Messages.RegistrationSetting.Order">
+        <member name="P:Chopsticks.Messages.RegistrationSettings.Order">
             <summary>
             The relative order that this handler will be handled by a 
             <see cref="T:Chopsticks.Messages.Abstractions.IMulticastMessageHandler`2"/> 

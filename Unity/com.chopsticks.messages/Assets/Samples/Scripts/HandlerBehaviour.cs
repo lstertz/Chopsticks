@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Chopsticks.Messages.Examples
 {
-    public class HandlerBehaviour : MonoBehaviour, ITaskMessageHandler<TestMessage>
+    public class HandlerBehaviour : MonoBehaviour, ISyncTaskMessageHandler<TestMessage>
     {
         // Assume this is injected.
-        private ITaskMulticastMessageRegistrar<TestMessage> _registrar =
-            ITaskMulticastMessageHandler<TestMessage>.Default;
+        private ITaskMessageHandlerRegistrar<TestMessage> _registrar =
+            DefaultTaskMessageHandler<TestMessage>.Get();
 
 
         public void OnEnable()
@@ -22,10 +22,10 @@ namespace Chopsticks.Messages.Examples
         }
 
 
-        MessageResult ITaskMessageHandler<TestMessage>.Handle(TestMessage message)
+        HandlingPromise ISyncTaskMessageHandler<TestMessage>.Handle(TestMessage message)
         {
             UnityEngine.Debug.Log($"Received Test Message: {message.Content}.");
-            return MessageResult.Success;
+            return HandlingPromise.Success;
         }
     }
 }
