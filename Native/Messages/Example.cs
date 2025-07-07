@@ -14,8 +14,8 @@ namespace Chopsticks.Messages
     {
         public async Task Run()
         {
-            var sender = new MessageSender(IMulticastTaskMessageHandler<Message>.Default);
-            var receiver = new MessageHandler(IMulticastTaskMessageHandler<Message>.Default);
+            var sender = new MessageSender(DefaultTaskMessageHandler<Message>.Get());
+            var receiver = new MessageHandler(DefaultTaskMessageHandler<Message>.Get());
 
             await sender.Send();
 

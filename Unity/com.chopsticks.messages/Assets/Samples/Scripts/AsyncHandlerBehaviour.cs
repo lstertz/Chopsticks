@@ -10,7 +10,7 @@ namespace Chopsticks.Messages.Examples
     {
         // Assume this is injected.
         private ITaskMessageHandlerRegistrar<TestMessage> _registrar =
-            IMulticastTaskMessageHandler<TestMessage>.Default;
+            DefaultTaskMessageHandler<TestMessage>.Get();
 
 
         public void OnEnable()

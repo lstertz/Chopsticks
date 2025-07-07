@@ -7,7 +7,7 @@ namespace Chopsticks.Messages.Examples
     {
         // Assume this is injected.
         private ISyncTaskMessageHandler<TestMessage> _testHandler =
-            IMulticastTaskMessageHandler<TestMessage>.Default;
+            DefaultTaskMessageHandler<TestMessage>.Get();
 
 
         public void Start()

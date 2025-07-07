@@ -8,7 +8,5 @@ namespace Chopsticks.Messages.TaskBased
         IMulticastMessageHandler<TMessage, Task<HandlingResult>>
     {
         // TODO :: Leverage a builder pattern to create a multicast message handlers.
-        public static MulticastTaskMessageHandler<TMessage> Default { get; } =
-            new MulticastTaskMessageHandler<TMessage>();
     }
 }
