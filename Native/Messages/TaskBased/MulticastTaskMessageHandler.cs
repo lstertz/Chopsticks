@@ -23,13 +23,12 @@ namespace Chopsticks.Messages.TaskBased
         public virtual async Task<HandlingResult> HandleAsync(TMessage message,
             CancellationToken token = default)
         {
-            if (RegisteredHandlers.Count == 0)
-                return HandlingResult.NoHandlers;
+            var result = HandlingResult.NoHandlers;
 
             foreach (var registration in RegisteredHandlers)
-                await registration.Handler.Handle(message, token);
+                result.MergeWith(await registration.Handler.Handle(message, token));
 
-            return HandlingResult.Success; // TODO :: Return a more meaningful result that accounts for async handling and exceptions.
+            return result;
         }
     }
 }

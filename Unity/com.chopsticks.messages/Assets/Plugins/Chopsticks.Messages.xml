@@ -29,6 +29,101 @@
             Example class for testing purposes.
             </summary>
         </member>
+        <member name="T:Chopsticks.Messages.HandlingResult">
+            <summary>
+            The result of handling a message.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.HandlingResult.NoHandlers">
+            <summary>
+            Builds a result indicating that no handlers were found for the message.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.HandlingResult.Success">
+            <summary>
+            Builds a result indicating that the message was handled successfully.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.FromException(System.Exception)">
+            <summary>
+            Builds a result indicating that the message failed to be handled with an exception.
+            </summary>
+            <param name="exception">The exception that specifies the failure.</param>
+        </member>
+        <member name="P:Chopsticks.Messages.HandlingResult.Exceptions">
+            <summary>
+            The exceptions that occurred during handling, if any.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.HandlingResult.Status">
+            <summary>
+            The status of the handling result.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingResult._exceptions">
+            <summary>
+            Captures either null (for success), a single exception (for unmerged failure), 
+            or an array of exceptions (for merged failures).
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.MergeWith(Chopsticks.Messages.HandlingResult)">
+            <summary>
+            Merges this handling result with another handling result.
+            </summary>
+            <param name="other">The other handling result.</param>
+            <returns>A handling result that is the logical combination of 
+            both results.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.Always(System.Action{Chopsticks.Messages.HandlingResult})">
+            <summary>
+            Executes the specified action regardless of the status.
+            </summary>
+            <param name="onAlways">The action to execute.</param>
+            <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
+            allowing for method chaining.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.ThrowIfFailed">
+            <summary>
+            Throws an exception if the current status indicates a failure.
+            </summary>
+            <remarks>If the status is <see cref="F:Chopsticks.Messages.HandlingStatus.Failure"/>, this method throws an
+            exception. If a single exception is associated with the failure, it is thrown directly. 
+            If multiple exceptions are associated, an <see cref="T:System.AggregateException"/> containing 
+            all exceptions is thrown.
+            </remarks>
+            <exception cref="T:System.Exception">Thrown if a single exception is associated 
+            with the failure.</exception>
+            <exception cref="T:System.AggregateException">Thrown if multiple exceptions are associated 
+            with the failure.</exception>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.WhenFailed(System.Action{Chopsticks.Messages.HandlingResult})">
+            <summary>
+            Executes the specified action if the current handling result indicates a failure.
+            </summary>
+            <param name="onFailure">The action to execute when the handling result has a 
+            status of <see cref="F:Chopsticks.Messages.HandlingStatus.Failure"/>.</param>
+            <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
+            allowing for method chaining.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.WhenNotHandled(System.Action{Chopsticks.Messages.HandlingResult})">
+            <summary>
+            Executes the specified action if the current handling result cates that the 
+            message was not handled.
+            </summary>
+            <param name="onNotHandled">The action to execute when the handling status 
+            is <see cref="F:Chopsticks.Messages.HandlingStatus.NotHandled"/>.</param>
+            <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
+            allowing for method chaining.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.WhenSuccessful(System.Action{Chopsticks.Messages.HandlingResult})">
+            <summary>
+            Executes the specified action if the handling result indicates success.
+            </summary>
+            <param name="onSuccess">The action to execute when the <see cref="P:Chopsticks.Messages.HandlingResult.Status"/> 
+            is <see cref="F:Chopsticks.Messages.HandlingStatus.Success"/>.</param>
+            <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
+            allowing for method chaining.</returns>
+        </member>
         <member name="T:Chopsticks.Messages.RegistrationSettings">
             <summary>
             Settings to define how a handler registered to a 

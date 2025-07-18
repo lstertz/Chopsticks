@@ -3,9 +3,9 @@
     public enum HandlingStatus
     {
         Cancelled,
-        Success,
         Failure,
+        NotHandled,
         Processing,
-        Unprocessed
+        Success
     }
 }

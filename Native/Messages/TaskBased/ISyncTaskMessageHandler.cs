@@ -15,16 +15,17 @@ namespace Chopsticks.Messages.TaskBased
         {
             try
             {
-                var result = Handle(message);
+                // TODO :: Support offloading to a task scheduler as an async option.
+
+                Handle(message);
+
+                // The handler is known to be synchronous here, so if it completed without 
+                // an exception, a successful result can be returned.
                 return Success;
             }
             catch (Exception e)
             {
-                // TODO :: Include the exception, maybe try to optimize from making the Task.
-                return Task.FromResult(new HandlingResult()
-                {
-                    Status = HandlingStatus.Failure,
-                });
+                return Task.FromResult(HandlingResult.FromException(e));
             }
         }
 
