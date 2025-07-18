@@ -32,7 +32,7 @@ namespace Chopsticks.Messages
 
         public HandlingPromise OnUnprocessed(Action<HandlingResult> onUnprocessed)
         {
-            if (_currentResult.Status == HandlingStatus.Unprocessed)
+            if (_currentResult.Status == HandlingStatus.NotHandled)
             {
                 onUnprocessed(_currentResult);
             }
