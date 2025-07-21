@@ -179,10 +179,10 @@ namespace Chopsticks.Messages
         /// status of <see cref="HandlingStatus.Failure"/>.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult WhenFailed(Action<HandlingResult> whenFailed)
+        public HandlingResult WhenFailed(Action<IEnumerable<Exception>> whenFailed)
         {
             if (Status == HandlingStatus.Failure)
-                whenFailed(this);
+                whenFailed(Exceptions);
             return this;
         }
 
@@ -194,10 +194,10 @@ namespace Chopsticks.Messages
         /// is <see cref="HandlingStatus.NotHandled"/>.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult WhenNotHandled(Action<HandlingResult> whenNotHandled)
+        public HandlingResult WhenNotHandled(Action whenNotHandled)
         {
             if (Status == HandlingStatus.NotHandled)
-                whenNotHandled(this);
+                whenNotHandled();
             return this;
         }
 
@@ -208,10 +208,10 @@ namespace Chopsticks.Messages
         /// is <see cref="HandlingStatus.Success"/>.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult WhenSuccessful(Action<HandlingResult> whenSuccessful)
+        public HandlingResult WhenSuccessful(Action whenSuccessful)
         {
             if (Status == HandlingStatus.Success)
-                whenSuccessful(this);
+                whenSuccessful();
             return this;
         }
     }
