@@ -140,12 +140,12 @@ namespace Chopsticks.Messages
         /// <summary>
         /// Executes the specified action regardless of the status.
         /// </summary>
-        /// <param name="onAlways">The action to execute.</param>
+        /// <param name="callback">The action to execute.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult Always(Action<HandlingResult> onAlways)
+        public HandlingResult Always(Action<HandlingResult> callback)
         {
-            onAlways(this);
+            callback(this);
             return this;
         }
 
@@ -175,14 +175,14 @@ namespace Chopsticks.Messages
         /// <summary>
         /// Executes the specified action if the current handling result indicates a failure.
         /// </summary>
-        /// <param name="onFailure">The action to execute when the handling result has a 
+        /// <param name="whenFailed">The action to execute when the handling result has a 
         /// status of <see cref="HandlingStatus.Failure"/>.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult WhenFailed(Action<HandlingResult> onFailure)
+        public HandlingResult WhenFailed(Action<HandlingResult> whenFailed)
         {
             if (Status == HandlingStatus.Failure)
-                onFailure(this);
+                whenFailed(this);
             return this;
         }
 
@@ -190,28 +190,28 @@ namespace Chopsticks.Messages
         /// Executes the specified action if the current handling result cates that the 
         /// message was not handled.
         /// </summary>
-        /// <param name="onNotHandled">The action to execute when the handling status 
+        /// <param name="whenNotHandled">The action to execute when the handling status 
         /// is <see cref="HandlingStatus.NotHandled"/>.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult WhenNotHandled(Action<HandlingResult> onNotHandled)
+        public HandlingResult WhenNotHandled(Action<HandlingResult> whenNotHandled)
         {
             if (Status == HandlingStatus.NotHandled)
-                onNotHandled(this);
+                whenNotHandled(this);
             return this;
         }
 
         /// <summary>
         /// Executes the specified action if the handling result indicates success.
         /// </summary>
-        /// <param name="onSuccess">The action to execute when the <see cref="Status"/> 
+        /// <param name="whenSuccessful">The action to execute when the <see cref="Status"/> 
         /// is <see cref="HandlingStatus.Success"/>.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult WhenSuccessful(Action<HandlingResult> onSuccess)
+        public HandlingResult WhenSuccessful(Action<HandlingResult> whenSuccessful)
         {
             if (Status == HandlingStatus.Success)
-                onSuccess(this);
+                whenSuccessful(this);
             return this;
         }
     }
