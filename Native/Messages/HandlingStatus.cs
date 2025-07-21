@@ -2,6 +2,9 @@
 
 namespace Chopsticks.Messages
 {
+    /// <summary>
+    /// The status of a message handling process.
+    /// </summary>
     [Flags]
     public enum HandlingStatus
     {
