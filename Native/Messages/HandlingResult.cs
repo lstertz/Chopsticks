@@ -9,6 +9,14 @@ namespace Chopsticks.Messages
     public readonly struct HandlingResult
     {
         /// <summary>
+        /// Builds a result indicating that the message was cancelled.
+        /// </summary>
+        public static HandlingResult Cancelled => new()
+        {
+            Status = HandlingStatus.Cancelled
+        };
+
+        /// <summary>
         /// Builds a result indicating that no handlers were found for the message.
         /// </summary>
         public static HandlingResult NoHandlers => new()
@@ -55,7 +63,7 @@ namespace Chopsticks.Messages
         /// <summary>
         /// The status of the handling result.
         /// </summary>
-        public HandlingStatus Status { get; init; }
+        public HandlingStatus Status { get; private init; } = HandlingStatus.NotHandled;
 
 
         /// <summary>
@@ -93,10 +101,16 @@ namespace Chopsticks.Messages
                 return this;   // The other isn't handled, return this result.
 
             if (Status == HandlingStatus.Success)
-                return other;  // Other is either success or failure.
+                return other;  // Other is either success, failure, or cancelled.
 
             if (other.Status == HandlingStatus.Success)
-                return this;   // This must be the only failure.
+                return this;   // This must be the only failure or cancelled.
+
+            if (Status == HandlingStatus.Cancelled)
+                return other;  // Other is either failure, which takes priority, or cancelled.
+
+            if (other.Status == HandlingStatus.Cancelled)
+                return this;  // This must be the only failure, which takes priority.
 
             // Both are failures, merge their exceptions.
             if (other._exceptions is Exception otherException)
