@@ -9,11 +9,6 @@ namespace Chopsticks.Messages
     public enum HandlingStatus
     {
         /// <summary>
-        /// The status of a handling process that is still in progress.
-        /// </summary>
-        Processing = 0,
-
-        /// <summary>
         /// The status indicating that no handlers were found for the message.
         /// </summary>
         /// <remarks>
@@ -21,8 +16,12 @@ namespace Chopsticks.Messages
         /// neither a success, a failure, nor a cancellation; it never started and 
         /// therefore never completed.
         /// </remarks>
-        NotHandled = 1 << 0,
+        NotHandled = 0,
 
+        /// <summary>
+        /// The status of a handling process that is still in progress.
+        /// </summary>
+        Processing = 1 << 0,
 
         /// <summary>
         /// The status indicating that the handling was successful.
