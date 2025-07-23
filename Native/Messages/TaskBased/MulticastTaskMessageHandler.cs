@@ -14,10 +14,12 @@ namespace Chopsticks.Messages.TaskBased
             if (RegisteredHandlers.Count == 0)
                 return HandlingPromise.NoHandlers;
 
+            // TODO :: Build a promise that wraps the HandleAsync call and return that.
+
             foreach (var registration in RegisteredHandlers)
                 _ = registration.Handler.Handle(message);
 
-            return HandlingPromise.Success; // TODO :: Return a more meaningful result that accounts for async handling and exceptions.
+            return HandlingPromise.Success;
         }
 
         public virtual async Task<HandlingResult> HandleAsync(TMessage message,
@@ -26,7 +28,7 @@ namespace Chopsticks.Messages.TaskBased
             var result = HandlingResult.NoHandlers;
 
             foreach (var registration in RegisteredHandlers)
-                result.MergeWith(await registration.Handler.Handle(message, token));
+                result.MergeWith(await registration.Handler.HandleAsync(message, token));
 
             return result;
         }

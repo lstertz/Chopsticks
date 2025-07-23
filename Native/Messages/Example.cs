@@ -33,9 +33,9 @@ namespace Chopsticks.Messages
 
     public class MessageSender
     {
-        private ISyncTaskMessageHandler<Message> _handler;
+        private ITaskMessageHandler<Message> _handler;
 
-        public MessageSender(ISyncTaskMessageHandler<Message> handler) =>
+        public MessageSender(ITaskMessageHandler<Message> handler) =>
             _handler = handler;
 
         public async Task Send()
@@ -61,14 +61,13 @@ namespace Chopsticks.Messages
             _registrar.Unregister(this);
         }
 
-        HandlingPromise ISyncTaskMessageHandler<Message>.Handle(Message command)
+        void ISyncTaskMessageHandler<Message>.Handle(Message command)
         {
             Console.WriteLine($"Received OnCommand, Value: {command.Value}.");
-            return HandlingPromise.Success;
         }
     }
 
-    public class MessageAsyncHandler : ITaskMessageHandler<Message>, IDisposable
+    public class MessageAsyncHandler : IAsyncTaskMessageHandler<Message>, IDisposable
     {
         private ITaskMessageHandlerRegistrar<Message> _registrar;
 
@@ -83,11 +82,10 @@ namespace Chopsticks.Messages
             _registrar.Unregister(this);
         }
 
-        async Task<HandlingResult> ITaskMessageHandler<Message>.HandleAsync(
+        async Task IAsyncTaskMessageHandler<Message>.HandleAsync(
             Message message, CancellationToken token)
         {
             Console.WriteLine($"Received OnCommand, Value: {message.Value}.");
-            return HandlingResult.Success;
         }
     }
 }

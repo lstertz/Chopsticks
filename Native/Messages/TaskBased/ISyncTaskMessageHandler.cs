@@ -10,25 +10,23 @@ namespace Chopsticks.Messages.TaskBased
     {
         private static Task<HandlingResult> Success = Task.FromResult(HandlingResult.Success);
 
-        Task<HandlingResult> ITaskMessageHandler<TMessage>.HandleAsync(TMessage message,
-            CancellationToken token)
+        HandlingPromise IMessageHandler<TMessage, Task<HandlingResult>>.Handle(TMessage message)
         {
-            try
-            {
-                // TODO :: Support offloading to a task scheduler as an async option.
-
-                Handle(message);
-
-                // The handler is known to be synchronous here, so if it completed without 
-                // an exception, a successful result can be returned.
-                return Success;
-            }
-            catch (Exception e)
-            {
-                return Task.FromResult(HandlingResult.FromException(e));
-            }
+            // TODO :: Handle contions to produce an already fulfilled promise.
+            Handle(message);
+            return default;
         }
 
-        HandlingPromise Handle(TMessage t);
+        Task<HandlingResult> IMessageHandler<TMessage, Task<HandlingResult>>.HandleAsync(
+            TMessage message, CancellationToken token)
+        {
+            // TODO :: Support offloading onto an actual task (optional async setting).
+
+            // TODO :: Handle conditions to produce the result.
+            Handle(message);
+            return Task.FromResult(HandlingResult.Success);
+        }
+
+        new void Handle(TMessage message);
     }
 }
