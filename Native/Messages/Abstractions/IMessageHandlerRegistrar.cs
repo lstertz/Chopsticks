@@ -1,11 +1,11 @@
 ﻿namespace Chopsticks.Messages.Abstractions
 {
-    public interface IMessageHandlerRegistrar<TMessage, TAsync>
+    public interface IMessageHandlerRegistrar<TMessage>
     {
         // TODO :: Accommodate clearing all.
-        bool Register(IMessageHandler<TMessage, TAsync> handler, 
+        bool Register(IMessageHandler<TMessage> handler, 
             RegistrationSettings settings, params IIntercept<TMessage>[] interceptors);
 
-        void Unregister(IMessageHandler<TMessage, TAsync> handler);
+        void Unregister(IMessageHandler<TMessage> handler);
     }
 }

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Chopsticks.Messages.Abstractions
 {
-    public abstract class BaseMulticastMessageHandler<TMessage, TAsync> : 
-        IMessageHandlerRegistrar<TMessage, TAsync>
+    public abstract class BaseMulticastMessageHandler<TMessage> : 
+        IMessageHandlerRegistrar<TMessage>
     {
         protected class Registration : IEquatable<Registration>
         {
@@ -12,10 +12,10 @@ namespace Chopsticks.Messages.Abstractions
 
             public int Order { get; init; } = 0;
 
-            public IMessageHandler<TMessage, TAsync> Handler { get; init; }
+            public IMessageHandler<TMessage> Handler { get; init; }
 
 
-            public Registration(IMessageHandler<TMessage, TAsync> receiver,
+            public Registration(IMessageHandler<TMessage> receiver,
                 params IIntercept<TMessage>[] interceptors)
             {
                 Handler = receiver ?? throw new ArgumentNullException(nameof(receiver));
@@ -40,8 +40,8 @@ namespace Chopsticks.Messages.Abstractions
         protected List<Registration> RegisteredHandlers { get; init; } = new(8);
 
 
-        bool IMessageHandlerRegistrar<TMessage, TAsync>.Register(
-            IMessageHandler<TMessage, TAsync> handler,
+        bool IMessageHandlerRegistrar<TMessage>.Register(
+            IMessageHandler<TMessage> handler,
             RegistrationSettings settings = default, params IIntercept<TMessage>[] interceptors)
         {
             var registration = new Registration(handler, interceptors)
@@ -65,8 +65,8 @@ namespace Chopsticks.Messages.Abstractions
             return true;
         }
 
-        void IMessageHandlerRegistrar<TMessage, TAsync>.Unregister(
-            IMessageHandler<TMessage, TAsync> receiver)
+        void IMessageHandlerRegistrar<TMessage>.Unregister(
+            IMessageHandler<TMessage> receiver)
         {
             RegisteredHandlers.Remove(new(receiver));
         }

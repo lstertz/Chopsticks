@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 namespace Chopsticks.Messages.TaskBased
 {
     public class MulticastTaskMessageHandler<TMessage> :
-        BaseMulticastMessageHandler<TMessage, Task<HandlingResult>>,
-        IMulticastTaskMessageHandler<TMessage>,
+        BaseMulticastMessageHandler<TMessage>,
+        //IMulticastTaskMessageHandler<TMessage>,
         ITaskMessageHandlerRegistrar<TMessage>
     {
         public virtual HandlingPromise Handle(TMessage message)

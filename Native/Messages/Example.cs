@@ -7,24 +7,6 @@ using System.Threading.Tasks;
 
 namespace Chopsticks.Messages
 {
-    /// <summary>
-    /// Example class for testing purposes.
-    /// </summary>
-    public class Example
-    {
-        public async Task Run()
-        {
-            var sender = new MessageSender(DefaultTaskMessageHandler<Message>.Get());
-            var receiver = new MessageHandler(DefaultTaskMessageHandler<Message>.Get());
-
-            await sender.Send();
-
-            receiver.Dispose();
-        }
-    }
-
-
-
     public class Message
     {
         public string Value { get; set; }
@@ -33,59 +15,62 @@ namespace Chopsticks.Messages
 
     public class MessageSender
     {
-        private ITaskMessageHandler<Message> _handler;
+        private IMessageHandler<Message> _handler;
 
-        public MessageSender(ITaskMessageHandler<Message> handler) =>
+        public MessageSender(IMessageHandler<Message> handler) =>
             _handler = handler;
 
-        public async Task Send()
+        public async Task<HandlingResult> Send()
         {
             Console.WriteLine("Sending OnCommand");
-            await _handler.HandleAsync(new Message());
+            var result = await _handler.HandleAsync(new Message());
             Console.WriteLine("Sent OnCommand");
+
+            return result;
         }
     }
 
-    public class MessageHandler : ISyncTaskMessageHandler<Message>, IDisposable
+    public class MessageHandler : ISyncMessageHandler<Message>, IDisposable
     {
         private ITaskMessageHandlerRegistrar<Message> _registrar;
 
-        public MessageHandler(ITaskMessageHandlerRegistrar<Message> registrar)
+        public MessageHandler()//ITaskMessageHandlerRegistrar<Message> registrar)
         {
-            _registrar = registrar;
-            _registrar.Register(this);
+            //_registrar = registrar;
+            //_registrar.Register(this);
         }
 
         public void Dispose()
         {
-            _registrar.Unregister(this);
+            //_registrar.Unregister(this);
         }
 
-        void ISyncTaskMessageHandler<Message>.Handle(Message command)
+        void ISyncMessageHandler<Message>.Handle(Message command)
         {
             Console.WriteLine($"Received OnCommand, Value: {command.Value}.");
         }
     }
 
-    public class MessageAsyncHandler : IAsyncTaskMessageHandler<Message>, IDisposable
+    public class MessageAsyncHandler : ITaskMessageHandler<Message>, IDisposable
     {
         private ITaskMessageHandlerRegistrar<Message> _registrar;
 
-        public MessageAsyncHandler(ITaskMessageHandlerRegistrar<Message> registrar)
+        public MessageAsyncHandler()//ITaskMessageHandlerRegistrar<Message> registrar)
         {
-            _registrar = registrar;
-            _registrar.Register(this);
+            //_registrar = registrar;
+            //_registrar.Register(this);
         }
 
         public void Dispose()
         {
-            _registrar.Unregister(this);
+            //_registrar.Unregister(this);
         }
 
-        async Task IAsyncTaskMessageHandler<Message>.HandleAsync(
+        async Task ITaskMessageHandler<Message>.HandleAsync(
             Message message, CancellationToken token)
         {
             Console.WriteLine($"Received OnCommand, Value: {message.Value}.");
+            await Task.Delay(100); // Simulate async work.
         }
     }
 }

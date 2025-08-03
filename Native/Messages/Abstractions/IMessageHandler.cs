@@ -2,11 +2,11 @@
 
 namespace Chopsticks.Messages.Abstractions
 {
-    public interface IMessageHandler<TMessage, TAsync>
+    public interface IMessageHandler<TMessage>
     {
         HandlingPromise Handle(TMessage message);
 
-        TAsync HandleAsync(TMessage message, CancellationToken token = default);
+        HandlingAwaitable HandleAsync(TMessage message, CancellationToken token = default);
     }
 
 

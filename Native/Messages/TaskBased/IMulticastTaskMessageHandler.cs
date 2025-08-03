@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 namespace Chopsticks.Messages.TaskBased
 {
     public interface IMulticastTaskMessageHandler<TMessage> :
-        ITaskMessageHandler<TMessage>,
-        IMulticastMessageHandler<TMessage, Task<HandlingResult>>
+        ISyncMessageHandler<TMessage>,
+        IMulticastMessageHandler<TMessage>
     {
         // TODO :: Leverage a builder pattern to create a multicast message handlers.
     }

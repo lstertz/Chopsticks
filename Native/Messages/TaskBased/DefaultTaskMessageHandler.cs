@@ -20,34 +20,34 @@ namespace Chopsticks.Messages.TaskBased
             CancellationToken token = default) =>
             _defaultHandler.Value.HandleAsync(message, token);
 
-        public static void Register(ITaskMessageHandler<TMessage> handler, 
+        public static void Register(ISyncMessageHandler<TMessage> handler, 
             params IIntercept<TMessage>[] interceptors)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as ITaskMessageHandlerRegistrar<TMessage>)
-                .Register(handler, default, interceptors);
+            //(_defaultHandler.Value as ITaskMessageHandlerRegistrar<TMessage>)
+              //  .Register(handler, default, interceptors);
         }
 
-        public static void Register(ITaskMessageHandler<TMessage> handler, 
+        public static void Register(ISyncMessageHandler<TMessage> handler, 
             RegistrationSettings settings = default,
             params IIntercept<TMessage>[] interceptors)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as ITaskMessageHandlerRegistrar<TMessage>)
-                .Register(handler, settings);
+            //(_defaultHandler.Value as ITaskMessageHandlerRegistrar<TMessage>)
+              //  .Register(handler, settings);
         }
 
-        public static void Unregister(ITaskMessageHandler<TMessage> handler)
+        public static void Unregister(ISyncMessageHandler<TMessage> handler)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as ITaskMessageHandlerRegistrar<TMessage>)
-                .Unregister(handler);
+            //(_defaultHandler.Value as ITaskMessageHandlerRegistrar<TMessage>)
+              //  .Unregister(handler);
         }
     }
 }
