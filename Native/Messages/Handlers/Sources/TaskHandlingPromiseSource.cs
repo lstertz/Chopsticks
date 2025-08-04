@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Chopsticks.Messages
+namespace Chopsticks.Messages.Handlers.Sources
 {
     public class TaskHandlingPromiseSource : 
         BaseHandlingPromiseSource<TaskAwaiter>

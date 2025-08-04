@@ -1,5 +1,5 @@
-﻿using Chopsticks.Messages.Abstractions;
-using Chopsticks.Messages.TaskBased;
+﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Registration;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

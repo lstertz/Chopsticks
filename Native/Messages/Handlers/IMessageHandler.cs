@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Chopsticks.Messages.Abstractions
+namespace Chopsticks.Messages.Handlers
 {
     public interface IMessageHandler<TMessage>
     {
@@ -8,9 +8,4 @@ namespace Chopsticks.Messages.Abstractions
 
         HandlingAwaitable HandleAsync(TMessage message, CancellationToken token = default);
     }
-
-
-
-    // Possibly add extensions to wrap the Handle method, to accommodate different 
-    // functionality between a multicast and a single handler.
 }

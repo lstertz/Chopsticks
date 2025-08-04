@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Chopsticks.Messages
+namespace Chopsticks.Messages.Handlers.Sources
 {
     // TODO :: Implement pooling for all handling promise source implementations.
     public abstract class BaseHandlingPromiseSource<TInnerSource> : IHandlingPromiseSource

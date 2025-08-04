@@ -1,9 +1,11 @@
-﻿using Chopsticks.Messages.Abstractions;
+﻿using Chopsticks.Messages.Handlers.Sources;
+using Chopsticks.Messages.Interception;
+using Chopsticks.Messages.Registration;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Chopsticks.Messages
+namespace Chopsticks.Messages.Handlers.Multicast
 {
     public class MulticastMessageHandler<TMessage> : 
         IMessageHandlerRegistrar<TMessage>,

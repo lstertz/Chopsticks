@@ -1,4 +1,7 @@
-﻿namespace Chopsticks.Messages.Abstractions
+﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Interception;
+
+namespace Chopsticks.Messages.Registration
 {
     public interface IMessageHandlerRegistrar<TMessage>
     {

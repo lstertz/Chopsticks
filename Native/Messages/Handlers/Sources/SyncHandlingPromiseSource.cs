@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Chopsticks.Messages
+namespace Chopsticks.Messages.Handlers.Sources
 {
     public class SyncHandlingPromiseSource :
         BaseHandlingPromiseSource<HandlingResult>

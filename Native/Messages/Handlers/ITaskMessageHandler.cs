@@ -1,8 +1,8 @@
-﻿using Chopsticks.Messages.Abstractions;
+﻿using Chopsticks.Messages.Handlers.Sources;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Chopsticks.Messages.TaskBased
+namespace Chopsticks.Messages.Handlers
 {
     public interface ITaskMessageHandler<TMessage> :
         IMessageHandler<TMessage>

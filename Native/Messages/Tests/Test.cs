@@ -1,6 +1,6 @@
 ﻿using Chopsticks.Messages;
-using Chopsticks.Messages.Abstractions;
-using Chopsticks.Messages.TaskBased;
+using Chopsticks.Messages.Handlers.Multicast;
+using Chopsticks.Messages.Registration;
 
 namespace Tests
 {

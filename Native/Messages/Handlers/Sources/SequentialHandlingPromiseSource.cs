@@ -1,8 +1,7 @@
-﻿using Chopsticks.Messages.Abstractions;
-using System;
+﻿using System;
 using System.Threading;
 
-namespace Chopsticks.Messages
+namespace Chopsticks.Messages.Handlers.Sources
 {
     public class SequentialHandlingPromiseSource<TMessage> :
         BaseHandlingPromiseSource<IMessageHandler<TMessage>[]>

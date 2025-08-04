@@ -1,8 +1,9 @@
-﻿using Chopsticks.Messages.Abstractions;
+﻿using Chopsticks.Messages.Interception;
+using Chopsticks.Messages.Registration;
 using System;
 using System.Threading;
 
-namespace Chopsticks.Messages
+namespace Chopsticks.Messages.Handlers.Multicast
 {
     public static class DefaultMulticastMessageHandler<TMessage>
     {
@@ -38,7 +39,7 @@ namespace Chopsticks.Messages
                 throw new ArgumentNullException(nameof(handler));
 
             (_defaultHandler.Value as IMessageHandlerRegistrar<TMessage>)
-                .Register(handler, settings);
+                .Register(handler, settings,interceptors);
         }
 
         public static void Unregister(ISyncMessageHandler<TMessage> handler)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Chopsticks.Messages
+namespace Chopsticks.Messages.Handlers.Sources
 {
     public interface IHandlingPromiseSource
     {
