@@ -4,21 +4,22 @@ using System.Threading.Tasks;
 
 namespace Chopsticks.Messages.TaskBased
 {
+    // TODO :: Update for async abstraction.
     public static class DefaultTaskMessageHandler<TMessage>
     {
         // TODO :: Add an overridable builder for the default handler (supports testing and flexibility).
 
-        private static readonly Lazy<MulticastTaskMessageHandler<TMessage>> _defaultHandler = new();
+        private static readonly Lazy<MulticastMessageHandler<TMessage>> _defaultHandler = new();
 
-        public static MulticastTaskMessageHandler<TMessage> Get() =>
+        public static MulticastMessageHandler<TMessage> Get() =>
             _defaultHandler.Value;
 
         public static HandlingPromise Handle(TMessage message) =>
             _defaultHandler.Value.Handle(message);
 
-        public static Task<HandlingResult> HandleAsync(TMessage message,
-            CancellationToken token = default) =>
-            _defaultHandler.Value.HandleAsync(message, token);
+        //public static Task<HandlingResult> HandleAsync(TMessage message,
+        //    CancellationToken token = default) =>
+        //    _defaultHandler.Value.HandleAsync(message, token);
 
         public static void Register(ISyncMessageHandler<TMessage> handler, 
             params IIntercept<TMessage>[] interceptors)

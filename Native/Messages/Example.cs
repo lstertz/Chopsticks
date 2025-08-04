@@ -19,8 +19,16 @@ namespace Chopsticks.Messages
 
         public MessageSender(IMessageHandler<Message> handler) =>
             _handler = handler;
+        public HandlingPromise Send()
+        {
+            Console.WriteLine("Sending OnCommand");
+            var promise = _handler.Handle(new Message());
+            Console.WriteLine("Sent OnCommand");
 
-        public async Task<HandlingResult> Send()
+            return promise;
+        }
+
+        public async Task<HandlingResult> SendAsync()
         {
             Console.WriteLine("Sending OnCommand");
             var result = await _handler.HandleAsync(new Message());
@@ -47,7 +55,7 @@ namespace Chopsticks.Messages
 
         void ISyncMessageHandler<Message>.Handle(Message command)
         {
-            Console.WriteLine($"Received OnCommand, Value: {command.Value}.");
+            Console.WriteLine($"Received OnCommand, Sync, Value: {command.Value}.");
         }
     }
 
@@ -69,8 +77,9 @@ namespace Chopsticks.Messages
         async Task ITaskMessageHandler<Message>.HandleAsync(
             Message message, CancellationToken token)
         {
-            Console.WriteLine($"Received OnCommand, Value: {message.Value}.");
+            Console.WriteLine($"Received OnCommand, Async, Value: {message.Value}.");
             await Task.Delay(100); // Simulate async work.
+            Console.WriteLine($"Done handling OnCommand, Async, Value: {message.Value}.");
         }
     }
 }

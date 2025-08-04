@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Chopsticks.Messages.Abstractions;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Chopsticks.Messages
@@ -217,8 +219,9 @@ namespace Chopsticks.Messages
             _source.OnCompleted(continuation);
     }
 
+
+    // TODO :: Implement pooling for all handling promise source implementations.
     public abstract class BaseHandlingPromiseSource<TInnerSource> : IHandlingPromiseSource
-        where TInnerSource : struct
     {
         public abstract bool IsCompleted { get; }
 
@@ -263,7 +266,7 @@ namespace Chopsticks.Messages
             return this;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             InnerSource = default;
 
@@ -290,9 +293,98 @@ namespace Chopsticks.Messages
         }
     }
 
+    // TODO :: Update Multicast handler and registrar.
 
-    // TODO :: Create sources to wrap other sources, including to sequentially 
-    //           step through multiple sources.
+
+    public class SequentialHandlingPromiseSource<TMessage> :
+        BaseHandlingPromiseSource<IMessageHandler<TMessage>[]>
+    {
+        public override bool IsCompleted => _isCompleted;
+        private bool _isCompleted = false;
+
+        private CancellationToken _cancellationToken;
+        private Action? _continuation;
+        private HandlingAwaiter _currentAwaiter;
+        private int _currentIndex = 0;
+        private TMessage _message;
+        private HandlingResult _result;
+
+        private readonly Action _onHandlerCompletion;
+
+
+        public SequentialHandlingPromiseSource() => 
+            _onHandlerCompletion = OnHandlerCompletion;
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            _isCompleted = false;
+
+            _continuation = null;
+            _currentAwaiter = default;
+            _currentIndex = -1;
+        }
+
+
+        public void Run(TMessage message, CancellationToken cancellationToken)
+        {
+            VerifyInitialized();
+
+            _result = HandlingResult.NoHandlers;
+            _cancellationToken = cancellationToken;
+            _message = message;
+
+            Step();
+        }
+
+
+        public override HandlingResult GetResult()
+        {
+            VerifyInitialized();
+
+            return _result;
+        }
+
+        public override void OnCompleted(Action continuation)
+        {
+            VerifyInitialized();
+
+            if (_isCompleted)
+                continuation();
+            else
+                _continuation = continuation;
+        }
+
+
+        private void OnHandlerCompletion()
+        {
+            _result = _result.MergeWith(_currentAwaiter.GetResult());
+
+            _currentIndex++;
+            Step();
+        }
+
+        private void Step()
+        {
+            if (_currentIndex == InnerSource.Length)
+            {
+                _isCompleted = true;
+                _continuation?.Invoke();
+
+                return;
+            }
+
+            var handler = InnerSource[_currentIndex];
+            _currentAwaiter = handler.HandleAsync(_message, _cancellationToken).GetAwaiter();
+
+            if (_currentAwaiter.IsCompleted)
+                OnHandlerCompletion();                              // Synchronous handler.
+            else
+                _currentAwaiter.OnCompleted(_onHandlerCompletion);  // Asynchronous handler.
+        }
+    }
+
     public class SyncHandlingPromiseSource :
         BaseHandlingPromiseSource<HandlingResult>
     {
@@ -305,7 +397,6 @@ namespace Chopsticks.Messages
             continuation();
     }
 
-    // TODO :: Implement pooling for this source.
     public class TaskHandlingPromiseSource : 
         BaseHandlingPromiseSource<TaskAwaiter>
     {
