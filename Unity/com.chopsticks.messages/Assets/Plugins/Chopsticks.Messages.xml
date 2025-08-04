@@ -4,34 +4,50 @@
         <name>Chopsticks.Messages</name>
     </assembly>
     <members>
-        <member name="M:Chopsticks.Messages.Abstractions.BaseMulticastMessageHandler`2.Registration.Equals(Chopsticks.Messages.Abstractions.BaseMulticastMessageHandler{`0,`1}.Registration)">
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.MulticastMessageHandler`1.Registration.Equals(Chopsticks.Messages.Handlers.Multicast.MulticastMessageHandler{`0}.Registration)">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Messages.Abstractions.BaseMulticastMessageHandler`2.Registration.GetHashCode">
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.MulticastMessageHandler`1.Registration.GetHashCode">
             <inheritdoc/>
         </member>
-        <member name="P:Chopsticks.Messages.AsyncSettings.RunParallel">
-            <summary>
-            Specifies whether handlers should be run in parallel or sequentially.
-            </summary>
+        <member name="P:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`1.IsCompleted">
+            <inheritdoc/>
         </member>
-        <member name="P:Chopsticks.Messages.AsyncSettings.RunNonAsyncAsAsync">
-            <summary>
-            Specifies whether non-async handlers should be captured within 
-            async runners and executed asynchronously.
-            </summary>
-            <remarks>
-            If false, then non-async handlers will run synchronously while 
-            being represented by an async return value.</remarks>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`1.Dispose">
+            <inheritdoc/>
         </member>
-        <member name="T:Chopsticks.Messages.Example">
-            <summary>
-            Example class for testing purposes.
-            </summary>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`1.GetResult">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`1.OnCompleted(System.Action)">
+            <inheritdoc/>
+        </member>
+        <member name="P:Chopsticks.Messages.Handlers.Sources.SyncHandlingPromiseSource.IsCompleted">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SyncHandlingPromiseSource.GetResult">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SyncHandlingPromiseSource.OnCompleted(System.Action)">
+            <inheritdoc/>
+        </member>
+        <member name="P:Chopsticks.Messages.Handlers.Sources.TaskHandlingPromiseSource.IsCompleted">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TaskHandlingPromiseSource.GetResult">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TaskHandlingPromiseSource.OnCompleted(System.Action)">
+            <inheritdoc/>
         </member>
         <member name="T:Chopsticks.Messages.HandlingResult">
             <summary>
             The result of handling a message.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.HandlingResult.Cancelled">
+            <summary>
+            Builds a result indicating that the message was cancelled.
             </summary>
         </member>
         <member name="P:Chopsticks.Messages.HandlingResult.NoHandlers">
@@ -78,7 +94,7 @@
             <summary>
             Executes the specified action regardless of the status.
             </summary>
-            <param name="onAlways">The action to execute.</param>
+            <param name="callback">The action to execute.</param>
             <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
             allowing for method chaining.</returns>
         </member>
@@ -96,46 +112,116 @@
             <exception cref="T:System.AggregateException">Thrown if multiple exceptions are associated 
             with the failure.</exception>
         </member>
-        <member name="M:Chopsticks.Messages.HandlingResult.WhenFailed(System.Action{Chopsticks.Messages.HandlingResult})">
+        <member name="M:Chopsticks.Messages.HandlingResult.ThrowIfNotHandled(System.String)">
+            <summary>
+            Throws an exception if the current status indicates that the message was 
+            not handled.
+            </summary>
+            <param name="customExceptionMessage">A custom exception message.</param>
+            <exception cref="T:Chopsticks.Messages.Exceptions.MessageNotHandledException">The exception thrown 
+            if the current status indicates that the message was not handled.</exception>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.WhenFailed(System.Action{System.Collections.Generic.IEnumerable{System.Exception}})">
             <summary>
             Executes the specified action if the current handling result indicates a failure.
             </summary>
-            <param name="onFailure">The action to execute when the handling result has a 
+            <param name="whenFailed">The action to execute when the handling result has a 
             status of <see cref="F:Chopsticks.Messages.HandlingStatus.Failure"/>.</param>
             <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
             allowing for method chaining.</returns>
         </member>
-        <member name="M:Chopsticks.Messages.HandlingResult.WhenNotHandled(System.Action{Chopsticks.Messages.HandlingResult})">
+        <member name="M:Chopsticks.Messages.HandlingResult.WhenNotHandled(System.Action)">
             <summary>
-            Executes the specified action if the current handling result cates that the 
+            Executes the specified action if the current handling result indicates that the 
             message was not handled.
             </summary>
-            <param name="onNotHandled">The action to execute when the handling status 
+            <param name="whenNotHandled">The action to execute when the handling status 
             is <see cref="F:Chopsticks.Messages.HandlingStatus.NotHandled"/>.</param>
             <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
             allowing for method chaining.</returns>
         </member>
-        <member name="M:Chopsticks.Messages.HandlingResult.WhenSuccessful(System.Action{Chopsticks.Messages.HandlingResult})">
+        <member name="M:Chopsticks.Messages.HandlingResult.WhenSuccessful(System.Action)">
             <summary>
             Executes the specified action if the handling result indicates success.
             </summary>
-            <param name="onSuccess">The action to execute when the <see cref="P:Chopsticks.Messages.HandlingResult.Status"/> 
+            <param name="whenSuccessful">The action to execute when the <see cref="P:Chopsticks.Messages.HandlingResult.Status"/> 
             is <see cref="F:Chopsticks.Messages.HandlingStatus.Success"/>.</param>
             <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
             allowing for method chaining.</returns>
         </member>
-        <member name="T:Chopsticks.Messages.RegistrationSettings">
+        <member name="T:Chopsticks.Messages.HandlingStatus">
+            <summary>
+            The status of a message handling process.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingStatus.NotHandled">
+            <summary>
+            The status indicating that no handlers were found for the message.
+            </summary>
+            <remarks>
+            Under this status, no handling was performed, so it is considered 
+            neither a success, a failure, nor a cancellation; it never started and 
+            therefore never completed.
+            </remarks>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingStatus.Processing">
+            <summary>
+            The status of a handling process that is still in progress.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingStatus.Success">
+            <summary>
+            The status indicating that the handling was successful.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingStatus.Failure">
+            <summary>
+            The status indicating that the handling failed with an exception.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingStatus.Cancelled">
+            <summary>
+            The status indicating that the handling was cancelled before completion.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingStatus.NonSuccess">
+            <summary>
+            The status indicating that the handling was not successful, meaning that 
+            it started, but was either cancelled or failed.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingStatus.Completed">
+            <summary>
+            The status indicating that the handling was completed, meaning that 
+            it started and ended, regardless of whether it was successful or not.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.Registration.AsyncSettings.RunParallel">
+            <summary>
+            Specifies whether handlers should be run in parallel or sequentially.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.Registration.AsyncSettings.RunNonAsyncAsAsync">
+            <summary>
+            Specifies whether non-async handlers should be captured within 
+            async runners and executed asynchronously.
+            </summary>
+            <remarks>
+            If false, then non-async handlers will run synchronously while 
+            being represented by an async return value.</remarks>
+        </member>
+        <member name="T:Chopsticks.Messages.Registration.RegistrationSettings">
             <summary>
             Settings to define how a handler registered to a 
-            <see cref="T:Chopsticks.Messages.Abstractions.IMulticastMessageHandler`2"/> through a 
-            <see cref="T:Chopsticks.Messages.Abstractions.IMessageHandlerRegistrar`2"/>
+            <see cref="T:Chopsticks.Messages.Handlers.Multicast.IMulticastMessageHandler`1"/> through a 
+            <see cref="T:Chopsticks.Messages.Registration.IMessageHandlerRegistrar`1"/>
             will be processed.
             </summary>
         </member>
-        <member name="P:Chopsticks.Messages.RegistrationSettings.Order">
+        <member name="P:Chopsticks.Messages.Registration.RegistrationSettings.Order">
             <summary>
             The relative order that this handler will be handled by a 
-            <see cref="T:Chopsticks.Messages.Abstractions.IMulticastMessageHandler`2"/> 
+            <see cref="T:Chopsticks.Messages.Handlers.Multicast.IMulticastMessageHandler`1"/> 
             when message processing is to be done in sequence.
             </summary>
             <remarks>
