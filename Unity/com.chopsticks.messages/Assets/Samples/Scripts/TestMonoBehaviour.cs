@@ -1,4 +1,5 @@
-﻿using Chopsticks.Messages.TaskBased;
+﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers.Multicast;
 using UnityEngine;
 
 namespace Chopsticks.Messages.Examples
@@ -6,8 +7,8 @@ namespace Chopsticks.Messages.Examples
     public class TestMonoBehaviour : MonoBehaviour
     {
         // Assume this is injected.
-        private ISyncTaskMessageHandler<TestMessage> _testHandler =
-            DefaultTaskMessageHandler<TestMessage>.Get();
+        private IMessageHandler<TestMessage> _testHandler =
+            DefaultMulticastMessageHandler<TestMessage>.Get();
 
 
         public void Start()
@@ -18,9 +19,9 @@ namespace Chopsticks.Messages.Examples
             });
 
             result
-                .OnUnprocessed(_ => Debug.LogError(
+                .WhenNotHandled(() => Debug.LogError(
                     "TestMonoBehaviour :: The message was not received by any handlers."))
-                .OnSuccess(_ => Debug.Log(
+                .OnSuccess(() => Debug.Log(
                     "TestMonoBehaviour :: The message was received successfully!"));
         }
     }

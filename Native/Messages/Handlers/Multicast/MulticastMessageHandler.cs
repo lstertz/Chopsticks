@@ -1,10 +1,15 @@
-﻿using System;
+﻿using Chopsticks.Messages.Handlers.Sources;
+using Chopsticks.Messages.Interception;
+using Chopsticks.Messages.Registration;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 
-namespace Chopsticks.Messages.Abstractions
+namespace Chopsticks.Messages.Handlers.Multicast
 {
-    public abstract class BaseMulticastMessageHandler<TMessage, TAsync> : 
-        IMessageHandlerRegistrar<TMessage, TAsync>
+    public class MulticastMessageHandler<TMessage> : 
+        IMessageHandlerRegistrar<TMessage>,
+        IMulticastMessageHandler<TMessage>
     {
         protected class Registration : IEquatable<Registration>
         {
@@ -12,10 +17,10 @@ namespace Chopsticks.Messages.Abstractions
 
             public int Order { get; init; } = 0;
 
-            public IMessageHandler<TMessage, TAsync> Handler { get; init; }
+            public IMessageHandler<TMessage> Handler { get; init; }
 
 
-            public Registration(IMessageHandler<TMessage, TAsync> receiver,
+            public Registration(IMessageHandler<TMessage> receiver,
                 params IIntercept<TMessage>[] interceptors)
             {
                 Handler = receiver ?? throw new ArgumentNullException(nameof(receiver));
@@ -31,6 +36,7 @@ namespace Chopsticks.Messages.Abstractions
                 Handler.GetHashCode();
         }
 
+        // TODO :: Support stopping at the first failure.
 
         // TODO :: Support registering interceptors for the multicast.
         //           Support intercepting before entire run and before each handler.
@@ -40,8 +46,35 @@ namespace Chopsticks.Messages.Abstractions
         protected List<Registration> RegisteredHandlers { get; init; } = new(8);
 
 
-        bool IMessageHandlerRegistrar<TMessage, TAsync>.Register(
-            IMessageHandler<TMessage, TAsync> handler,
+        public virtual HandlingPromise Handle(TMessage message) =>
+            new(InitiateWithSource(message));
+
+        public virtual HandlingAwaitable HandleAsync(TMessage message,
+            CancellationToken token = default) =>
+                new(InitiateWithSource(message, token));
+
+
+        private IHandlingPromiseSource InitiateWithSource(TMessage message,
+            CancellationToken token = default)
+        {
+            // Build handler collection.
+            // TODO :: Do this on registration/unregistration instead.
+            var handlers = new IMessageHandler<TMessage>[RegisteredHandlers.Count];
+            for (int c = 0, count = RegisteredHandlers.Count; c < count; c++)
+                handlers[c] = RegisteredHandlers[c].Handler;
+
+            // TODO :: Rent from the pool.
+            var source = new SequentialHandlingPromiseSource<TMessage>();
+            source.Init(handlers);
+            source.Run(message, token);
+
+            return source;
+        }
+
+
+        // TODO :: Rebuild immutable collection used during handling on any register/unregister.
+        bool IMessageHandlerRegistrar<TMessage>.Register(
+            IMessageHandler<TMessage> handler,
             RegistrationSettings settings = default, params IIntercept<TMessage>[] interceptors)
         {
             var registration = new Registration(handler, interceptors)
@@ -65,8 +98,8 @@ namespace Chopsticks.Messages.Abstractions
             return true;
         }
 
-        void IMessageHandlerRegistrar<TMessage, TAsync>.Unregister(
-            IMessageHandler<TMessage, TAsync> receiver)
+        void IMessageHandlerRegistrar<TMessage>.Unregister(
+            IMessageHandler<TMessage> receiver)
         {
             RegisteredHandlers.Remove(new(receiver));
         }

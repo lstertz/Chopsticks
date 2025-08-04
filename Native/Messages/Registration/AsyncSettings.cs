@@ -1,4 +1,4 @@
-﻿namespace Chopsticks.Messages
+﻿namespace Chopsticks.Messages.Registration
 {
     public class AsyncSettings
     {

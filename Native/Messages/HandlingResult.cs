@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chopsticks.Messages.Exceptions;
+using System;
 using System.Collections.Generic;
 
 namespace Chopsticks.Messages
@@ -8,6 +9,16 @@ namespace Chopsticks.Messages
     /// </summary>
     public readonly struct HandlingResult
     {
+        // TODO :: Possibly support a count of completed handlers.
+
+        /// <summary>
+        /// Builds a result indicating that the message was cancelled.
+        /// </summary>
+        public static HandlingResult Cancelled => new()
+        {
+            Status = HandlingStatus.Cancelled
+        };
+
         /// <summary>
         /// Builds a result indicating that no handlers were found for the message.
         /// </summary>
@@ -55,7 +66,7 @@ namespace Chopsticks.Messages
         /// <summary>
         /// The status of the handling result.
         /// </summary>
-        public HandlingStatus Status { get; init; }
+        public HandlingStatus Status { get; private init; } = HandlingStatus.NotHandled;
 
 
         /// <summary>
@@ -93,10 +104,16 @@ namespace Chopsticks.Messages
                 return this;   // The other isn't handled, return this result.
 
             if (Status == HandlingStatus.Success)
-                return other;  // Other is either success or failure.
+                return other;  // Other is either success, failure, or cancelled.
 
             if (other.Status == HandlingStatus.Success)
-                return this;   // This must be the only failure.
+                return this;   // This must be the only failure or cancelled.
+
+            if (Status == HandlingStatus.Cancelled)
+                return other;  // Other is either failure, which takes priority, or cancelled.
+
+            if (other.Status == HandlingStatus.Cancelled)
+                return this;  // This must be the only failure, which takes priority.
 
             // Both are failures, merge their exceptions.
             if (other._exceptions is Exception otherException)
@@ -140,12 +157,12 @@ namespace Chopsticks.Messages
         /// <summary>
         /// Executes the specified action regardless of the status.
         /// </summary>
-        /// <param name="onAlways">The action to execute.</param>
+        /// <param name="callback">The action to execute.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult Always(Action<HandlingResult> onAlways)
+        public HandlingResult Always(Action<HandlingResult> callback)
         {
-            onAlways(this);
+            callback(this);
             return this;
         }
 
@@ -173,45 +190,60 @@ namespace Chopsticks.Messages
         }
 
         /// <summary>
+        /// Throws an exception if the current status indicates that the message was 
+        /// not handled.
+        /// </summary>
+        /// <param name="customExceptionMessage">A custom exception message.</param>
+        /// <exception cref="MessageNotHandledException">The exception thrown 
+        /// if the current status indicates that the message was not handled.</exception>
+        public void ThrowIfNotHandled(string? customExceptionMessage = null)
+        {
+            if (Status != HandlingStatus.NotHandled)
+                return;
+
+            throw new MessageNotHandledException(customExceptionMessage);
+        }
+
+        /// <summary>
         /// Executes the specified action if the current handling result indicates a failure.
         /// </summary>
-        /// <param name="onFailure">The action to execute when the handling result has a 
+        /// <param name="whenFailed">The action to execute when the handling result has a 
         /// status of <see cref="HandlingStatus.Failure"/>.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult WhenFailed(Action<HandlingResult> onFailure)
+        public HandlingResult WhenFailed(Action<IEnumerable<Exception>> whenFailed)
         {
             if (Status == HandlingStatus.Failure)
-                onFailure(this);
+                whenFailed(Exceptions);
             return this;
         }
 
         /// <summary>
-        /// Executes the specified action if the current handling result cates that the 
+        /// Executes the specified action if the current handling result indicates that the 
         /// message was not handled.
         /// </summary>
-        /// <param name="onNotHandled">The action to execute when the handling status 
+        /// <param name="whenNotHandled">The action to execute when the handling status 
         /// is <see cref="HandlingStatus.NotHandled"/>.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult WhenNotHandled(Action<HandlingResult> onNotHandled)
+        public HandlingResult WhenNotHandled(Action whenNotHandled)
         {
             if (Status == HandlingStatus.NotHandled)
-                onNotHandled(this);
+                whenNotHandled();
             return this;
         }
 
         /// <summary>
         /// Executes the specified action if the handling result indicates success.
         /// </summary>
-        /// <param name="onSuccess">The action to execute when the <see cref="Status"/> 
+        /// <param name="whenSuccessful">The action to execute when the <see cref="Status"/> 
         /// is <see cref="HandlingStatus.Success"/>.</param>
         /// <returns>The current <see cref="HandlingResult"/> instance, 
         /// allowing for method chaining.</returns>
-        public HandlingResult WhenSuccessful(Action<HandlingResult> onSuccess)
+        public HandlingResult WhenSuccessful(Action whenSuccessful)
         {
             if (Status == HandlingStatus.Success)
-                onSuccess(this);
+                whenSuccessful();
             return this;
         }
     }

@@ -1,41 +1,147 @@
-﻿using System;
+﻿using Chopsticks.Messages.Handlers.Sources;
+using System;
+using System.Collections.Generic;
+using System.Xml.XPath;
 
 namespace Chopsticks.Messages
 {
     public struct HandlingPromise
     {
-        public static HandlingPromise NoHandlers { get; } = new(HandlingResult.NoHandlers);
+        public static HandlingPromise NoHandlers => new(_noHandlersSource);
+        private static readonly IHandlingPromiseSource _noHandlersSource = 
+            new SyncHandlingPromiseSource().Init(HandlingResult.NoHandlers);
 
-        public static HandlingPromise Success { get; } = new(HandlingResult.Success);
+        public static HandlingPromise Success => new(_successSource);
+        private static readonly IHandlingPromiseSource _successSource =
+            new SyncHandlingPromiseSource().Init(HandlingResult.Success);
 
 
-        private HandlingResult _currentResult;
+        public HandlingStatus Status => _source.IsCompleted ? 
+            _source.GetResult().Status : HandlingStatus.Processing;
+
+        private readonly IHandlingPromiseSource _source;
 
 
-        public HandlingPromise(HandlingResult initialResult)
+        internal HandlingPromise(IHandlingPromiseSource source)
         {
-            _currentResult = initialResult;
+            _source = source;
+            if (!_source.IsCompleted)
+                _source.OnCompleted(_source.InitiateDefaultContinuations);
         }
 
-        public HandlingPromise OnSuccess(Action<HandlingResult> onSuccess)
+        public HandlingPromise OnCancelled(Action onCancelled)
         {
-            if (_currentResult.Status == HandlingStatus.Success)
+            if (!_source.IsCompleted)
             {
-                onSuccess(_currentResult);
+                _source.OnCancelled = onCancelled;
+                return this;
             }
 
-            // TODO :: Otherwise, cache the action to be called when the status is 
-            //             a success later.
+            var result = _source.GetResult();
+            if (result.Status == HandlingStatus.Cancelled)
+                onCancelled();
 
             return this;
         }
 
-        public HandlingPromise OnUnprocessed(Action<HandlingResult> onUnprocessed)
+        public HandlingPromise OnCompletion(Action<HandlingResult> onCompletion)
         {
-            if (_currentResult.Status == HandlingStatus.NotHandled)
+            if (!_source.IsCompleted)
             {
-                onUnprocessed(_currentResult);
+                _source.OnCompletion = onCompletion;
+                return this;
             }
+
+            var result = _source.GetResult();
+            if ((result.Status | HandlingStatus.Completed) != 0)
+                onCompletion(result);
+
+            return this;
+        }
+
+        public HandlingPromise OnFailure(Action<IEnumerable<Exception>> onFailure)
+        {
+            if (!_source.IsCompleted)
+            {
+                _source.OnFailure = onFailure;
+                return this;
+            }
+
+            var result = _source.GetResult();
+            if (result.Status == HandlingStatus.Failure)
+                onFailure(result.Exceptions);
+
+            return this;
+        }
+
+        public HandlingPromise OnNonSuccess(Action<HandlingResult> onNonSuccess)
+        {
+            if (!_source.IsCompleted)
+            {
+                _source.OnNonSuccess = onNonSuccess;
+                return this;
+            }
+
+            var result = _source.GetResult();
+            if ((result.Status | HandlingStatus.NonSuccess) != 0)
+                onNonSuccess(result);
+
+            return this;
+        }
+
+        public HandlingPromise OnSuccess(Action onSuccess)
+        {
+            if (!_source.IsCompleted)
+            {
+                _source.OnSuccess = onSuccess;
+                return this;
+            }
+
+            var result = _source.GetResult();
+            if (result.Status == HandlingStatus.Success)
+                onSuccess();
+
+            return this;
+        }
+
+        public HandlingPromise ThrowIfFailed()
+        {
+            if (!_source.IsCompleted)
+            {
+                _source.ThrowIfFailed = true;
+                return this;
+            }
+
+            var result = _source.GetResult();
+            result.ThrowIfFailed();
+            return this;
+        }
+
+        public HandlingPromise ThrowIfNotHandled(string? customExceptionMessage = null)
+        {
+            if (!_source.IsCompleted)
+            {
+                // If the source has not completed immediately, then it must be being handled.
+                return this;
+            }
+
+            var result = _source.GetResult();
+            result.ThrowIfNotHandled(customExceptionMessage);
+
+            return this;
+        }
+
+        public HandlingPromise WhenNotHandled(Action whenNotHandled)
+        {
+            if (!_source.IsCompleted)
+            {
+                // If the source has not completed immediately, then it must be being handled.
+                return this;
+            }
+
+            var result = _source.GetResult();
+            if (result.Status == HandlingStatus.NotHandled)
+                whenNotHandled();
 
             return this;
         }
