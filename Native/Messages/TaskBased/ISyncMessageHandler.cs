@@ -1,9 +1,8 @@
 ﻿using Chopsticks.Messages.Abstractions;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace Chopsticks.Messages.TaskBased
+namespace Chopsticks.Messages
 {
     public interface ISyncMessageHandler<TMessage> :
         IMessageHandler<TMessage>

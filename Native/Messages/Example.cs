@@ -40,7 +40,7 @@ namespace Chopsticks.Messages
 
     public class MessageHandler : ISyncMessageHandler<Message>, IDisposable
     {
-        private ITaskMessageHandlerRegistrar<Message> _registrar;
+        private IMessageHandlerRegistrar<Message> _registrar;
 
         public MessageHandler()//ITaskMessageHandlerRegistrar<Message> registrar)
         {
@@ -61,7 +61,7 @@ namespace Chopsticks.Messages
 
     public class MessageAsyncHandler : ITaskMessageHandler<Message>, IDisposable
     {
-        private ITaskMessageHandlerRegistrar<Message> _registrar;
+        private IMessageHandlerRegistrar<Message> _registrar;
 
         public MessageAsyncHandler()//ITaskMessageHandlerRegistrar<Message> registrar)
         {

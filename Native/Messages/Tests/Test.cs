@@ -12,9 +12,9 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new MessageAsyncHandler(), default);
+                new MessageAsyncHandler());
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new MessageHandler(), default);
+                new MessageHandler());
 
             var sender = new MessageSender(multicastHandler);
 
@@ -31,9 +31,9 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new MessageAsyncHandler(), default);
+                new MessageAsyncHandler());
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new MessageHandler(), default);
+                new MessageHandler());
 
             var sender = new MessageSender(multicastHandler);
 
