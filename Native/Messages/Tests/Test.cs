@@ -37,7 +37,7 @@ namespace Tests
             }
         }
 
-        public class MessageHandler : ISyncMessageHandler<Message>
+        public class SyncMessageHandler : ISyncMessageHandler<Message>
         {
             void ISyncMessageHandler<Message>.Handle(Message command)
             {
@@ -45,7 +45,7 @@ namespace Tests
             }
         }
 
-        public class MessageAsyncHandler : ITaskMessageHandler<Message>
+        public class AsyncMessageHandler : ITaskMessageHandler<Message>
         {
             async Task ITaskMessageHandler<Message>.HandleAsync(
                 Message message, CancellationToken token)
@@ -56,16 +56,17 @@ namespace Tests
             }
         }
 
-
         [Test]
-        public async Task Integration_MulticastAsyncCall_Passes()
+        public async Task Integration_MulticastAsyncCallAllAsync_Passes()
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new MessageAsyncHandler());
+                new AsyncMessageHandler());
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new MessageHandler());
+                new AsyncMessageHandler());
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new AsyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);
 
@@ -77,14 +78,152 @@ namespace Tests
         }
 
         [Test]
-        public async Task Integration_MulticastSyncCall_Passes()
+        public async Task Integration_MulticastAsyncCallAllSync_Passes()
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new MessageAsyncHandler());
+                new SyncMessageHandler());
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new MessageHandler());
+                new SyncMessageHandler());
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SyncMessageHandler());
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var result = await sender.SendAsync();
+
+            // Assert
+            Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+        }
+
+        [Test]
+        public async Task Integration_MulticastAsyncCallAsyncFirst_Passes()
+        {
+            // Set up
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new AsyncMessageHandler(), new RegistrationSettings()
+                {
+                    Order = -1
+                });
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SyncMessageHandler());
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var result = await sender.SendAsync();
+
+            // Assert
+            Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+        }
+
+        [Test]
+        public async Task Integration_MulticastAsyncCallAsyncSecond_Passes()
+        {
+            // Set up
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SyncMessageHandler(), new RegistrationSettings()
+                {
+                    Order = -1
+                });
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new AsyncMessageHandler());
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var result = await sender.SendAsync();
+
+            // Assert
+            Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+        }
+
+        [Test]
+        public async Task Integration_MulticastSyncCallAllAsync_Passes()
+        {
+            // Set up
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new AsyncMessageHandler());
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new AsyncMessageHandler());
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new AsyncMessageHandler());
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var promise = sender.Send();
+
+            await Task.Delay(400);  // Make sure the async handlers finish.
+
+            // Assert
+            Assert.That(promise.Status, Is.EqualTo(HandlingStatus.Success));
+        }
+
+        [Test]
+        public void Integration_MulticastSyncCallAllSync_Passes()
+        {
+            // Set up
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SyncMessageHandler());
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SyncMessageHandler());
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SyncMessageHandler());
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var promise = sender.Send();
+
+            // All should finish immediately.
+
+            // Assert
+            Assert.That(promise.Status, Is.EqualTo(HandlingStatus.Success));
+        }
+
+        [Test]
+        public async Task Integration_MulticastSyncCallAsyncFirst_Passes()
+        {
+            // Set up
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new AsyncMessageHandler(), new RegistrationSettings()
+                {
+                    Order = -1
+                });
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SyncMessageHandler());
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var promise = sender.Send();
+
+            await Task.Delay(200);  // Make sure the async handler finishes.
+
+            // Assert
+            Assert.That(promise.Status, Is.EqualTo(HandlingStatus.Success));
+        }
+
+        [Test]
+        public async Task Integration_MulticastSyncCallAsyncSecond_Passes()
+        {
+            // Set up
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SyncMessageHandler(), new RegistrationSettings()
+                {
+                    Order = -1
+                });
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new AsyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);
 
@@ -101,7 +240,7 @@ namespace Tests
         public async Task Integration_UniAsyncToSync_Passes()
         {
             // Set up
-            var handler = new MessageHandler();
+            var handler = new SyncMessageHandler();
             var sender = new MessageSender(handler);
 
             // Act
@@ -115,7 +254,7 @@ namespace Tests
         public async Task Integration_UniAsyncToAsync_Passes()
         {
             // Set up
-            var handler = new MessageAsyncHandler();
+            var handler = new AsyncMessageHandler();
             var sender = new MessageSender(handler);
 
             // Act

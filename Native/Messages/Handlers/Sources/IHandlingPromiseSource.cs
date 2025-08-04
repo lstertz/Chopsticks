@@ -5,13 +5,14 @@ namespace Chopsticks.Messages.Handlers.Sources
 {
     public interface IHandlingPromiseSource
     {
-        public Action InitiateDefaultContinuations { get; }
+        Action InitiateDefaultContinuations { get; }
 
-        public Action? OnCancelled { get; set; }
-        public Action<HandlingResult>? OnCompletion { get; set; }
-        public Action<IEnumerable<Exception>>? OnFailure { get; set; }
-        public Action<HandlingResult>? OnNonSuccess { get; set; }
-        public Action? OnSuccess { get; set; }
+        Action? OnCancelled { get; set; }
+        Action<HandlingResult>? OnCompletion { get; set; }
+        Action<IEnumerable<Exception>>? OnFailure { get; set; }
+        Action<HandlingResult>? OnNonSuccess { get; set; }
+        Action? OnSuccess { get; set; }
+        bool ThrowIfFailed { get; set; }
 
         bool IsCompleted { get; }
         HandlingResult GetResult();

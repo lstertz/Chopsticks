@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Chopsticks.Messages.Exceptions;
+using System;
 using System.Collections.Generic;
 
 namespace Chopsticks.Messages
@@ -8,6 +9,8 @@ namespace Chopsticks.Messages
     /// </summary>
     public readonly struct HandlingResult
     {
+        // TODO :: Possibly support a count of completed handlers.
+
         /// <summary>
         /// Builds a result indicating that the message was cancelled.
         /// </summary>
@@ -187,6 +190,21 @@ namespace Chopsticks.Messages
         }
 
         /// <summary>
+        /// Throws an exception if the current status indicates that the message was 
+        /// not handled.
+        /// </summary>
+        /// <param name="customExceptionMessage">A custom exception message.</param>
+        /// <exception cref="MessageNotHandledException">The exception thrown 
+        /// if the current status indicates that the message was not handled.</exception>
+        public void ThrowIfNotHandled(string? customExceptionMessage = null)
+        {
+            if (Status != HandlingStatus.NotHandled)
+                return;
+
+            throw new MessageNotHandledException(customExceptionMessage);
+        }
+
+        /// <summary>
         /// Executes the specified action if the current handling result indicates a failure.
         /// </summary>
         /// <param name="whenFailed">The action to execute when the handling result has a 
@@ -201,7 +219,7 @@ namespace Chopsticks.Messages
         }
 
         /// <summary>
-        /// Executes the specified action if the current handling result cates that the 
+        /// Executes the specified action if the current handling result indicates that the 
         /// message was not handled.
         /// </summary>
         /// <param name="whenNotHandled">The action to execute when the handling status 

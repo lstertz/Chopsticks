@@ -36,6 +36,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
                 Handler.GetHashCode();
         }
 
+        // TODO :: Support stopping at the first failure.
 
         // TODO :: Support registering interceptors for the multicast.
         //           Support intercepting before entire run and before each handler.

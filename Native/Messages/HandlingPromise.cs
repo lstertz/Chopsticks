@@ -1,6 +1,7 @@
 ﻿using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Collections.Generic;
+using System.Xml.XPath;
 
 namespace Chopsticks.Messages
 {
@@ -99,6 +100,33 @@ namespace Chopsticks.Messages
             var result = _source.GetResult();
             if (result.Status == HandlingStatus.Success)
                 onSuccess();
+
+            return this;
+        }
+
+        public HandlingPromise ThrowIfFailed()
+        {
+            if (!_source.IsCompleted)
+            {
+                _source.ThrowIfFailed = true;
+                return this;
+            }
+
+            var result = _source.GetResult();
+            result.ThrowIfFailed();
+            return this;
+        }
+
+        public HandlingPromise ThrowIfNotHandled(string? customExceptionMessage = null)
+        {
+            if (!_source.IsCompleted)
+            {
+                // If the source has not completed immediately, then it must be being handled.
+                return this;
+            }
+
+            var result = _source.GetResult();
+            result.ThrowIfNotHandled(customExceptionMessage);
 
             return this;
         }

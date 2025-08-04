@@ -11,6 +11,13 @@ namespace Chopsticks.Messages
             public bool IsCompleted =>
                 _source.IsCompleted;
 
+            public bool ThrowIfFailed 
+            { 
+                get => _source.ThrowIfFailed;
+                set => _source.ThrowIfFailed = value; 
+            }
+
+
             private readonly IHandlingPromiseSource _source;
 
             internal Awaiter(IHandlingPromiseSource source)
@@ -36,17 +43,47 @@ namespace Chopsticks.Messages
         public readonly Awaiter GetAwaiter() => _awaiter;
 
 
-        public HandlingAwaitable WhenNotHandled(Action whenNotHandled)
+        public HandlingAwaitable ThrowIfFailed()
         {
-            if (_awaiter.IsCompleted)
+            if (!_awaiter.IsCompleted)
             {
-                var result = _awaiter.GetResult();
-                if (result.Status == HandlingStatus.NotHandled)
-                    whenNotHandled();
+                _awaiter.ThrowIfFailed = true;
+                return this;
             }
 
-            // If the source has not completed immediately, then it must be being handled.
-            // So we do not set the action.
+            var result = _awaiter.GetResult();
+            result.ThrowIfFailed();
+
+            return this;
+        }
+
+        public HandlingAwaitable ThrowIfNotHandled(string? customExceptionMessage = null)
+        {
+            if (!_awaiter.IsCompleted)
+            {
+                // If the source has not completed immediately, then it must be being handled.
+                return this;
+            }
+
+            var result = _awaiter.GetResult();
+            result.ThrowIfNotHandled(customExceptionMessage);
+
+            return this;
+        }
+
+
+        public HandlingAwaitable WhenNotHandled(Action whenNotHandled)
+        {
+            if (!_awaiter.IsCompleted)
+            {
+                // If the source has not completed immediately, then it must be being handled.
+
+                return this;
+            }
+
+            var result = _awaiter.GetResult();
+            if (result.Status == HandlingStatus.NotHandled)
+                whenNotHandled();
 
             return this;
         }

@@ -15,6 +15,7 @@ namespace Chopsticks.Messages.Handlers.Sources
         public Action<IEnumerable<Exception>>? OnFailure { get; set; }
         public Action<HandlingResult>? OnNonSuccess { get; set; }
         public Action? OnSuccess { get; set; }
+        public bool ThrowIfFailed { get; set; }
 
 
         protected TInnerSource? InnerSource { get; private set; }
@@ -38,6 +39,9 @@ namespace Chopsticks.Messages.Handlers.Sources
                     OnNonSuccess?.Invoke(result);
                 else if (result.Status == HandlingStatus.Success)
                     OnSuccess?.Invoke();
+
+                if (ThrowIfFailed)
+                    result.ThrowIfFailed();
             };
         }
 
@@ -60,6 +64,7 @@ namespace Chopsticks.Messages.Handlers.Sources
             OnFailure = null;
             OnNonSuccess = null;
             OnSuccess = null;
+            ThrowIfFailed = false;
         }
 
 
