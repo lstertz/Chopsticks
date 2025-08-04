@@ -7,42 +7,6 @@ using System.Threading.Tasks;
 
 namespace Chopsticks.Messages
 {
-    public class TestClass
-    {
-        public async Task Test()
-        {
-            async ValueTask TestAsync()
-            {
-
-            }
-
-            var source = new TaskHandlingPromiseSource();
-            source.Init(Task.CompletedTask.GetAwaiter());
-
-            var awaiter = new HandlingAwaitable(source);
-            var t = await awaiter.ContinueWithTask()
-                .WhenCancelledAsync(async () =>
-                {
-                    await TestAsync();
-                })
-                .WhenSuccessfulAsync(async () =>
-                {
-                    await Task.Delay(1000);
-                });
-
-            var source2 = new SyncHandlingPromiseSource();
-            source2.Init(HandlingResult.Success);
-
-            var t2 = new HandlingPromise(source2)
-                .OnCancelled(() => Console.WriteLine("Cancelled"))
-                .OnCompletion(result => Console.WriteLine($"Completed with status: {result.Status}"))
-                .OnFailure(exceptions => Console.WriteLine($"Failed with exceptions: {string.Join(", ", exceptions)}"))
-                .OnNonSuccess(result => Console.WriteLine($"Non-success result: {result.Status}"))
-                .OnSuccess(() => Console.WriteLine("Success"))
-                .WhenNotHandled(() => Console.WriteLine("Not handled"));
-        }
-    }
-
     public interface IHandlingPromiseSource
     {
         public Action InitiateDefaultContinuations { get; }
@@ -73,6 +37,7 @@ namespace Chopsticks.Messages
             _source.GetResult().Status : HandlingStatus.Processing;
 
         private readonly IHandlingPromiseSource _source;
+
 
         internal HandlingPromise(IHandlingPromiseSource source)
         {
@@ -234,11 +199,11 @@ namespace Chopsticks.Messages
         public Action? OnSuccess { get; set; }
 
 
-        protected TInnerSource InnerSource { get; private set; }
+        protected TInnerSource? InnerSource { get; private set; }
         private bool _isInitialized = false;
 
 
-        public BaseHandlingPromiseSource()
+        protected BaseHandlingPromiseSource()
         {
             InitiateDefaultContinuations = () =>
             {
@@ -299,6 +264,7 @@ namespace Chopsticks.Messages
     public class SequentialHandlingPromiseSource<TMessage> :
         BaseHandlingPromiseSource<IMessageHandler<TMessage>[]>
     {
+        /// <inheritdoc/>
         public override bool IsCompleted => _isCompleted;
         private bool _isCompleted = false;
 
@@ -312,9 +278,10 @@ namespace Chopsticks.Messages
         private readonly Action _onHandlerCompletion;
 
 
-        public SequentialHandlingPromiseSource() => 
+        internal SequentialHandlingPromiseSource() : base() => 
             _onHandlerCompletion = OnHandlerCompletion;
 
+        /// <inheritdoc/>
         public override void Dispose()
         {
             base.Dispose();
@@ -339,6 +306,7 @@ namespace Chopsticks.Messages
         }
 
 
+        /// <inheritdoc/>
         public override HandlingResult GetResult()
         {
             VerifyInitialized();
@@ -346,6 +314,7 @@ namespace Chopsticks.Messages
             return _result;
         }
 
+        /// <inheritdoc/>
         public override void OnCompleted(Action continuation)
         {
             VerifyInitialized();
@@ -367,7 +336,7 @@ namespace Chopsticks.Messages
 
         private void Step()
         {
-            if (_currentIndex == InnerSource.Length)
+            if (_currentIndex == InnerSource!.Length)
             {
                 _isCompleted = true;
                 _continuation?.Invoke();
@@ -388,11 +357,14 @@ namespace Chopsticks.Messages
     public class SyncHandlingPromiseSource :
         BaseHandlingPromiseSource<HandlingResult>
     {
+        /// <inheritdoc/>
         public override bool IsCompleted => true;
 
 
+        /// <inheritdoc/>
         public override HandlingResult GetResult() => InnerSource;
 
+        /// <inheritdoc/>
         public override void OnCompleted(Action continuation) => 
             continuation();
     }
@@ -400,10 +372,12 @@ namespace Chopsticks.Messages
     public class TaskHandlingPromiseSource : 
         BaseHandlingPromiseSource<TaskAwaiter>
     {
+        /// <inheritdoc/>
         public override bool IsCompleted => 
             InnerSource.IsCompleted;
 
 
+        /// <inheritdoc/>
         public override HandlingResult GetResult()
         {
             VerifyInitialized();
@@ -423,6 +397,7 @@ namespace Chopsticks.Messages
             }
         }
 
+        /// <inheritdoc/>
         public override void OnCompleted(Action continuation)
         {
             VerifyInitialized();
