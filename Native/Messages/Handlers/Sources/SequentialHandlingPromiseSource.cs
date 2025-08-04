@@ -13,7 +13,7 @@ namespace Chopsticks.Messages
 
         private CancellationToken _cancellationToken;
         private Action? _continuation;
-        private HandlingAwaiter _currentAwaiter;
+        private HandlingAwaitable.Awaiter _currentAwaiter;
         private int _currentIndex = 0;
         private TMessage _message;
         private HandlingResult _result;

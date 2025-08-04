@@ -69,6 +69,7 @@ namespace Chopsticks.Messages
         }
 
 
+        // TODO :: Rebuild immutable collection used during handling on any register/unregister.
         bool IMessageHandlerRegistrar<TMessage>.Register(
             IMessageHandler<TMessage> handler,
             RegistrationSettings settings = default, params IIntercept<TMessage>[] interceptors)

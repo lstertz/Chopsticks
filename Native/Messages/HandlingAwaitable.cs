@@ -1,17 +1,38 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Chopsticks.Messages
 {
     public struct HandlingAwaitable
     {
-        private readonly HandlingAwaiter _awaiter;
+        public readonly struct Awaiter : INotifyCompletion
+        {
+            public bool IsCompleted =>
+                _source.IsCompleted;
+
+            private readonly IHandlingPromiseSource _source;
+
+            internal Awaiter(IHandlingPromiseSource source)
+            {
+                _source = source;
+            }
+
+            public HandlingResult GetResult() =>
+                _source.GetResult();
+
+            public void OnCompleted(Action continuation) =>
+                _source.OnCompleted(continuation);
+        }
+
+
+        private readonly Awaiter _awaiter;
 
         internal HandlingAwaitable(IHandlingPromiseSource source)
         {
             _awaiter = new(source);
         }
 
-        public readonly HandlingAwaiter GetAwaiter() => _awaiter;
+        public readonly Awaiter GetAwaiter() => _awaiter;
 
 
         public HandlingAwaitable WhenNotHandled(Action whenNotHandled)
