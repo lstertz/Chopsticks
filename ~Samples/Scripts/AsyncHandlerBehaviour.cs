@@ -1,5 +1,6 @@
-﻿using Chopsticks.Messages.Abstractions;
-using Chopsticks.Messages.TaskBased;
+﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers.Multicast;
+using Chopsticks.Messages.Registration;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -9,8 +10,8 @@ namespace Chopsticks.Messages.Examples
     public class AsyncHandlerBehaviour : MonoBehaviour, ITaskMessageHandler<TestMessage>
     {
         // Assume this is injected.
-        private ITaskMessageHandlerRegistrar<TestMessage> _registrar =
-            DefaultTaskMessageHandler<TestMessage>.Get();
+        private IMessageHandlerRegistrar<TestMessage> _registrar =
+            DefaultMulticastMessageHandler<TestMessage>.Get();
 
 
         public void OnEnable()
@@ -24,14 +25,12 @@ namespace Chopsticks.Messages.Examples
         }
 
 
-        async Task<HandlingResult> ITaskMessageHandler<TestMessage>.HandleAsync(
+        async Task ITaskMessageHandler<TestMessage>.HandleAsync(
             TestMessage message, CancellationToken token)
         {
             await Task.Delay(2000);
 
             UnityEngine.Debug.Log($"Received Test Message Asynchronously: {message.Content}.");
-
-            return HandlingResult.Success;
         }
     }
 }
