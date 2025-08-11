@@ -1,19 +1,17 @@
 ﻿using Chopsticks.Messages.Handlers;
-using Chopsticks.Messages.Interception;
-
 namespace Chopsticks.Messages.Registration
 {
-    public interface IMessageHandlerRegistrar<TMessage>
+    public interface IMessageHandlerRegistrar<THandler, TInterceptor>
     {
         // TODO :: Accommodate clearing all.
-        bool Register(IMessageHandler<TMessage> handler, 
-            RegistrationSettings settings, params IIntercept<TMessage>[] interceptors);
+        bool Register(THandler handler, 
+            RegistrationSettings settings, params TInterceptor[] interceptors);
 
 
-        bool Register(IMessageHandler<TMessage> handler,
-            params IIntercept<TMessage>[] interceptors) =>
+        bool Register(THandler handler,
+            params TInterceptor[] interceptors) =>
                 Register(handler, default, interceptors);
 
-        void Unregister(IMessageHandler<TMessage> handler);
+        void Unregister(THandler handler);
     }
 }
