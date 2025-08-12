@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Interception;
+﻿using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Registration;
 using System;
 using System.Threading;
@@ -22,23 +22,23 @@ namespace Chopsticks.Messages.Handlers.Multicast
             _defaultHandler.Value.HandleAsync(message, token);
 
         public static void Register(ISyncMessageHandler<TMessage> handler, 
-            params IIntercept<TMessage>[] interceptors)
+            params IMessageInterceptor<TMessage>[] interceptors)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IIntercept<TMessage>>)
+            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IMessageInterceptor<TMessage>>)
                 .Register(handler, default, interceptors);
         }
 
         public static void Register(ISyncMessageHandler<TMessage> handler, 
             RegistrationSettings settings = default,
-            params IIntercept<TMessage>[] interceptors)
+            params IMessageInterceptor<TMessage>[] interceptors)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IIntercept<TMessage>>)
+            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IMessageInterceptor<TMessage>>)
                 .Register(handler, settings,interceptors);
         }
 
@@ -47,7 +47,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IIntercept<TMessage>>)
+            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IMessageInterceptor<TMessage>>)
                 .Unregister(handler);
         }
     }

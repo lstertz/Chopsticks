@@ -1,7 +1,6 @@
 ﻿using Chopsticks.Messages;
 using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Handlers.Multicast;
-using Chopsticks.Messages.Interception;
 using Chopsticks.Messages.Registration;
 
 namespace Tests
