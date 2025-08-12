@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Chopsticks.Messages.Handlers.Multicast
 {
     public abstract class MulticastRegistrar<THandler, TInterceptor> :
-        IMessageHandlerRegistrar<THandler, TInterceptor>
+        IHandlerRegistrar<THandler, TInterceptor>
     {
         protected class Registration : IEquatable<Registration>
         {
@@ -42,7 +42,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
 
 
         // TODO :: Rebuild immutable collection used during handling on any register/unregister.
-        bool IMessageHandlerRegistrar<THandler, TInterceptor>.Register(
+        bool IHandlerRegistrar<THandler, TInterceptor>.Register(
             THandler handler,
             RegistrationSettings settings = default, params TInterceptor[] interceptors)
         {
@@ -67,7 +67,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
             return true;
         }
 
-        void IMessageHandlerRegistrar<THandler, TInterceptor>.Unregister(
+        void IHandlerRegistrar<THandler, TInterceptor>.Unregister(
             THandler handler)
         {
             RegisteredHandlers.Remove(new(handler));

@@ -62,11 +62,11 @@ namespace Tests
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler());
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler());
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);
@@ -83,11 +83,11 @@ namespace Tests
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler());
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler());
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);
@@ -104,12 +104,12 @@ namespace Tests
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler(), new RegistrationSettings()
                 {
                     Order = -1
                 });
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);
@@ -126,12 +126,12 @@ namespace Tests
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler(), new RegistrationSettings()
                 {
                     Order = -1
                 });
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);
@@ -148,11 +148,11 @@ namespace Tests
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler());
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler());
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);
@@ -171,11 +171,11 @@ namespace Tests
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler());
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler());
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);
@@ -194,12 +194,12 @@ namespace Tests
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler(), new RegistrationSettings()
                 {
                     Order = -1
                 });
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);
@@ -218,12 +218,12 @@ namespace Tests
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new SyncMessageHandler(), new RegistrationSettings()
                 {
                     Order = -1
                 });
-            (multicastHandler as IMessageHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
+            (multicastHandler as IHandlerRegistrar<IMessageHandler<Message>, IIntercept<Message>>).Register(
                 new AsyncMessageHandler());
 
             var sender = new MessageSender(multicastHandler);

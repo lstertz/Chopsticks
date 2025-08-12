@@ -27,7 +27,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as IMessageHandlerRegistrar<IMessageHandler<TMessage>, IIntercept<TMessage>>)
+            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IIntercept<TMessage>>)
                 .Register(handler, default, interceptors);
         }
 
@@ -38,7 +38,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as IMessageHandlerRegistrar<IMessageHandler<TMessage>, IIntercept<TMessage>>)
+            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IIntercept<TMessage>>)
                 .Register(handler, settings,interceptors);
         }
 
@@ -47,7 +47,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as IMessageHandlerRegistrar<IMessageHandler<TMessage>, IIntercept<TMessage>>)
+            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IIntercept<TMessage>>)
                 .Unregister(handler);
         }
     }
