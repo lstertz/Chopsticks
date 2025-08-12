@@ -1,5 +1,4 @@
-﻿using Chopsticks.Messages.Interceptors;
-using Chopsticks.Messages.Registration;
+﻿using Chopsticks.Messages.Registration;
 using System;
 using System.Threading;
 
@@ -21,25 +20,23 @@ namespace Chopsticks.Messages.Handlers.Multicast
             CancellationToken token = default) =>
             _defaultHandler.Value.HandleAsync(message, token);
 
-        public static void Register(ISyncMessageHandler<TMessage> handler, 
-            params IMessageInterceptor<TMessage>[] interceptors)
+        public static void Register(ISyncMessageHandler<TMessage> handler)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IMessageInterceptor<TMessage>>)
-                .Register(handler, default, interceptors);
+            (_defaultHandler.Value as IMessageHandlerRegistrar<TMessage>)
+                .Register(handler, default);
         }
 
         public static void Register(ISyncMessageHandler<TMessage> handler, 
-            RegistrationSettings settings = default,
-            params IMessageInterceptor<TMessage>[] interceptors)
+            RegistrationSettings settings)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IMessageInterceptor<TMessage>>)
-                .Register(handler, settings,interceptors);
+            (_defaultHandler.Value as IMessageHandlerRegistrar<TMessage>)
+                .Register(handler, settings);
         }
 
         public static void Unregister(ISyncMessageHandler<TMessage> handler)
@@ -47,7 +44,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            (_defaultHandler.Value as IHandlerRegistrar<IMessageHandler<TMessage>, IMessageInterceptor<TMessage>>)
+            (_defaultHandler.Value as IMessageHandlerRegistrar<TMessage>)
                 .Unregister(handler);
         }
     }
