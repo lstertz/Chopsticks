@@ -5,7 +5,7 @@ namespace Chopsticks.Messages.Registration;
 
 public interface IContextHandlerRegistrar<TMessage, TContext> :
     IMessageHandlerRegistrar<TMessage>
-    where TContext : IMessageContext<TMessage>
+    where TContext : IMessageContext<TMessage>, new()
 {
     bool Register(IContextHandler<TMessage, TContext> handler, 
         RegistrationSettings settings, 

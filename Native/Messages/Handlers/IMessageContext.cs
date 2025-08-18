@@ -4,7 +4,7 @@ namespace Chopsticks.Messages.Handlers
 {
     public interface IMessageContext<TMessage>
     {
-        CancellationToken CancellationToken { get; }
+        CancellationToken CancellationToken { get; init; }
 
         TMessage Message { get; init; }
     }

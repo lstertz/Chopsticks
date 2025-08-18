@@ -1,23 +1,23 @@
-﻿using System;
-using System.Threading;
+﻿using Chopsticks.Messages.Registration.Handlers;
+using System;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
     // TODO :: Use a struct to abstract from whether the underlying handler is 
     //             a IMessageHandler or IContextHandler.
 
-    public class SequentialHandlingPromiseSource<TMessage> :
-        BaseHandlingPromiseSource<IMessageHandler<TMessage>[]>
+    public class SequentialHandlingPromiseSource<TMessage, TContext> :
+        BaseHandlingPromiseSource<IRegisteredHandler<TMessage, TContext>[]>
+        where TContext : IMessageContext<TMessage>, new()
     {
         /// <inheritdoc/>
         public override bool IsCompleted => _isCompleted;
         private bool _isCompleted = false;
 
-        private CancellationToken _cancellationToken;
         private Action? _continuation;
         private HandlingAwaitable.Awaiter _currentAwaiter;
         private int _currentIndex = 0;
-        private TMessage _message;
+        private TContext _context;
         private HandlingResult _result;
 
         private readonly Action _onHandlerCompletion;
@@ -39,13 +39,12 @@ namespace Chopsticks.Messages.Handlers.Sources
         }
 
 
-        public void Run(TMessage message, CancellationToken cancellationToken)
+        public void Run(TContext context)
         {
             VerifyInitialized();
 
             _result = HandlingResult.NoHandlers;
-            _cancellationToken = cancellationToken;
-            _message = message;
+            _context = context;
 
             Step();
         }
@@ -89,8 +88,8 @@ namespace Chopsticks.Messages.Handlers.Sources
                 return;
             }
 
-            var handler = InnerSource[_currentIndex];
-            _currentAwaiter = handler.HandleAsync(_message, _cancellationToken).GetAwaiter();
+            var registeredHandler = InnerSource[_currentIndex];
+            _currentAwaiter = registeredHandler.HandleAsync(_context).GetAwaiter();
 
             if (_currentAwaiter.IsCompleted)
                 OnHandlerCompletion();                              // Synchronous handler.

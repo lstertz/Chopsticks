@@ -24,16 +24,16 @@ public class MulticastMessageHandler<TMessage> :
     private IHandlingPromiseSource InitiateWithSource(TMessage message,
         CancellationToken token = default)
     {
-        // Build handler collection.
-        // TODO :: Do this on registration/unregistration instead.
-        var handlers = new IMessageHandler<TMessage>[RegisteredMessageHandlers.Length];
-        for (int c = 0, count = RegisteredMessageHandlers.Length; c < count; c++)
-            handlers[c] = RegisteredMessageHandlers[c].Handler;
-
+        var defaultContext = new DefaultMessageContext<TMessage>
+        {
+            CancellationToken = token,
+            Message = message
+        };
+        
         // TODO :: Rent from the pool.
-        var source = new SequentialHandlingPromiseSource<TMessage>();
-        source.Init(handlers);
-        source.Run(message, token);
+        var source = new SequentialHandlingPromiseSource<TMessage, DefaultMessageContext<TMessage>>();
+        source.Init(RegisteredMessageHandlers);
+        source.Run(defaultContext);
 
         return source;
     }
