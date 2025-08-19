@@ -11,10 +11,10 @@ namespace Chopsticks.Messages
             public bool IsCompleted =>
                 _source.IsCompleted;
 
-            public bool ThrowIfFailed 
-            { 
+            public bool ThrowIfFailed
+            {
                 get => _source.ThrowIfFailed;
-                set => _source.ThrowIfFailed = value; 
+                set => _source.ThrowIfFailed = value;
             }
 
 
@@ -34,9 +34,11 @@ namespace Chopsticks.Messages
 
 
         private readonly Awaiter _awaiter;
+        private readonly IHandlingPromiseSource _source;
 
         internal HandlingAwaitable(IHandlingPromiseSource source)
         {
+            _source = source;
             _awaiter = new(source);
         }
 
@@ -87,5 +89,9 @@ namespace Chopsticks.Messages
 
             return this;
         }
+
+
+        public readonly HandlingPromise ToPromise() => 
+            new(_source);
     }
 }

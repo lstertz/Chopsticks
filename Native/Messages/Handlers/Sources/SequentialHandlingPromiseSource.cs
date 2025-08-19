@@ -3,9 +3,6 @@ using System;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
-    // TODO :: Use a struct to abstract from whether the underlying handler is 
-    //             a IMessageHandler or IContextHandler.
-
     public class SequentialHandlingPromiseSource<TMessage, TContext> :
         BaseHandlingPromiseSource<IRegisteredHandler<TMessage, TContext>[]>
         where TContext : IMessageContext<TMessage>, new()

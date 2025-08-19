@@ -1,5 +1,8 @@
 ﻿using Chopsticks.Messages.Handlers.Sources;
+using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Registration;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Chopsticks.Messages.Handlers.Multicast;
@@ -11,18 +14,37 @@ public class MulticastMessageHandler<TMessage> :
     MessageHandlerRegistrar<TMessage>,
     IMulticastMessageHandler<TMessage>
 {
+    // TODO :: Verify thread safety.
+    private volatile Func<TMessage, CancellationToken, HandlingAwaitable> _multicastPipeline;
+
     // TODO :: Support stopping at the first failure.
 
     public virtual HandlingPromise Handle(TMessage message) =>
-        new(InitiateWithSource(message));
+        _multicastPipeline(message, default).ToPromise();
 
     public virtual HandlingAwaitable HandleAsync(TMessage message,
         CancellationToken token = default) =>
-            new(InitiateWithSource(message, token));
+            _multicastPipeline(message, token);
+
+    protected override void RebuildInterceptorPipeline(
+        List<IMessageInterceptor<TMessage>> interceptors)
+    {
+        Func<TMessage, CancellationToken, HandlingAwaitable> current = 
+            (message, token) => new(InitiateWithSource(message, token));
+
+        for (int c = interceptors.Count - 1; c >= 0; c--)
+        {
+            var next = current;
+            current = (message, token) =>
+                interceptors[c].InterceptAsync(message, token, next);
+        }
+
+        _multicastPipeline = current;
+    }
 
 
     private IHandlingPromiseSource InitiateWithSource(TMessage message,
-        CancellationToken token = default)
+        CancellationToken token)
     {
         var defaultContext = new DefaultMessageContext<TMessage>
         {

@@ -8,10 +8,8 @@ namespace Chopsticks.Messages.Registration;
 public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     where TContext : IMessageContext<TMessage>, new()
 {
-    // TODO :: Support registering interceptors for the multicast.
-    // TODO :: Rebuild immutable collection used during handling on any register/unregister.
-    protected IMessageInterceptor<TMessage>[] MulticastMessageInterceptors =>
-        [.. _multicastMessageInterceptors];
+    // TODO :: Rename for general full collective interception.
+    // TODO :: Support registering and unregistering interceptors, similar to handlers.
     private readonly List<IMessageInterceptor<TMessage>> _multicastMessageInterceptors = [];
 
     protected IMessageInterceptor<TMessage>[] PerHandlerMessageInterceptors =>
@@ -22,6 +20,11 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     protected IRegisteredHandler<TMessage, TContext>[] RegisteredMessageHandlers => [.. _registeredMessageHandlers];
     private readonly List<IRegisteredHandler<TMessage, TContext>> _registeredMessageHandlers = new(8);
 
+
+    public BaseMessageHandlerRegistrar()
+    {
+        RebuildInterceptorPipeline(_multicastMessageInterceptors);
+    }
 
 
     // TODO :: Rebuild immutable collection used during handling on any register/unregister.
@@ -46,4 +49,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     {
         _registeredMessageHandlers.Remove(registration);
     }
+
+    protected abstract void RebuildInterceptorPipeline(
+        List<IMessageInterceptor<TMessage>> interceptors);
 }

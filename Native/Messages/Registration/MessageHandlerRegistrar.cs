@@ -3,12 +3,10 @@ using Chopsticks.Messages.Registration.Handlers;
 
 namespace Chopsticks.Messages.Registration;
 
-public class MessageHandlerRegistrar<TMessage> :
+public abstract class MessageHandlerRegistrar<TMessage> :
     BaseMessageHandlerRegistrar<TMessage, DefaultMessageContext<TMessage>>,
     IMessageHandlerRegistrar<TMessage>
 {
-    // TODO :: Rebuild already registered handlers for intercetpor changes.
-
     bool IMessageHandlerRegistrar<TMessage>.Register(
         IMessageHandler<TMessage> handler,
         RegistrationSettings settings)
