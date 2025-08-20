@@ -35,7 +35,7 @@ namespace Chopsticks.Messages
 
         private readonly Awaiter _awaiter;
 
-        internal HandlingAwaitable(IHandlingPromiseSource source)
+        public HandlingAwaitable(IHandlingPromiseSource source)
         {
             _awaiter = new(source);
         }
