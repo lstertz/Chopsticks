@@ -22,7 +22,7 @@ namespace Chopsticks.Messages
         private readonly IHandlingPromiseSource _source;
 
 
-        internal HandlingPromise(IHandlingPromiseSource source)
+        public HandlingPromise(IHandlingPromiseSource source)
         {
             _source = source;
             if (!_source.IsCompleted)
