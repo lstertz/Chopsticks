@@ -15,18 +15,18 @@ public class MulticastMessageHandler<TMessage> :
     IMulticastMessageHandler<TMessage>
 {
     // TODO :: Verify thread safety.
-    private volatile Func<TMessage, CancellationToken, HandlingAwaitable> _multicastPipeline;
+    private volatile Func<TMessage, CancellationToken, HandlingAwaitable> _dispatchPipeline;
 
     // TODO :: Support stopping at the first failure.
 
     public virtual HandlingPromise Handle(TMessage message) =>
-        _multicastPipeline(message, default).ToPromise();
+        _dispatchPipeline(message, default).ToPromise();
 
     public virtual HandlingAwaitable HandleAsync(TMessage message,
         CancellationToken token = default) =>
-            _multicastPipeline(message, token);
+            _dispatchPipeline(message, token);
 
-    protected override void RebuildInterceptorPipeline(
+    protected override void RebuildDispatchInterceptorPipeline(
         List<IMessageInterceptor<TMessage>> interceptors)
     {
         Func<TMessage, CancellationToken, HandlingAwaitable> current = 
@@ -39,7 +39,7 @@ public class MulticastMessageHandler<TMessage> :
                 interceptors[c].InterceptAsync(message, token, next);
         }
 
-        _multicastPipeline = current;
+        _dispatchPipeline = current;
     }
 
 

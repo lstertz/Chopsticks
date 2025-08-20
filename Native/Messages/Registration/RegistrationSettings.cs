@@ -1,16 +1,15 @@
 ﻿namespace Chopsticks.Messages.Registration;
 
 /// <summary>
-/// Settings to define how a handler registered to a 
-/// <see cref="Handlers.Multicast.IMulticastMessageHandler{TMessage}"/> through a 
+/// Settings to define how a handler registered through a 
 /// <see cref="IMessageHandlerRegistrar{TMessage}"/>
 /// will be processed.
 /// </summary>
 public readonly struct RegistrationSettings
 {
     /// <summary>
-    /// The relative order that this handler will be handled by a 
-    /// <see cref="Handlers.Multicast.IMulticastMessageHandler{TMessage}"/> 
+    /// The relative order that this handler will be handled by any collective handler 
+    /// system, such as a multicast handler, 
     /// when message processing is to be done in sequence.
     /// </summary>
     /// <remarks>

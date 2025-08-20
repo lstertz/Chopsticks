@@ -8,9 +8,7 @@ namespace Chopsticks.Messages.Registration;
 public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     where TContext : IMessageContext<TMessage>, new()
 {
-    // TODO :: Rename for general full collective interception.
-    // TODO :: Support registering and unregistering interceptors, similar to handlers.
-    private readonly List<IMessageInterceptor<TMessage>> _multicastMessageInterceptors = [];
+    private readonly List<IMessageInterceptor<TMessage>> _messageDispatchInterceptors = [];
 
     protected IMessageInterceptor<TMessage>[] PerHandlerMessageInterceptors =>
         [.. _perHandlerMessageInterceptors];
@@ -23,7 +21,32 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
 
     public BaseMessageHandlerRegistrar()
     {
-        RebuildInterceptorPipeline(_multicastMessageInterceptors);
+        RebuildDispatchInterceptorPipeline(_messageDispatchInterceptors);
+    }
+
+
+    public void AddDispatchInterceptor(IMessageInterceptor<TMessage> interceptor, 
+        RegistrationSettings settings = default)  // TODO :: Split interceptor and registration settings.
+    {
+        _messageDispatchInterceptors.Add(interceptor);
+
+        // TODO :: Wrap interceptors in registrations to include registration settings.
+        // TODO :: Support ordering of interceptors.
+        //_multicastMessageInterceptors.Sort((x, y) =>
+        //{
+        //    int orderComparison = x.Order.CompareTo(y.Order);
+        //    if (orderComparison != 0)
+        //        return orderComparison;
+        //    return 1;
+        //});
+
+        RebuildDispatchInterceptorPipeline(_messageDispatchInterceptors);
+    }
+
+    public void RemoveDispatchInterceptor(IMessageInterceptor<TMessage> interceptor)
+    {
+        _messageDispatchInterceptors.Remove(interceptor);
+        RebuildDispatchInterceptorPipeline(_messageDispatchInterceptors);
     }
 
 
@@ -50,6 +73,6 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         _registeredMessageHandlers.Remove(registration);
     }
 
-    protected abstract void RebuildInterceptorPipeline(
+    protected abstract void RebuildDispatchInterceptorPipeline(
         List<IMessageInterceptor<TMessage>> interceptors);
 }
