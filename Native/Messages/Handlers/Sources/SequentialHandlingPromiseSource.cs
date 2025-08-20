@@ -20,7 +20,7 @@ namespace Chopsticks.Messages.Handlers.Sources
         private readonly Action _onHandlerCompletion;
 
 
-        internal SequentialHandlingPromiseSource() : base() => 
+        public SequentialHandlingPromiseSource() : base() => 
             _onHandlerCompletion = OnHandlerCompletion;
 
         /// <inheritdoc/>
