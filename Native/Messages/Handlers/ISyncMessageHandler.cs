@@ -7,6 +7,9 @@ namespace Chopsticks.Messages.Handlers
     public interface ISyncMessageHandler<TMessage> :
         IMessageHandler<TMessage>
     {
+        new void Handle(TMessage message);
+
+
         HandlingPromise IMessageHandler<TMessage>.Handle(TMessage message)
         {
             var source = new SyncHandlingPromiseSource();  // TODO :: Rent from a pool.
@@ -28,7 +31,8 @@ namespace Chopsticks.Messages.Handlers
         {
             try
             {
-                Handle(message);
+                // Maintain explicit cast to ensure dispatching to the correct method.
+                (this as ISyncMessageHandler<TMessage>).Handle(message);
                 return HandlingResult.Success;
             }
             catch (Exception ex)
@@ -36,7 +40,5 @@ namespace Chopsticks.Messages.Handlers
                 return HandlingResult.FromException(ex);
             }
         }
-
-        new void Handle(TMessage message);
     }
 }
