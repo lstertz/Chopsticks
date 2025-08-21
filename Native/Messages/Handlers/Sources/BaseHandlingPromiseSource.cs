@@ -31,14 +31,15 @@ namespace Chopsticks.Messages.Handlers.Sources
 
                 if (result.Status == HandlingStatus.Cancelled)
                     OnCancelled?.Invoke();
-                else if ((result.Status & HandlingStatus.Completed) != 0)
-                    OnCompletion?.Invoke(result);
                 else if (result.Status == HandlingStatus.Failure)
                     OnFailure?.Invoke(result.Exceptions);
-                else if ((result.Status & HandlingStatus.NonSuccess) != 0)
-                    OnNonSuccess?.Invoke(result);
                 else if (result.Status == HandlingStatus.Success)
                     OnSuccess?.Invoke();
+                
+                if ((result.Status & HandlingStatus.NonSuccess) != 0)
+                    OnNonSuccess?.Invoke(result);
+                if ((result.Status & HandlingStatus.Completed) != 0)
+                    OnCompletion?.Invoke(result);
 
                 if (ThrowIfFailed)
                     result.ThrowIfFailed();

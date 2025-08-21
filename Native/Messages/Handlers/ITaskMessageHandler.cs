@@ -7,6 +7,9 @@ namespace Chopsticks.Messages.Handlers
     public interface ITaskMessageHandler<TMessage> :
         IMessageHandler<TMessage>
     {
+        new Task HandleAsync(TMessage message, CancellationToken token = default);
+
+
         HandlingPromise IMessageHandler<TMessage>.Handle(TMessage message)
         {
             var source = new TaskHandlingPromiseSource();  // TODO :: Rent from a pool.
@@ -18,12 +21,14 @@ namespace Chopsticks.Messages.Handlers
         HandlingAwaitable IMessageHandler<TMessage>.HandleAsync(
             TMessage message, CancellationToken token)
         {
+            // Maintain explicit cast to ensure dispatching to the correct method.
+            Task task = (this as ITaskMessageHandler<TMessage>).HandleAsync(message, token);
+
             var source = new TaskHandlingPromiseSource();  // TODO :: Rent from a pool.
-            source.Init(HandleAsync(message, token).GetAwaiter());
+            source.Init(task.GetAwaiter());
 
             return new HandlingAwaitable(source);
         }
 
-        new Task HandleAsync(TMessage message, CancellationToken token = default);
     }
 }

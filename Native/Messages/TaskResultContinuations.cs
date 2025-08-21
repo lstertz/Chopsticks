@@ -27,7 +27,7 @@ namespace Chopsticks.Messages
             Func<Task> whenCompleted)
         {
             var result = await awaitable;
-            if ((result.Status | HandlingStatus.Completed) != 0)
+            if ((result.Status & HandlingStatus.Completed) != 0)
                 await whenCompleted();
 
             return result;
@@ -60,7 +60,7 @@ namespace Chopsticks.Messages
             Func<Task> whenNotSuccessful)
         {
             var result = await awaitable;
-            if ((result.Status | HandlingStatus.NonSuccess) != 0)
+            if ((result.Status & HandlingStatus.NonSuccess) != 0)
                 await whenNotSuccessful();
 
             return result;
