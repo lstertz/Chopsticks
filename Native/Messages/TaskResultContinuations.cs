@@ -11,6 +11,25 @@ namespace Chopsticks.Messages
             await awaitable;
 
 
+        public static async Task<HandlingResult> ThrowIfFailed(
+            this Task<HandlingResult> awaitable)
+        {
+            var result = await awaitable;
+            result.ThrowIfFailed();
+
+            return result;
+        }
+
+        public static async Task<HandlingResult> ThrowIfNotHandled(
+            this Task<HandlingResult> awaitable)
+        {
+            var result = await awaitable;
+            result.ThrowIfNotHandled();
+
+            return result;
+        }
+
+
         public static async Task<HandlingResult> WhenCancelledAsync(
             this Task<HandlingResult> awaitable,
             Func<Task> whenCancelled)

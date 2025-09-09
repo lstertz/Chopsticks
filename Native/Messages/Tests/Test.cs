@@ -33,6 +33,7 @@ namespace Tests
             {
                 Console.WriteLine("Sending OnCommand");
                 var result = await _handler.HandleAsync(new Message())
+                    .ContinueWithTask()
                     .ThrowIfFailed();
                 Console.WriteLine("Sent OnCommand");
 
