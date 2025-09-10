@@ -2,6 +2,7 @@
 using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Handlers.Multicast;
 using Chopsticks.Messages.Registration;
+using System.Collections.Concurrent;
 
 namespace Tests
 {
@@ -11,6 +12,23 @@ namespace Tests
         {
             public string Value { get; set; }
         }
+        public class TestSynchronizationContext : SynchronizationContext
+        {
+            private readonly ConcurrentQueue<(SendOrPostCallback, object?)> _queue = new();
+
+            public override void Post(SendOrPostCallback d, object? state)
+            {
+                _queue.Enqueue((d, state));
+            }
+
+            public void Run()
+            {
+                while (_queue.TryDequeue(out var work))
+                {
+                    work.Item1(work.Item2);
+                }
+            }
+        }
 
         public class MessageSender
         {
@@ -19,11 +37,11 @@ namespace Tests
             public MessageSender(IMessageHandler<Message> handler) =>
                 _handler = handler;
 
-            public HandlingPromise Send()
+            public HandlingPromise Send(SynchronizationContext? context = null)
             {
                 Console.WriteLine("Sending OnCommand");
                 var promise = _handler.Handle(new Message())
-                    .ThrowIfFailed();
+                    .ThrowIfFailed(context);
                 Console.WriteLine("Sent OnCommand");
 
                 return promise;
@@ -314,7 +332,7 @@ namespace Tests
         }
 
         [Test]
-        public void UniSyncToAsync_Failure_Throws()
+        public async Task UniSyncToAsync_Failure_Throws()
         {
             // Set up
             var handler = new FailingAsyncMessageHandler();
@@ -322,15 +340,18 @@ namespace Tests
 
             bool hasCompleted = false;
 
-            // Act & Assert
-            Assert.ThrowsAsync<Exception>(async () =>
-            {
-                var result = sender.Send();
-                result.OnCompletion(_ => hasCompleted = true);
+            var context = new TestSynchronizationContext();
+            //SynchronizationContext.SetSynchronizationContext(context);
 
-                while (!hasCompleted)  // Wait for async completion.
-                    await Task.Delay(10);
-            });
+            // Act
+            var result = sender.Send(context);
+            result.OnCompletion(_ => hasCompleted = true);
+
+            while (!hasCompleted)  // Wait for async completion.
+                await Task.Delay(10);
+
+            // Assert
+            Assert.Throws<Exception>(context.Run);
         }
 
         [Test]
@@ -341,7 +362,7 @@ namespace Tests
             var sender = new MessageSender(handler);
 
             // Act & Assert
-            Assert.Throws<Exception>(() => sender.Send());
+            Assert.Throws<Exception>(() => sender.Send()); // Throws synchronously without context.
         }
 
         [Test]

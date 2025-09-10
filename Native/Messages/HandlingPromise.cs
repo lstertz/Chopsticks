@@ -1,7 +1,8 @@
-﻿using Chopsticks.Messages.Handlers.Sources;
+﻿using Chopsticks.Messages.Exceptions;
+using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Collections.Generic;
-using System.Xml.XPath;
+using System.Threading;
 
 namespace Chopsticks.Messages
 {
@@ -104,19 +105,51 @@ namespace Chopsticks.Messages
             return this;
         }
 
-        public HandlingPromise ThrowIfFailed()
+        /// <summary>
+        /// Rethrows any exceptions encountered during the handling of the message.
+        /// </summary>
+        /// <remarks>
+        /// This will immediately throw any exceptions in the current synchronization context 
+        /// if the handling was performed synchronously and will post any exceptions 
+        /// encountered during asynchronous handling to the <paramref name="asyncContext"/> 
+        /// (or attempt to post to the current context).
+        /// </remarks>
+        /// <param name="asyncContext">
+        /// The <see cref="SynchronizationContext"/> to use for posting asynchronous exceptions. 
+        /// If <paramref name="asyncContext"/> is <see langword="null"/>, the current 
+        /// synchronization context will attempt to be used, but in doing so, 
+        /// exceptions may be lost.</param>
+        /// <returns>
+        /// The current <see cref="HandlingPromise"/> instance, 
+        /// allowing for method chaining.
+        /// </returns>
+        public readonly HandlingPromise ThrowIfFailed(SynchronizationContext? asyncContext = null)
         {
             if (!_source.IsCompleted)
             {
-                _source.ThrowIfFailed = true;
+                _source.FailureContext = asyncContext ?? SynchronizationContext.Current;
                 return this;
             }
 
             var result = _source.GetResult();
-            result.ThrowIfFailed();
+            result.ThrowIfFailed();  // Synchronous handling throws on the current context.
             return this;
         }
 
+        /// <summary>
+        /// Throws a <see cref="MessageNotHandledException"/> if the message was not 
+        /// handled by any handlers.
+        /// </summary>
+        /// <param name="customExceptionMessage">
+        /// The optional message to override the default exception message.
+        /// </param>
+        /// <exception cref="MessageNotHandledException">
+        /// Thrown if the message was not handled.
+        /// </exception>
+        /// <returns>
+        /// The current <see cref="HandlingPromise"/> instance, 
+        /// allowing for method chaining.
+        /// </returns>
         public HandlingPromise ThrowIfNotHandled(string? customExceptionMessage = null)
         {
             if (!_source.IsCompleted)
