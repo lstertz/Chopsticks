@@ -8,7 +8,7 @@ public interface IContextHandlerRegistrar<TMessage, TContext> :
     where TContext : IMessageContext<TMessage>, new()
 {
     bool Register(IContextHandler<TMessage, TContext> handler, 
-        RegistrationSettings settings, 
+        HandlerRegistrationSettings settings, 
         params IContextInterceptor<TMessage, TContext>[] interceptors);
 
 

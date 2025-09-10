@@ -5,7 +5,7 @@ public interface IMessageHandlerRegistrar<TMessage>
 {
     // TODO :: Accommodate clearing all.
 
-    bool Register(IMessageHandler<TMessage> handler, RegistrationSettings settings);
+    bool Register(IMessageHandler<TMessage> handler, HandlerRegistrationSettings settings);
 
 
     bool Register(IMessageHandler<TMessage> handler) =>

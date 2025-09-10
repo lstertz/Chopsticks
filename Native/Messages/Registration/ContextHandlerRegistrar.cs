@@ -23,7 +23,7 @@ public abstract class ContextHandlerRegistrar<TMessage, TContext> :
 
 
     public bool Register(IContextHandler<TMessage, TContext> handler, 
-        RegistrationSettings settings, 
+        HandlerRegistrationSettings settings, 
         params IContextInterceptor<TMessage, TContext>[] interceptors)
     {
         // TODO :: Add interceptors to the handler if needed.
@@ -33,7 +33,7 @@ public abstract class ContextHandlerRegistrar<TMessage, TContext> :
         });
     }
 
-    public bool Register(IMessageHandler<TMessage> handler, RegistrationSettings settings)
+    public bool Register(IMessageHandler<TMessage> handler, HandlerRegistrationSettings settings)
     {
         // TODO :: Add interceptors to the handler if needed.
         return AddRegistration(new RegisteredMessageHandler<TMessage, TContext>(handler)

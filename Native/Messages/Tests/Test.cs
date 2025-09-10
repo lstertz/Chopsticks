@@ -166,7 +166,7 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler(), new RegistrationSettings()
+                new SuccessfulAsyncMessageHandler(), new HandlerRegistrationSettings()
                 {
                     Order = -1
                 });
@@ -188,7 +188,7 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler(), new RegistrationSettings()
+                new SuccessfulSyncMessageHandler(), new HandlerRegistrationSettings()
                 {
                     Order = -1
                 });
@@ -260,7 +260,7 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler(), new RegistrationSettings()
+                new SuccessfulAsyncMessageHandler(), new HandlerRegistrationSettings()
                 {
                     Order = -1
                 });
@@ -284,7 +284,7 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler(), new RegistrationSettings()
+                new SuccessfulSyncMessageHandler(), new HandlerRegistrationSettings()
                 {
                     Order = -1
                 });
