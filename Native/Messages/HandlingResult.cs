@@ -54,12 +54,9 @@ namespace Chopsticks.Messages
 
                 if (_exceptions is Exception exception)
                     yield return exception;
-
-                var exceptions = (Exception[])_exceptions;
-                foreach (var ex in exceptions)
-                {
-                    yield return ex;
-                }
+                else if (_exceptions is Exception[] exceptions)
+                    foreach (var ex in exceptions)
+                        yield return ex;
             }
         }
 

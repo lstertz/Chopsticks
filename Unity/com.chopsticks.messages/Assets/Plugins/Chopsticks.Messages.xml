@@ -40,6 +40,42 @@
         <member name="M:Chopsticks.Messages.Handlers.Sources.TaskHandlingPromiseSource.OnCompleted(System.Action)">
             <inheritdoc/>
         </member>
+        <member name="M:Chopsticks.Messages.HandlingPromise.ThrowIfFailed(System.Threading.SynchronizationContext)">
+            <summary>
+            Rethrows any exceptions encountered during the handling of the message.
+            </summary>
+            <remarks>
+            This will immediately throw any exceptions in the current synchronization context 
+            if the handling was performed synchronously and will post any exceptions 
+            encountered during asynchronous handling to the <paramref name="asyncContext"/> 
+            (or attempt to post to the current context).
+            </remarks>
+            <param name="asyncContext">
+            The <see cref="T:System.Threading.SynchronizationContext"/> to use for posting asynchronous exceptions. 
+            If <paramref name="asyncContext"/> is <see langword="null"/>, the current 
+            synchronization context will attempt to be used, but in doing so, 
+            exceptions may be lost.</param>
+            <returns>
+            The current <see cref="T:Chopsticks.Messages.HandlingPromise"/> instance, 
+            allowing for method chaining.
+            </returns>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingPromise.ThrowIfNotHandled(System.String)">
+            <summary>
+            Throws a <see cref="T:Chopsticks.Messages.Exceptions.MessageNotHandledException"/> if the message was not 
+            handled by any handlers.
+            </summary>
+            <param name="customExceptionMessage">
+            The optional message to override the default exception message.
+            </param>
+            <exception cref="T:Chopsticks.Messages.Exceptions.MessageNotHandledException">
+            Thrown if the message was not handled.
+            </exception>
+            <returns>
+            The current <see cref="T:Chopsticks.Messages.HandlingPromise"/> instance, 
+            allowing for method chaining.
+            </returns>
+        </member>
         <member name="T:Chopsticks.Messages.HandlingResult">
             <summary>
             The result of handling a message.

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
@@ -12,7 +13,7 @@ namespace Chopsticks.Messages.Handlers.Sources
         Action<IEnumerable<Exception>>? OnFailure { get; set; }
         Action<HandlingResult>? OnNonSuccess { get; set; }
         Action? OnSuccess { get; set; }
-        bool ThrowIfFailed { get; set; }
+        SynchronizationContext? FailureContext { get; set; }
 
         bool IsCompleted { get; }
         HandlingResult GetResult();
