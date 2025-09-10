@@ -30,7 +30,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
         }
 
         public static void Register(ISyncMessageHandler<TMessage> handler, 
-            RegistrationSettings settings)
+            HandlerRegistrationSettings settings)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));

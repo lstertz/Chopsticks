@@ -9,7 +9,7 @@ public abstract class MessageHandlerRegistrar<TMessage> :
 {
     bool IMessageHandlerRegistrar<TMessage>.Register(
         IMessageHandler<TMessage> handler,
-        RegistrationSettings settings)
+        HandlerRegistrationSettings settings)
     {
         return AddRegistration(
             new RegisteredMessageHandler<TMessage, DefaultMessageContext<TMessage>>(handler)
