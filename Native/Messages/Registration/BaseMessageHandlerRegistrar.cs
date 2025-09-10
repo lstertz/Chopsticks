@@ -1,6 +1,7 @@
 ﻿using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Registration.Handlers;
+using Chopsticks.Messages.Registration.Interceptors;
 using System.Collections.Generic;
 
 namespace Chopsticks.Messages.Registration;
@@ -8,11 +9,11 @@ namespace Chopsticks.Messages.Registration;
 public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     where TContext : IMessageContext<TMessage>, new()
 {
-    private readonly List<IMessageInterceptor<TMessage>> _messageDispatchInterceptors = [];
+    private readonly List<RegisteredInterceptor<TMessage, TContext>> _dispatchInterceptors = [];
 
-    protected IMessageInterceptor<TMessage>[] PerHandlerMessageInterceptors =>
+    protected RegisteredInterceptor<TMessage, TContext>[] PerHandlerMessageInterceptors =>
         [.. _perHandlerMessageInterceptors];
-    private readonly List<IMessageInterceptor<TMessage>> _perHandlerMessageInterceptors = [];
+    private readonly List<RegisteredInterceptor<TMessage, TContext>> _perHandlerMessageInterceptors = [];
 
     // TODO :: Rebuild immutable collection used during handling on any register/unregister.
     protected IRegisteredHandler<TMessage, TContext>[] RegisteredMessageHandlers => [.. _registeredMessageHandlers];
@@ -21,32 +22,36 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
 
     public BaseMessageHandlerRegistrar()
     {
-        RebuildDispatchInterceptorPipeline(_messageDispatchInterceptors);
+        RebuildDispatchInterceptorPipeline(_dispatchInterceptors);
     }
 
 
-    public void AddDispatchInterceptor(IMessageInterceptor<TMessage> interceptor, 
-        RegistrationSettings settings = default)  // TODO :: Split interceptor and registration settings.
+    public void AddDispatchInterceptor(IInterceptor<TMessage, TContext> interceptor, 
+        InterceptorRegistrationSettings settings = default)
     {
-        _messageDispatchInterceptors.Add(interceptor);
+        var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor)
+        {
+            Order = settings.Order
+        };
 
-        // TODO :: Wrap interceptors in registrations to include registration settings.
-        // TODO :: Support ordering of interceptors.
-        //_multicastMessageInterceptors.Sort((x, y) =>
-        //{
-        //    int orderComparison = x.Order.CompareTo(y.Order);
-        //    if (orderComparison != 0)
-        //        return orderComparison;
-        //    return 1;
-        //});
+        _dispatchInterceptors.Add(registration);
+        _dispatchInterceptors.Sort((x, y) =>
+        {
+            int orderComparison = x.Order.CompareTo(y.Order);
+            if (orderComparison != 0)
+                return orderComparison;
+            return 1;
+        });
 
-        RebuildDispatchInterceptorPipeline(_messageDispatchInterceptors);
+        RebuildDispatchInterceptorPipeline(_dispatchInterceptors);
     }
 
-    public void RemoveDispatchInterceptor(IMessageInterceptor<TMessage> interceptor)
+    public void RemoveDispatchInterceptor(IInterceptor<TMessage, TContext> interceptor)
     {
-        _messageDispatchInterceptors.Remove(interceptor);
-        RebuildDispatchInterceptorPipeline(_messageDispatchInterceptors);
+        var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor);
+
+        _dispatchInterceptors.Remove(registration);
+        RebuildDispatchInterceptorPipeline(_dispatchInterceptors);
     }
 
 
@@ -74,5 +79,5 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     }
 
     protected abstract void RebuildDispatchInterceptorPipeline(
-        List<IMessageInterceptor<TMessage>> interceptors);
+        List<RegisteredInterceptor<TMessage, TContext>> interceptors);
 }

@@ -1,6 +1,6 @@
 ﻿using Chopsticks.Messages.Handlers.Sources;
-using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Registration;
+using Chopsticks.Messages.Registration.Interceptors;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -15,28 +15,35 @@ public class MulticastMessageHandler<TMessage> :
     IMulticastMessageHandler<TMessage>
 {
     // TODO :: Verify thread safety.
-    private volatile Func<TMessage, CancellationToken, HandlingAwaitable> _dispatchPipeline;
+
+    private volatile Func<DefaultMessageContext<TMessage>, HandlingAwaitable> _dispatchPipeline;
 
     // TODO :: Support stopping at the first failure.
 
     public virtual HandlingPromise Handle(TMessage message) =>
-        _dispatchPipeline(message, default).ToPromise();
+        _dispatchPipeline(new DefaultMessageContext<TMessage>()
+        {
+            Message = message,
+        }).ToPromise();
 
     public virtual HandlingAwaitable HandleAsync(TMessage message,
         CancellationToken token = default) =>
-            _dispatchPipeline(message, token);
+            _dispatchPipeline(new DefaultMessageContext<TMessage>()
+            {
+                Message = message,
+            });
 
     protected override void RebuildDispatchInterceptorPipeline(
-        List<IMessageInterceptor<TMessage>> interceptors)
+        List<RegisteredInterceptor<TMessage, DefaultMessageContext<TMessage>>> interceptors)
     {
-        Func<TMessage, CancellationToken, HandlingAwaitable> current = 
-            (message, token) => new(InitiateWithSource(message, token));
+        Func<DefaultMessageContext<TMessage>, HandlingAwaitable> current = 
+            (context) => new(InitiateWithSource(context.Message, context.CancellationToken));
 
         for (int c = interceptors.Count - 1; c >= 0; c--)
         {
             var next = current;
-            current = (message, token) =>
-                interceptors[c].InterceptAsync(message, token, next);
+            current = (context) =>
+                interceptors[c].InterceptAsync(context, next);
         }
 
         _dispatchPipeline = current;
