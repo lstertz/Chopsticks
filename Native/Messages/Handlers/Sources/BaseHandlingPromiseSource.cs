@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
@@ -15,7 +16,7 @@ namespace Chopsticks.Messages.Handlers.Sources
         public Action<IEnumerable<Exception>>? OnFailure { get; set; }
         public Action<HandlingResult>? OnNonSuccess { get; set; }
         public Action? OnSuccess { get; set; }
-        public bool ThrowIfFailed { get; set; }
+        public SynchronizationContext? FailureContext { get; set; }
 
 
         protected TInnerSource? InnerSource { get; private set; }
@@ -31,17 +32,17 @@ namespace Chopsticks.Messages.Handlers.Sources
 
                 if (result.Status == HandlingStatus.Cancelled)
                     OnCancelled?.Invoke();
-                else if ((result.Status & HandlingStatus.Completed) != 0)
-                    OnCompletion?.Invoke(result);
                 else if (result.Status == HandlingStatus.Failure)
                     OnFailure?.Invoke(result.Exceptions);
-                else if ((result.Status & HandlingStatus.NonSuccess) != 0)
-                    OnNonSuccess?.Invoke(result);
                 else if (result.Status == HandlingStatus.Success)
                     OnSuccess?.Invoke();
+                
+                if ((result.Status & HandlingStatus.NonSuccess) != 0)
+                    OnNonSuccess?.Invoke(result);
+                if ((result.Status & HandlingStatus.Completed) != 0)
+                    OnCompletion?.Invoke(result);
 
-                if (ThrowIfFailed)
-                    result.ThrowIfFailed();
+                FailureContext?.Post(_ => result.ThrowIfFailed(), null);
             };
         }
 
@@ -64,7 +65,7 @@ namespace Chopsticks.Messages.Handlers.Sources
             OnFailure = null;
             OnNonSuccess = null;
             OnSuccess = null;
-            ThrowIfFailed = false;
+            FailureContext = null;
         }
 
 

@@ -11,12 +11,6 @@ namespace Chopsticks.Messages
             public bool IsCompleted =>
                 _source.IsCompleted;
 
-            public bool ThrowIfFailed
-            {
-                get => _source.ThrowIfFailed;
-                set => _source.ThrowIfFailed = value;
-            }
-
 
             private readonly IHandlingPromiseSource _source;
 
@@ -44,20 +38,6 @@ namespace Chopsticks.Messages
 
         public readonly Awaiter GetAwaiter() => _awaiter;
 
-
-        public HandlingAwaitable ThrowIfFailed()
-        {
-            if (!_awaiter.IsCompleted)
-            {
-                _awaiter.ThrowIfFailed = true;
-                return this;
-            }
-
-            var result = _awaiter.GetResult();
-            result.ThrowIfFailed();
-
-            return this;
-        }
 
         public HandlingAwaitable ThrowIfNotHandled(string? customExceptionMessage = null)
         {

@@ -11,6 +11,25 @@ namespace Chopsticks.Messages
             await awaitable;
 
 
+        public static async Task<HandlingResult> ThrowIfFailed(
+            this Task<HandlingResult> awaitable)
+        {
+            var result = await awaitable;
+            result.ThrowIfFailed();
+
+            return result;
+        }
+
+        public static async Task<HandlingResult> ThrowIfNotHandled(
+            this Task<HandlingResult> awaitable)
+        {
+            var result = await awaitable;
+            result.ThrowIfNotHandled();
+
+            return result;
+        }
+
+
         public static async Task<HandlingResult> WhenCancelledAsync(
             this Task<HandlingResult> awaitable,
             Func<Task> whenCancelled)
@@ -27,7 +46,7 @@ namespace Chopsticks.Messages
             Func<Task> whenCompleted)
         {
             var result = await awaitable;
-            if ((result.Status | HandlingStatus.Completed) != 0)
+            if ((result.Status & HandlingStatus.Completed) != 0)
                 await whenCompleted();
 
             return result;
@@ -60,7 +79,7 @@ namespace Chopsticks.Messages
             Func<Task> whenNotSuccessful)
         {
             var result = await awaitable;
-            if ((result.Status | HandlingStatus.NonSuccess) != 0)
+            if ((result.Status & HandlingStatus.NonSuccess) != 0)
                 await whenNotSuccessful();
 
             return result;

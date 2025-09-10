@@ -7,6 +7,8 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<RootNamespace>Chopsticks.Messages</RootNamespace>
 		<AssemblyName>Chopsticks.Messages</AssemblyName>
+		<DebugType>portable</DebugType>
+		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -25,5 +27,9 @@
 		<Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy /Y /I &quot;$(TargetDir)&quot; &quot;..\..\Unity\com.chopsticks.messages\Assets\Plugins\&quot;" />
 		<Exec Condition=" '$(OS)' != 'Windows_NT' " Command="mkdir -p ../../Unity/com.chopsticks.messages/Assets/Plugins/ %26%26 cp -f $(TargetDir) ../../Unity/com.chopsticks.messages/Assets/Plugins/" />
 	</Target>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+	</ItemGroup>
 
 </Project>
