@@ -4,22 +4,16 @@
         <name>Chopsticks.Messages</name>
     </assembly>
     <members>
-        <member name="M:Chopsticks.Messages.Handlers.Multicast.MulticastMessageHandler`1.Registration.Equals(Chopsticks.Messages.Handlers.Multicast.MulticastMessageHandler{`0}.Registration)">
+        <member name="P:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.IsCompleted">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Messages.Handlers.Multicast.MulticastMessageHandler`1.Registration.GetHashCode">
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.Dispose">
             <inheritdoc/>
         </member>
-        <member name="P:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`1.IsCompleted">
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.GetResult">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`1.Dispose">
-            <inheritdoc/>
-        </member>
-        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`1.GetResult">
-            <inheritdoc/>
-        </member>
-        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`1.OnCompleted(System.Action)">
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.OnCompleted(System.Action)">
             <inheritdoc/>
         </member>
         <member name="P:Chopsticks.Messages.Handlers.Sources.SyncHandlingPromiseSource.IsCompleted">
@@ -246,23 +240,57 @@
             If false, then non-async handlers will run synchronously while 
             being represented by an async return value.</remarks>
         </member>
-        <member name="T:Chopsticks.Messages.Registration.RegistrationSettings">
+        <member name="T:Chopsticks.Messages.Registration.HandlerRegistrationSettings">
             <summary>
-            Settings to define how a handler registered to a 
-            <see cref="T:Chopsticks.Messages.Handlers.Multicast.IMulticastMessageHandler`1"/> through a 
+            Settings to define how a handler registered through a 
             <see cref="T:Chopsticks.Messages.Registration.IMessageHandlerRegistrar`1"/>
             will be processed.
             </summary>
         </member>
-        <member name="P:Chopsticks.Messages.Registration.RegistrationSettings.Order">
+        <member name="P:Chopsticks.Messages.Registration.HandlerRegistrationSettings.Order">
             <summary>
-            The relative order that this handler will be handled by a 
-            <see cref="T:Chopsticks.Messages.Handlers.Multicast.IMulticastMessageHandler`1"/> 
+            The relative order that this handler will be handled by any collective handler 
+            system, such as a multicast handler, 
             when message processing is to be done in sequence.
             </summary>
             <remarks>
             0 is the default; more negative numbers will process earlier and more 
             positive numbers will process later.</remarks>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.RegisteredContextHandler`2.Equals(Chopsticks.Messages.Registration.Handlers.RegisteredContextHandler{`0,`1})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.RegisteredContextHandler`2.GetHashCode">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.RegisteredMessageHandler`2.Equals(Chopsticks.Messages.Registration.Handlers.RegisteredMessageHandler{`0,`1})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.RegisteredMessageHandler`2.GetHashCode">
+            <inheritdoc/>
+        </member>
+        <member name="T:Chopsticks.Messages.Registration.InterceptorRegistrationSettings">
+            <summary>
+            Settings to define how an interceptor registered through a 
+            <see cref="T:Chopsticks.Messages.Registration.IMessageHandlerRegistrar`1"/>
+            will be processed.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.Registration.InterceptorRegistrationSettings.Order">
+            <summary>
+            The relative order that this interceptor will be executed by any collective handler 
+            system, such as a multicast handler, relative to other interceptors registered 
+            in the same fashion (e.g., on dispatch vs. per handler).
+            </summary>
+            <remarks>
+            0 is the default; more negative numbers will process earlier and more 
+            positive numbers will process later.</remarks>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Interceptors.RegisteredInterceptor`2.Equals(Chopsticks.Messages.Registration.Interceptors.RegisteredInterceptor{`0,`1})">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Interceptors.RegisteredInterceptor`2.GetHashCode">
+            <inheritdoc/>
         </member>
         <member name="T:System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute">
             <summary>
