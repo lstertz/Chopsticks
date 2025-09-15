@@ -9,11 +9,11 @@ public interface IContextHandlerRegistrar<TMessage, TContext> :
 {
     bool Register(IContextHandler<TMessage, TContext> handler, 
         HandlerRegistrationSettings settings, 
-        params IContextInterceptor<TMessage, TContext>[] interceptors);
+        params IInterceptor<TMessage, TContext>[] interceptors);
 
 
     bool Register(IContextHandler<TMessage, TContext> handler, 
-        params IContextInterceptor<TMessage, TContext>[] interceptors) =>
+        params IInterceptor<TMessage, TContext>[] interceptors) =>
             Register(handler, default, interceptors);
 
     void Unregister(IContextHandler<TMessage, TContext> handler);

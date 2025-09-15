@@ -13,18 +13,18 @@ public abstract class ContextHandlerRegistrar<TMessage, TContext> :
     // TODO :: Support registering interceptors for the multicast.
     // TODO :: Rebuild immutable collection used during handling on any register/unregister.
     // TODO :: Rebuild already registered handlers for intercetpor changes.
-    protected IContextInterceptor<TMessage, TContext>[] MulticastContextInterceptors =>
+    protected IInterceptor<TMessage, TContext>[] MulticastContextInterceptors =>
         [.. _multicastContextInterceptors];
-    private readonly List<IContextInterceptor<TMessage, TContext>> _multicastContextInterceptors = [];
+    private readonly List<IInterceptor<TMessage, TContext>> _multicastContextInterceptors = [];
 
-    protected IContextInterceptor<TMessage, TContext>[] PerHandlerContextInterceptors =>
+    protected IInterceptor<TMessage, TContext>[] PerHandlerContextInterceptors =>
         [.. _perHandlerContextInterceptors];
-    private readonly List<IContextInterceptor<TMessage, TContext>> _perHandlerContextInterceptors = [];
+    private readonly List<IInterceptor<TMessage, TContext>> _perHandlerContextInterceptors = [];
 
 
     public bool Register(IContextHandler<TMessage, TContext> handler, 
         HandlerRegistrationSettings settings, 
-        params IContextInterceptor<TMessage, TContext>[] interceptors)
+        params IInterceptor<TMessage, TContext>[] interceptors)
     {
         // TODO :: Add interceptors to the handler if needed.
         return AddRegistration(new RegisteredContextHandler<TMessage, TContext>(handler)
