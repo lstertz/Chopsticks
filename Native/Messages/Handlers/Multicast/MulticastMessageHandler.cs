@@ -42,8 +42,10 @@ public class MulticastMessageHandler<TMessage> :
         for (int c = interceptors.Count - 1; c >= 0; c--)
         {
             var next = current;
+            var interceptor = interceptors[c];
+
             current = (context) =>
-                interceptors[c].InterceptAsync(context, next);
+                interceptor.InterceptAsync(context, next);
         }
 
         _dispatchPipeline = current;
