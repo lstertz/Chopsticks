@@ -1,0 +1,31 @@
+﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Interceptors;
+using System;
+
+namespace Chopsticks.Messages.Registration.Interceptors;
+
+public class RegisteredInterceptor<TMessage, TContext> : 
+    IEquatable<RegisteredInterceptor<TMessage, TContext>>
+    where TContext : IMessageContext<TMessage>, new()
+{
+    public int Order { get; init; } = 0;
+
+    private readonly IInterceptor<TMessage, TContext> _interceptor;
+
+    public RegisteredInterceptor(IInterceptor<TMessage, TContext> interceptor) =>
+        _interceptor = interceptor ?? throw new ArgumentNullException(nameof(interceptor));
+
+
+    public HandlingAwaitable InterceptAsync(TContext context, 
+        Func<TContext, HandlingAwaitable> next) =>
+        _interceptor.InterceptAsync(context, next);
+
+
+    /// <inheritdoc/>
+    public bool Equals(RegisteredInterceptor<TMessage, TContext> other) =>
+        _interceptor.Equals(other._interceptor);
+
+    /// <inheritdoc/>
+    public override int GetHashCode() =>
+        _interceptor.GetHashCode();
+}

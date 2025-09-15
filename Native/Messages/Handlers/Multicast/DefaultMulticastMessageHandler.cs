@@ -1,5 +1,4 @@
-﻿using Chopsticks.Messages.Interception;
-using Chopsticks.Messages.Registration;
+﻿using Chopsticks.Messages.Registration;
 using System;
 using System.Threading;
 
@@ -21,25 +20,23 @@ namespace Chopsticks.Messages.Handlers.Multicast
             CancellationToken token = default) =>
             _defaultHandler.Value.HandleAsync(message, token);
 
-        public static void Register(ISyncMessageHandler<TMessage> handler, 
-            params IIntercept<TMessage>[] interceptors)
+        public static void Register(ISyncMessageHandler<TMessage> handler)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
             (_defaultHandler.Value as IMessageHandlerRegistrar<TMessage>)
-                .Register(handler, default, interceptors);
+                .Register(handler, default);
         }
 
         public static void Register(ISyncMessageHandler<TMessage> handler, 
-            RegistrationSettings settings = default,
-            params IIntercept<TMessage>[] interceptors)
+            HandlerRegistrationSettings settings)
         {
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
             (_defaultHandler.Value as IMessageHandlerRegistrar<TMessage>)
-                .Register(handler, settings,interceptors);
+                .Register(handler, settings);
         }
 
         public static void Unregister(ISyncMessageHandler<TMessage> handler)

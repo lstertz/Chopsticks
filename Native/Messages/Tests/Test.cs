@@ -1,6 +1,7 @@
 ﻿using Chopsticks.Messages;
 using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Handlers.Multicast;
+using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Registration;
 using System.Collections.Concurrent;
 
@@ -27,6 +28,31 @@ namespace Tests
                 {
                     work.Item1(work.Item2);
                 }
+            }
+        }
+
+        public class Interceptor : ITaskInterceptor<Message, DefaultMessageContext<Message>>
+        {
+            public bool CalledAfterNext { get; private set; } = false;
+            public bool CalledBeforeNext { get; private set; } = false;
+
+            public bool CallNext { get; set; } = true;
+            public bool ThrowException { get; set; } = false;
+
+            public async Task InterceptAsync(DefaultMessageContext<Message> context, 
+                Func<DefaultMessageContext<Message>, HandlingAwaitable> next)
+            {
+                Console.WriteLine("Before Interceptor");
+                CalledBeforeNext = true;
+
+                if (ThrowException)
+                    throw new Exception("Simulated failure in interceptor.");
+
+                if (CallNext)
+                    await next(context);
+
+                CalledAfterNext = true;
+                Console.WriteLine("After Interceptor");
             }
         }
 
@@ -79,22 +105,118 @@ namespace Tests
 
         public class SuccessfulSyncMessageHandler : ISyncMessageHandler<Message>
         {
+            public bool HandledMessage { get; private set; } = false;
+
             void ISyncMessageHandler<Message>.Handle(Message command)
             {
                 Console.WriteLine($"Received OnCommand, Sync, Value: {command.Value}.");
+                HandledMessage = true;
             }
         }
 
         public class SuccessfulAsyncMessageHandler : ITaskMessageHandler<Message>
         {
+            public bool HandledMessage { get; private set; } = false;
+
             async Task ITaskMessageHandler<Message>.HandleAsync(
                 Message message, CancellationToken token)
             {
                 Console.WriteLine($"Received OnCommand, Async, Value: {message.Value}.");
                 await Task.Delay(100, token); // Simulate async work.
                 Console.WriteLine($"Done handling OnCommand, Async, Value: {message.Value}.");
+
+                HandledMessage = true;
             }
         }
+
+        [Test]
+        public async Task Integration_WithDispatchInterceptorFailing_FailsWithoutHandling()
+        {
+            // Set up
+            var handlerA = new SuccessfulSyncMessageHandler();
+            var handlerB = new SuccessfulAsyncMessageHandler();
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(handlerA);
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(handlerB);
+
+            var interceptor = new Interceptor()
+            {
+                ThrowException = true
+            };
+            multicastHandler.AddDispatchInterceptor(interceptor);
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act & Assert
+            Assert.ThrowsAsync<Exception>(sender.SendAsync);
+
+            Assert.That(handlerA.HandledMessage, Is.False);
+            Assert.That(handlerB.HandledMessage, Is.False);
+
+            Assert.That(interceptor.CalledBeforeNext, Is.True);
+            Assert.That(interceptor.CalledAfterNext, Is.False);
+        }
+
+        [Test]
+        public async Task Integration_WithDispatchInterceptors_ExecutesThroughInterceptors()
+        {
+            // Set up
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SuccessfulSyncMessageHandler());
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
+                new SuccessfulAsyncMessageHandler());
+
+            var interceptorA = new Interceptor();
+            multicastHandler.AddDispatchInterceptor(interceptorA);
+
+            var interceptorB = new Interceptor();
+            multicastHandler.AddDispatchInterceptor(interceptorB);
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var result = await sender.SendAsync();
+
+            // Assert
+            Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+
+            Assert.That(interceptorA.CalledBeforeNext, Is.True);
+            Assert.That(interceptorA.CalledAfterNext, Is.True);
+            Assert.That(interceptorB.CalledBeforeNext, Is.True);
+            Assert.That(interceptorB.CalledAfterNext, Is.True);
+        }
+
+        [Test]
+        public async Task Integration_WithDispatchInterceptorStoppingRun_SuccessfulWithoutHandling()
+        {
+            // Set up
+            var handlerA = new SuccessfulSyncMessageHandler();
+            var handlerB = new SuccessfulAsyncMessageHandler();
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(handlerA);
+            (multicastHandler as IMessageHandlerRegistrar<Message>).Register(handlerB);
+
+            var interceptor = new Interceptor()
+            {
+                CallNext = false
+            };
+            multicastHandler.AddDispatchInterceptor(interceptor);
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var result = await sender.SendAsync();
+
+            // Assert
+            Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+            Assert.That(handlerA.HandledMessage, Is.False);
+            Assert.That(handlerB.HandledMessage, Is.False);
+
+            Assert.That(interceptor.CalledBeforeNext, Is.True);
+            Assert.That(interceptor.CalledAfterNext, Is.True);
+        }
+
 
         [Test]
         public async Task Integration_MulticastAsyncCallAllAsync_Passes()
@@ -166,7 +288,7 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler(), new RegistrationSettings()
+                new SuccessfulAsyncMessageHandler(), new HandlerRegistrationSettings()
                 {
                     Order = -1
                 });
@@ -188,7 +310,7 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler(), new RegistrationSettings()
+                new SuccessfulSyncMessageHandler(), new HandlerRegistrationSettings()
                 {
                     Order = -1
                 });
@@ -260,7 +382,7 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler(), new RegistrationSettings()
+                new SuccessfulAsyncMessageHandler(), new HandlerRegistrationSettings()
                 {
                     Order = -1
                 });
@@ -284,7 +406,7 @@ namespace Tests
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler(), new RegistrationSettings()
+                new SuccessfulSyncMessageHandler(), new HandlerRegistrationSettings()
                 {
                     Order = -1
                 });

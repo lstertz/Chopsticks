@@ -28,9 +28,11 @@ namespace Chopsticks.Messages
 
 
         private readonly Awaiter _awaiter;
+        private readonly IHandlingPromiseSource _source;
 
         public HandlingAwaitable(IHandlingPromiseSource source)
         {
+            _source = source;
             _awaiter = new(source);
         }
 
@@ -67,5 +69,9 @@ namespace Chopsticks.Messages
 
             return this;
         }
+
+
+        public readonly HandlingPromise ToPromise() => 
+            new(_source);
     }
 }
