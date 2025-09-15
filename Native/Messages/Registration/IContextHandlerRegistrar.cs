@@ -1,6 +1,4 @@
 ﻿using Chopsticks.Messages.Handlers;
-using Chopsticks.Messages.Interceptors;
-
 namespace Chopsticks.Messages.Registration;
 
 public interface IContextHandlerRegistrar<TMessage, TContext> :
@@ -8,13 +6,11 @@ public interface IContextHandlerRegistrar<TMessage, TContext> :
     where TContext : IMessageContext<TMessage>, new()
 {
     bool Register(IContextHandler<TMessage, TContext> handler, 
-        HandlerRegistrationSettings settings, 
-        params IInterceptor<TMessage, TContext>[] interceptors);
+        HandlerRegistrationSettings settings);
 
 
-    bool Register(IContextHandler<TMessage, TContext> handler, 
-        params IInterceptor<TMessage, TContext>[] interceptors) =>
-            Register(handler, default, interceptors);
+    bool Register(IContextHandler<TMessage, TContext> handler) =>
+            Register(handler, default);
 
     void Unregister(IContextHandler<TMessage, TContext> handler);
 }

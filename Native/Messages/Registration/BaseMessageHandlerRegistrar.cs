@@ -11,9 +11,10 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
 {
     private readonly List<RegisteredInterceptor<TMessage, TContext>> _dispatchInterceptors = [];
 
-    protected RegisteredInterceptor<TMessage, TContext>[] PerHandlerMessageInterceptors =>
-        [.. _perHandlerMessageInterceptors];
-    private readonly List<RegisteredInterceptor<TMessage, TContext>> _perHandlerMessageInterceptors = [];
+    // TODO :: Support per-handler interceptors.
+    //protected RegisteredInterceptor<TMessage, TContext>[] PerHandlerMessageInterceptors =>
+    //    [.. _perHandlerMessageInterceptors];
+    //private readonly List<RegisteredInterceptor<TMessage, TContext>> _perHandlerMessageInterceptors = [];
 
     // TODO :: Rebuild immutable collection used during handling on any register/unregister.
     protected IRegisteredHandler<TMessage, TContext>[] RegisteredMessageHandlers => [.. _registeredMessageHandlers];
