@@ -25,5 +25,3 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
 
     HandlingAwaitable HandleAsync(TContext context);
 }
-
-// TODO :: Make sync/async implementations.
