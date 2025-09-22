@@ -15,7 +15,8 @@ public class RegisteredMessageHandler<TMessage, TContext> :
         _handler = handler ?? throw new ArgumentNullException(nameof(handler));
 
 
-    public override HandlingAwaitable HandleAsync(TContext context) =>
+    /// <inheritdoc/>
+    protected override HandlingAwaitable InternalHandleAsync(TContext context) =>
         _handler.HandleAsync(context.Message, context.CancellationToken);
 
 

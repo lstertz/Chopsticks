@@ -15,7 +15,7 @@ public abstract class BaseMulticastHandler<TMessage, TContext> :
     protected volatile Func<TContext, HandlingAwaitable> _dispatchPipeline;
     // TODO :: Support stopping at the first failure.
 
-    protected override void RebuildDispatchInterceptorPipeline(
+    protected override void RebuildDispatchPipeline(
         List<RegisteredInterceptor<TMessage, TContext>> interceptors)
     {
         Func<TContext, HandlingAwaitable> current =

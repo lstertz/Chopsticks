@@ -1,4 +1,5 @@
-﻿using Chopsticks.Messages.Registration;
+﻿using Chopsticks.Messages.Interceptors;
+using Chopsticks.Messages.Registration;
 using Chopsticks.Messages.Registration.Handlers;
 using System.Threading;
 
@@ -32,12 +33,14 @@ public class MulticastContextHandler<TMessage, TContext> :
 
     bool IContextHandlerRegistrar<TMessage, TContext>.Register(
         IContextHandler<TMessage, TContext> handler,
-        HandlerRegistrationSettings settings)
+        HandlerRegistrationSettings settings,
+        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors)
     {
         return AddRegistration(
             new RegisteredContextHandler<TMessage, TContext>(handler)
             {
                 Order = settings.Order
+                // TODO :: Set registered interceptors.
             });
     }
 
@@ -52,12 +55,25 @@ public class MulticastContextHandler<TMessage, TContext> :
             });
     }
 
+    bool IMessageHandlerRegistrar<TMessage, TContext>.Register(
+        IMessageHandler<TMessage> handler,
+        HandlerRegistrationSettings settings,
+        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors)
+    {
+        return AddRegistration(
+            new RegisteredMessageHandler<TMessage, TContext>(handler)
+            {
+                Order = settings.Order
+                // TODO :: Set registered interceptors.
+            });
+    }
+
     void IContextHandlerRegistrar<TMessage, TContext>.Unregister(
         IContextHandler<TMessage, TContext> handler)
     {
         // TODO :: Optimize with an internal registration ID.
         RemoveRegistration(
-            new RegisteredMessageHandler<TMessage, TContext>(handler));
+            new RegisteredContextHandler<TMessage, TContext>(handler));
     }
 
     void IMessageHandlerRegistrar<TMessage>.Unregister(
