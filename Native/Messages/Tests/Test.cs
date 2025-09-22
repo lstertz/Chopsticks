@@ -4,6 +4,7 @@ using Chopsticks.Messages.Handlers.Multicast;
 using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Registration;
 using System.Collections.Concurrent;
+using static Tests.Test;
 
 namespace Tests
 {
@@ -129,6 +130,7 @@ namespace Tests
             }
         }
 
+
         [Test]
         public async Task Integration_WithDispatchInterceptorFailing_FailsWithoutHandling()
         {
@@ -212,6 +214,90 @@ namespace Tests
             Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
             Assert.That(handlerA.HandledMessage, Is.False);
             Assert.That(handlerB.HandledMessage, Is.False);
+
+            Assert.That(interceptor.CalledBeforeNext, Is.True);
+            Assert.That(interceptor.CalledAfterNext, Is.True);
+        }
+
+
+        [Test]
+        public async Task Integration_WithHandlerInterceptorFailing_FailsWithoutHandling()
+        {
+            // Set up
+            var interceptor = new Interceptor()
+            {
+                ThrowException = true
+            };
+
+            var handler = new SuccessfulAsyncMessageHandler();
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message, DefaultMessageContext<Message>>)
+                .Register(handler, 
+                    (interceptor, new()));
+
+            multicastHandler.AddDispatchInterceptor(interceptor);
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act & Assert
+            Assert.ThrowsAsync<Exception>(sender.SendAsync);
+
+            Assert.That(handler.HandledMessage, Is.False);
+
+            Assert.That(interceptor.CalledBeforeNext, Is.True);
+            Assert.That(interceptor.CalledAfterNext, Is.False);
+        }
+
+        [Test]
+        public async Task Integration_WithHandlerInterceptors_ExecutesThroughInterceptors()
+        {
+            // Set up
+            var interceptorA = new Interceptor();
+            var interceptorB = new Interceptor();
+
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message, DefaultMessageContext<Message>>)
+                .Register(new SuccessfulSyncMessageHandler(),
+                    (interceptorA, new()),
+                    (interceptorB, new()));
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var result = await sender.SendAsync();
+
+            // Assert
+            Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+
+            Assert.That(interceptorA.CalledBeforeNext, Is.True);
+            Assert.That(interceptorA.CalledAfterNext, Is.True);
+            Assert.That(interceptorB.CalledBeforeNext, Is.True);
+            Assert.That(interceptorB.CalledAfterNext, Is.True);
+        }
+
+        [Test]
+        public async Task Integration_WithHandlerInterceptorStoppingRun_SuccessfulWithoutHandling()
+        {
+            // Set up
+            var interceptor = new Interceptor()
+            {
+                CallNext = false
+            };
+
+            var handler = new SuccessfulSyncMessageHandler();
+            var multicastHandler = new MulticastMessageHandler<Message>();
+            (multicastHandler as IMessageHandlerRegistrar<Message, DefaultMessageContext<Message>>)
+                .Register(handler, 
+                    (interceptor, new()));
+
+            var sender = new MessageSender(multicastHandler);
+
+            // Act
+            var result = await sender.SendAsync();
+
+            // Assert
+            Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+            Assert.That(handler.HandledMessage, Is.False);
 
             Assert.That(interceptor.CalledBeforeNext, Is.True);
             Assert.That(interceptor.CalledAfterNext, Is.True);

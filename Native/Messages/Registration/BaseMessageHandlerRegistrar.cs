@@ -23,7 +23,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
 
     public BaseMessageHandlerRegistrar()
     {
-        RebuildDispatchInterceptorPipeline(_dispatchInterceptors);
+        RebuildDispatchPipeline(_dispatchInterceptors);
     }
 
 
@@ -44,7 +44,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
             return 1;
         });
 
-        RebuildDispatchInterceptorPipeline(_dispatchInterceptors);
+        RebuildDispatchPipeline(_dispatchInterceptors);
     }
 
     public void RemoveDispatchInterceptor(IInterceptor<TMessage, TContext> interceptor)
@@ -52,7 +52,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor);
 
         _dispatchInterceptors.Remove(registration);
-        RebuildDispatchInterceptorPipeline(_dispatchInterceptors);
+        RebuildDispatchPipeline(_dispatchInterceptors);
     }
 
 
@@ -71,6 +71,8 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
             return 1;
         });
 
+        registration.RebuildHandlePipeline([]);  // TODO :: Pass per-handler interceptors.
+
         return true;
     }
 
@@ -79,6 +81,6 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         _registeredMessageHandlers.Remove(registration);
     }
 
-    protected abstract void RebuildDispatchInterceptorPipeline(
+    protected abstract void RebuildDispatchPipeline(
         List<RegisteredInterceptor<TMessage, TContext>> interceptors);
 }

@@ -1,6 +1,6 @@
 {
   "name": "com.chopsticks.messages",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "displayName": "Chopsticks Messages",
   "description": "Provides functionality to support messages within Unity.",
   "unity": "2023.2",
