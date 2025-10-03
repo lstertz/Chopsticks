@@ -31,6 +31,7 @@ public class MulticastContextHandler<TMessage, TContext> :
             _dispatchPipeline(new TContext()
             {
                 Message = message,
+                CancellationToken = token
             });
 
 
