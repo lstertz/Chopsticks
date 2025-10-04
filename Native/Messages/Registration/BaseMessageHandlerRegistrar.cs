@@ -1,5 +1,6 @@
 ﻿using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Interceptors;
+using Chopsticks.Messages.Interceptors.Adapters;
 using Chopsticks.Messages.Registration.Handlers;
 using Chopsticks.Messages.Registration.Interceptors;
 using System.Collections.Generic;
@@ -26,9 +27,33 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         RebuildDispatchPipeline(_dispatchInterceptors);
     }
 
+    public IInterceptorRegistration AddDispatchInterceptor(
+        IInterceptor interceptor,
+        InterceptorRegistrationSettings settings = default)
+    {
+        var adapter = new InterceptorAdapter<TMessage, TContext>(interceptor);
+        return AddDispatchInterceptor(adapter, settings);
+    }
 
+    public IInterceptorRegistration AddDispatchInterceptor(
+        IMessageInterceptor<TMessage> interceptor,
+        InterceptorRegistrationSettings settings = default)
+    {
+        var adapter = new MessageInterceptorAdapter<TMessage, TContext>(interceptor);
+        return AddDispatchInterceptor(adapter, settings);
+    }
+    public IInterceptorRegistration AddDispatchInterceptor<TContract>(
+        IContractInterceptor<TContract> interceptor,
+        ContractInterceptorMode mode,
+        InterceptorRegistrationSettings settings = default)
+    {
+        var adapter = new ContractInterceptorAdapter<TMessage, TContext, TContract>(
+            interceptor, mode);
+        return AddDispatchInterceptor(adapter, settings);
+    }
 
-    public void AddDispatchInterceptor(IContextInterceptor<TMessage, TContext> interceptor, 
+    public IInterceptorRegistration AddDispatchInterceptor(
+        IContextInterceptor<TMessage, TContext> interceptor,
         InterceptorRegistrationSettings settings = default)
     {
         var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor)
@@ -46,14 +71,16 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         });
 
         RebuildDispatchPipeline(_dispatchInterceptors);
+        return registration;
     }
 
-    public void RemoveDispatchInterceptor(IContextInterceptor<TMessage, TContext> interceptor)
+    public void RemoveDispatchInterceptor(IInterceptorRegistration registration)
     {
-        var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor);
+        if (registration is not RegisteredInterceptor<TMessage, TContext> reg)
+            return;
 
-        _dispatchInterceptors.Remove(registration);
-        RebuildDispatchPipeline(_dispatchInterceptors);
+        if (_dispatchInterceptors.Remove(reg))
+            RebuildDispatchPipeline(_dispatchInterceptors);
     }
 
 
