@@ -7,14 +7,14 @@ public interface IContextHandlerRegistrar<TMessage, TContext> :
     IMessageHandlerRegistrar<TMessage, TContext>
     where TContext : IMessageContext<TMessage>, new()
 {
-    IHandlerRegistration Register(IContextHandler<TMessage, TContext> handler, 
+    IRegisteredHandler Register(IContextHandler<TMessage, TContext> handler, 
         HandlerRegistrationSettings settings,
         params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors);
 
 
-    IHandlerRegistration Register(IContextHandler<TMessage, TContext> handler,
+    IRegisteredHandler Register(IContextHandler<TMessage, TContext> handler,
         params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors) =>
             Register(handler, default, interceptors);
 
-    void Unregister(IHandlerRegistration registration);
+    void Unregister(IRegisteredHandler registration);
 }

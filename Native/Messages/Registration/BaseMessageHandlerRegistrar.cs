@@ -27,7 +27,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         RebuildDispatchPipeline(_dispatchInterceptors);
     }
 
-    public IInterceptorRegistration AddDispatchInterceptor(
+    public IRegisteredInterceptor AddDispatchInterceptor(
         IInterceptor interceptor,
         InterceptorRegistrationSettings settings = default)
     {
@@ -35,14 +35,14 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         return AddDispatchInterceptor(adapter, settings);
     }
 
-    public IInterceptorRegistration AddDispatchInterceptor(
+    public IRegisteredInterceptor AddDispatchInterceptor(
         IMessageInterceptor<TMessage> interceptor,
         InterceptorRegistrationSettings settings = default)
     {
         var adapter = new MessageInterceptorAdapter<TMessage, TContext>(interceptor);
         return AddDispatchInterceptor(adapter, settings);
     }
-    public IInterceptorRegistration AddDispatchInterceptor<TContract>(
+    public IRegisteredInterceptor AddDispatchInterceptor<TContract>(
         IContractInterceptor<TContract> interceptor,
         ContractInterceptorMode mode,
         InterceptorRegistrationSettings settings = default)
@@ -52,7 +52,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         return AddDispatchInterceptor(adapter, settings);
     }
 
-    public IInterceptorRegistration AddDispatchInterceptor(
+    public IRegisteredInterceptor AddDispatchInterceptor(
         IContextInterceptor<TMessage, TContext> interceptor,
         InterceptorRegistrationSettings settings = default)
     {
@@ -74,7 +74,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         return registration;
     }
 
-    public void RemoveDispatchInterceptor(IInterceptorRegistration registration)
+    public void RemoveDispatchInterceptor(IRegisteredInterceptor registration)
     {
         if (registration is not RegisteredInterceptor<TMessage, TContext> reg)
             return;
@@ -102,7 +102,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         registration.RebuildHandlePipeline([]);  // TODO :: Pass per-handler interceptors.
     }
 
-    protected void RemoveRegistration(IHandlerRegistration registration)
+    protected void RemoveRegistration(IRegisteredHandler registration)
     {
         if (registration is not IRegisteredHandler<TMessage, TContext> reg)
             return;

@@ -35,7 +35,7 @@ public class MulticastContextHandler<TMessage, TContext> :
             });
 
 
-    IHandlerRegistration IContextHandlerRegistrar<TMessage, TContext>.Register(
+    IRegisteredHandler IContextHandlerRegistrar<TMessage, TContext>.Register(
         IContextHandler<TMessage, TContext> handler,
         HandlerRegistrationSettings settings,
         params (IContextInterceptor<TMessage, TContext>, 
@@ -57,7 +57,7 @@ public class MulticastContextHandler<TMessage, TContext> :
         return registration;
     }
 
-    IHandlerRegistration IMessageHandlerRegistrar<TMessage>.Register(
+    IRegisteredHandler IMessageHandlerRegistrar<TMessage>.Register(
         IMessageHandler<TMessage> handler,
         HandlerRegistrationSettings settings)
     {
@@ -70,7 +70,7 @@ public class MulticastContextHandler<TMessage, TContext> :
         return registration;
     }
 
-    IHandlerRegistration IMessageHandlerRegistrar<TMessage, TContext>.Register(
+    IRegisteredHandler IMessageHandlerRegistrar<TMessage, TContext>.Register(
         IMessageHandler<TMessage> handler,
         HandlerRegistrationSettings settings,
         params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors)
@@ -92,8 +92,8 @@ public class MulticastContextHandler<TMessage, TContext> :
     }
 
     void IContextHandlerRegistrar<TMessage, TContext>.Unregister(
-        IHandlerRegistration registration) => RemoveRegistration(registration);
+        IRegisteredHandler registration) => RemoveRegistration(registration);
 
     void IMessageHandlerRegistrar<TMessage>.Unregister(
-        IHandlerRegistration registration) => RemoveRegistration(registration);
+        IRegisteredHandler registration) => RemoveRegistration(registration);
 }

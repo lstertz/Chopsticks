@@ -1,10 +1,16 @@
 ﻿using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Registration.Interceptors;
+using System;
 
 namespace Chopsticks.Messages.Registration.Handlers;
 
+
+public interface IRegisteredHandler : IDisposable
+{
+}
+
 public interface IRegisteredHandler<TMessage, TContext> : 
-    IHandlerRegistration
+    IRegisteredHandler
     where TContext : IMessageContext<TMessage>, new()
 {
     int Order { get; }

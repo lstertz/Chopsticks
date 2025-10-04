@@ -8,14 +8,14 @@ public interface IMessageHandlerRegistrar<TMessage>
 {
     // TODO :: Accommodate clearing all.
 
-    IHandlerRegistration Register(IMessageHandler<TMessage> handler, 
+    IRegisteredHandler Register(IMessageHandler<TMessage> handler, 
         HandlerRegistrationSettings settings);
 
 
-    IHandlerRegistration Register(IMessageHandler<TMessage> handler) =>
+    IRegisteredHandler Register(IMessageHandler<TMessage> handler) =>
         Register(handler, default);
 
-    void Unregister(IHandlerRegistration registration);
+    void Unregister(IRegisteredHandler registration);
 }
 
 public interface IMessageHandlerRegistrar<TMessage, TContext> 
@@ -24,12 +24,12 @@ public interface IMessageHandlerRegistrar<TMessage, TContext>
 {
     // TODO :: Accommodate clearing all.
 
-    IHandlerRegistration Register(IMessageHandler<TMessage> handler, 
+    IRegisteredHandler Register(IMessageHandler<TMessage> handler, 
         HandlerRegistrationSettings settings,
         params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors);
 
 
-    IHandlerRegistration Register(IMessageHandler<TMessage> handler,
+    IRegisteredHandler Register(IMessageHandler<TMessage> handler,
         params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors) =>
         Register(handler, default, interceptors);
 }

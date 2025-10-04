@@ -40,7 +40,7 @@ namespace Chopsticks.Messages.Handlers.Multicast
                 .Register(handler, settings);
         }
 
-        public static void Unregister(IHandlerRegistration registration)
+        public static void Unregister(IRegisteredHandler registration)
         {
             (_defaultHandler.Value as IMessageHandlerRegistrar<TMessage>)
                 .Unregister(registration);
