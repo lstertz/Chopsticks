@@ -3,9 +3,9 @@ using System.Threading;
 
 namespace Chopsticks.Messages.Registration;
 
-public readonly struct DefaultMessageContext<TMessage> : IMessageContext<TMessage>
+public struct DefaultMessageContext<TMessage> : IMessageContext<TMessage>
 {
-    public TMessage Message { get; init; }
+    public TMessage Message { get; set; }
 
-    public CancellationToken CancellationToken { get; init; }
+    public CancellationToken CancellationToken { get; set; }
 }
