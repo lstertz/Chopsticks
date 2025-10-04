@@ -85,10 +85,10 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
 
 
     // TODO :: Rebuild immutable collection used during handling on any register/unregister.
-    protected bool AddRegistration(IRegisteredHandler<TMessage, TContext> registration)
+    protected void AddRegistration(IRegisteredHandler<TMessage, TContext> registration)
     {
         if (_registeredMessageHandlers.Contains(registration))
-            return false;
+            return;
 
         _registeredMessageHandlers.Add(registration);
         _registeredMessageHandlers.Sort((x, y) =>
@@ -100,13 +100,14 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         });
 
         registration.RebuildHandlePipeline([]);  // TODO :: Pass per-handler interceptors.
-
-        return true;
     }
 
-    protected void RemoveRegistration(IRegisteredHandler<TMessage, TContext> registration)
+    protected void RemoveRegistration(IHandlerRegistration registration)
     {
-        _registeredMessageHandlers.Remove(registration);
+        if (registration is not IRegisteredHandler<TMessage, TContext> reg)
+            return;
+
+        _registeredMessageHandlers.Remove(reg);
     }
 
     protected abstract void RebuildDispatchPipeline(

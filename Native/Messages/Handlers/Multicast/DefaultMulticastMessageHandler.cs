@@ -1,4 +1,5 @@
 ﻿using Chopsticks.Messages.Registration;
+using Chopsticks.Messages.Registration.Handlers;
 using System;
 using System.Threading;
 
@@ -39,13 +40,10 @@ namespace Chopsticks.Messages.Handlers.Multicast
                 .Register(handler, settings);
         }
 
-        public static void Unregister(ISyncMessageHandler<TMessage> handler)
+        public static void Unregister(IHandlerRegistration registration)
         {
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler));
-
             (_defaultHandler.Value as IMessageHandlerRegistrar<TMessage>)
-                .Unregister(handler);
+                .Unregister(registration);
         }
     }
 }

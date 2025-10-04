@@ -35,7 +35,7 @@ public class MulticastContextHandler<TMessage, TContext> :
             });
 
 
-    bool IContextHandlerRegistrar<TMessage, TContext>.Register(
+    IHandlerRegistration IContextHandlerRegistrar<TMessage, TContext>.Register(
         IContextHandler<TMessage, TContext> handler,
         HandlerRegistrationSettings settings,
         params (IContextInterceptor<TMessage, TContext>, 
@@ -47,26 +47,30 @@ public class MulticastContextHandler<TMessage, TContext> :
                 Order = i.Item2.Order
             });
 
-        return AddRegistration(
-            new RegisteredContextHandler<TMessage, TContext>(handler)
-            {
-                Interceptors = [.. registeredInterceptors],
-                Order = settings.Order
-            });
+        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
+        {
+            Interceptors = [.. registeredInterceptors],
+            Order = settings.Order
+        };
+        AddRegistration(registration);
+
+        return registration;
     }
 
-    bool IMessageHandlerRegistrar<TMessage>.Register(
+    IHandlerRegistration IMessageHandlerRegistrar<TMessage>.Register(
         IMessageHandler<TMessage> handler,
         HandlerRegistrationSettings settings)
     {
-        return AddRegistration(
-            new RegisteredMessageHandler<TMessage, TContext>(handler)
-            {
-                Order = settings.Order
-            });
+        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
+        {
+            Order = settings.Order
+        };
+        AddRegistration(registration);
+        
+        return registration;
     }
 
-    bool IMessageHandlerRegistrar<TMessage, TContext>.Register(
+    IHandlerRegistration IMessageHandlerRegistrar<TMessage, TContext>.Register(
         IMessageHandler<TMessage> handler,
         HandlerRegistrationSettings settings,
         params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors)
@@ -77,27 +81,19 @@ public class MulticastContextHandler<TMessage, TContext> :
                 Order = i.Item2.Order
             });
 
-        return AddRegistration(
-            new RegisteredMessageHandler<TMessage, TContext>(handler)
-            {
-                Interceptors = [.. registeredInterceptors],
-                Order = settings.Order
-            });
+        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
+        {
+            Interceptors = [.. registeredInterceptors],
+            Order = settings.Order
+        };
+        AddRegistration(registration);
+
+        return registration;
     }
 
     void IContextHandlerRegistrar<TMessage, TContext>.Unregister(
-        IContextHandler<TMessage, TContext> handler)
-    {
-        // TODO :: Optimize with an internal registration ID.
-        RemoveRegistration(
-            new RegisteredContextHandler<TMessage, TContext>(handler));
-    }
+        IHandlerRegistration registration) => RemoveRegistration(registration);
 
     void IMessageHandlerRegistrar<TMessage>.Unregister(
-        IMessageHandler<TMessage> handler)
-    {
-        // TODO :: Optimize with an internal registration ID.
-        RemoveRegistration(
-            new RegisteredMessageHandler<TMessage, TContext>(handler));
-    }
+        IHandlerRegistration registration) => RemoveRegistration(registration);
 }

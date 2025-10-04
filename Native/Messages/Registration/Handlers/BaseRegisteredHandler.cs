@@ -15,6 +15,11 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
     private Func<TContext, HandlingAwaitable>? _handlePipeline;
 
 
+    public void Dispose()
+    {
+        // TODO :: Automate the unregistration process.
+    }
+
     public HandlingAwaitable HandleAsync(TContext context) =>
         _handlePipeline!(context);
 
