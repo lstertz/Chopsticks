@@ -5,14 +5,15 @@ using System;
 namespace Chopsticks.Messages.Registration.Interceptors;
 
 public class RegisteredInterceptor<TMessage, TContext> : 
-    IEquatable<RegisteredInterceptor<TMessage, TContext>>
+    IEquatable<RegisteredInterceptor<TMessage, TContext>>, 
+    IRegisteredInterceptor
     where TContext : IMessageContext<TMessage>, new()
 {
     public int Order { get; init; } = 0;
 
-    private readonly IInterceptor<TMessage, TContext> _interceptor;
+    private readonly IContextInterceptor<TMessage, TContext> _interceptor;
 
-    public RegisteredInterceptor(IInterceptor<TMessage, TContext> interceptor) =>
+    public RegisteredInterceptor(IContextInterceptor<TMessage, TContext> interceptor) =>
         _interceptor = interceptor ?? throw new ArgumentNullException(nameof(interceptor));
 
 

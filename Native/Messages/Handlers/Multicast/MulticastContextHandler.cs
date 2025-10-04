@@ -31,71 +31,52 @@ public class MulticastContextHandler<TMessage, TContext> :
             _dispatchPipeline(new TContext()
             {
                 Message = message,
+                CancellationToken = token
             });
 
 
-    bool IContextHandlerRegistrar<TMessage, TContext>.Register(
+    IRegisteredHandler<TMessage, TContext> IContextHandlerRegistrar<TMessage, TContext>.Register(
         IContextHandler<TMessage, TContext> handler,
-        HandlerRegistrationSettings settings,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors)
+        HandlerRegistrationSettings settings)
     {
-        var registeredInterceptors = interceptors.Select((i) => 
-            new RegisteredInterceptor<TMessage, TContext>(i.Item1)
-            {
-                Order = i.Item2.Order
-            });
+        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
+        {
+            Order = settings.Order
+        };
+        AddRegistration(registration);
 
-        return AddRegistration(
-            new RegisteredContextHandler<TMessage, TContext>(handler)
-            {
-                Interceptors = [.. registeredInterceptors],
-                Order = settings.Order
-            });
+        return registration;
     }
 
-    bool IMessageHandlerRegistrar<TMessage>.Register(
+    IRegisteredHandler<TMessage> IMessageHandlerRegistrar<TMessage>.Register(
         IMessageHandler<TMessage> handler,
         HandlerRegistrationSettings settings)
     {
-        return AddRegistration(
-            new RegisteredMessageHandler<TMessage, TContext>(handler)
-            {
-                Order = settings.Order
-            });
+        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
+        {
+            Order = settings.Order
+        };
+        AddRegistration(registration);
+        
+        return registration;
     }
 
-    bool IMessageHandlerRegistrar<TMessage, TContext>.Register(
+    IRegisteredHandler<TMessage, TContext> IMessageHandlerRegistrar<TMessage, TContext>.Register(
         IMessageHandler<TMessage> handler,
-        HandlerRegistrationSettings settings,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors)
+        HandlerRegistrationSettings settings)
     {
-        var registeredInterceptors = interceptors.Select((i) =>
-            new RegisteredInterceptor<TMessage, TContext>(i.Item1)
-            {
-                Order = i.Item2.Order
-            });
+        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
+        {
+            Order = settings.Order
+        };
+        AddRegistration(registration);
 
-        return AddRegistration(
-            new RegisteredMessageHandler<TMessage, TContext>(handler)
-            {
-                Interceptors = [.. registeredInterceptors],
-                Order = settings.Order
-            });
+        return registration;
     }
 
     void IContextHandlerRegistrar<TMessage, TContext>.Unregister(
-        IContextHandler<TMessage, TContext> handler)
-    {
-        // TODO :: Optimize with an internal registration ID.
-        RemoveRegistration(
-            new RegisteredContextHandler<TMessage, TContext>(handler));
-    }
+        IRegisteredHandler registration) => RemoveRegistration(registration);
 
     void IMessageHandlerRegistrar<TMessage>.Unregister(
-        IMessageHandler<TMessage> handler)
-    {
-        // TODO :: Optimize with an internal registration ID.
-        RemoveRegistration(
-            new RegisteredMessageHandler<TMessage, TContext>(handler));
-    }
+        IRegisteredHandler registration) => RemoveRegistration(registration);
 }

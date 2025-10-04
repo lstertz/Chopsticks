@@ -5,16 +5,17 @@ using System.Threading.Tasks;
 
 namespace Chopsticks.Messages.Interceptors
 {
-    public interface ITaskInterceptor : IInterceptor
+    public interface ITaskMessageInterceptor<TMessage> : IMessageInterceptor<TMessage>
     {
-        new Task InterceptAsync(CancellationToken token,
+        new Task InterceptAsync(TMessage message, CancellationToken token,
             Func<HandlingAwaitable> next);
 
-        HandlingAwaitable IInterceptor.InterceptAsync(CancellationToken token,
+        HandlingAwaitable IMessageInterceptor<TMessage>.InterceptAsync(TMessage message, 
+            CancellationToken token,
             Func<HandlingAwaitable> next)
         {
             var source = new TaskHandlingPromiseSource();  // TODO :: Rent from a pool.
-            source.Init((this as ITaskInterceptor).InterceptAsync(token, next).GetAwaiter());
+            source.Init((this as ITaskMessageInterceptor<TMessage>).InterceptAsync(message, token, next).GetAwaiter());
 
             return new HandlingAwaitable(source);
         }

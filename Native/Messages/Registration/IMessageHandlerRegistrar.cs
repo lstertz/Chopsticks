@@ -1,18 +1,16 @@
 ﻿using Chopsticks.Messages.Handlers;
-using Chopsticks.Messages.Interceptors;
+using Chopsticks.Messages.Registration.Handlers;
+
 namespace Chopsticks.Messages.Registration;
 
 public interface IMessageHandlerRegistrar<TMessage>
 {
     // TODO :: Accommodate clearing all.
 
-    bool Register(IMessageHandler<TMessage> handler, HandlerRegistrationSettings settings);
+    IRegisteredHandler<TMessage> Register(IMessageHandler<TMessage> handler,
+        HandlerRegistrationSettings settings = default);
 
-
-    bool Register(IMessageHandler<TMessage> handler) =>
-        Register(handler, default);
-
-    void Unregister(IMessageHandler<TMessage> handler);
+    void Unregister(IRegisteredHandler registration);
 }
 
 public interface IMessageHandlerRegistrar<TMessage, TContext> 
@@ -21,12 +19,6 @@ public interface IMessageHandlerRegistrar<TMessage, TContext>
 {
     // TODO :: Accommodate clearing all.
 
-    bool Register(IMessageHandler<TMessage> handler, 
-        HandlerRegistrationSettings settings,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors);
-
-
-    bool Register(IMessageHandler<TMessage> handler,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors) =>
-        Register(handler, default, interceptors);
+    IRegisteredHandler<TMessage, TContext> Register(IMessageHandler<TMessage> handler, 
+        HandlerRegistrationSettings settings = default);
 }

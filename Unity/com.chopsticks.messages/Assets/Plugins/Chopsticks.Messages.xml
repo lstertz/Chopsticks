@@ -257,6 +257,12 @@
             0 is the default; more negative numbers will process earlier and more 
             positive numbers will process later.</remarks>
         </member>
+        <member name="P:Chopsticks.Messages.Registration.Handlers.BaseRegisteredHandler`2.Order">
+            <summary>
+            The order in which this handler will be performed, relative to 
+            the order of any other handlers registered to the same registrar.
+            </summary>
+        </member>
         <member name="M:Chopsticks.Messages.Registration.Handlers.RegisteredContextHandler`2.InternalHandleAsync(`1)">
             <inheritdoc/>
         </member>

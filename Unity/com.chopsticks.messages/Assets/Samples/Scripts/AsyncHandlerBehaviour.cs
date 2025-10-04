@@ -1,6 +1,7 @@
 ﻿using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Handlers.Multicast;
 using Chopsticks.Messages.Registration;
+using Chopsticks.Messages.Registration.Handlers;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace Chopsticks.Messages.Examples
 {
     public class AsyncHandlerBehaviour : MonoBehaviour, ITaskMessageHandler<TestMessage>
     {
+        private IRegisteredHandler _registration;
+
         // Assume this is injected.
         private IMessageHandlerRegistrar<TestMessage> _registrar =
             DefaultMulticastMessageHandler<TestMessage>.Get();
@@ -16,12 +19,12 @@ namespace Chopsticks.Messages.Examples
 
         public void OnEnable()
         {
-            _registrar.Register(this);
+            _registration = _registrar.Register(this);
         }
 
         public void OnDisable()
         {
-            _registrar.Unregister(this);
+            _registrar.Unregister(_registration);
         }
 
 

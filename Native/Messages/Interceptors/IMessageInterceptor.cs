@@ -3,10 +3,9 @@ using System.Threading;
 
 namespace Chopsticks.Messages.Interceptors
 {
-
-    public interface IInterceptor
+    public interface IMessageInterceptor<TMessage>
     {
-        HandlingAwaitable InterceptAsync(CancellationToken token, 
+        HandlingAwaitable InterceptAsync(TMessage message, CancellationToken token,
             Func<HandlingAwaitable> next);
     }
 }

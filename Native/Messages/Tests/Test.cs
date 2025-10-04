@@ -32,7 +32,7 @@ namespace Tests
             }
         }
 
-        public class Interceptor : ITaskInterceptor<Message, DefaultMessageContext<Message>>
+        public class Interceptor : ITaskContextInterceptor<Message, DefaultMessageContext<Message>>
         {
             public bool CalledAfterNext { get; private set; } = false;
             public bool CalledBeforeNext { get; private set; } = false;
@@ -232,8 +232,8 @@ namespace Tests
             var handler = new SuccessfulAsyncMessageHandler();
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message, DefaultMessageContext<Message>>)
-                .Register(handler, 
-                    (interceptor, new()));
+                .Register(handler)
+                .AddInterceptor(interceptor);
 
             multicastHandler.AddDispatchInterceptor(interceptor);
 
@@ -257,9 +257,9 @@ namespace Tests
 
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message, DefaultMessageContext<Message>>)
-                .Register(new SuccessfulSyncMessageHandler(),
-                    (interceptorA, new()),
-                    (interceptorB, new()));
+                .Register(new SuccessfulSyncMessageHandler())
+                .AddInterceptor(interceptorA)
+                .AddInterceptor(interceptorB);
 
             var sender = new MessageSender(multicastHandler);
 
@@ -287,8 +287,8 @@ namespace Tests
             var handler = new SuccessfulSyncMessageHandler();
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message, DefaultMessageContext<Message>>)
-                .Register(handler, 
-                    (interceptor, new()));
+                .Register(handler)
+                .AddInterceptor(interceptor);
 
             var sender = new MessageSender(multicastHandler);
 
