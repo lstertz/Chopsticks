@@ -1,9 +1,9 @@
 ﻿using Chopsticks.Messages.Handlers;
 using System;
 
-namespace Chopsticks.Messages.Interceptors.Binders
+namespace Chopsticks.Messages.Interceptors.Adapters
 {
-    public class MessageInterceptorBinder<TMessage, TContext> :
+    public class InterceptorAdapter<TMessage, TContext> :
         IContextInterceptor<TMessage, TContext>
         where TContext : IMessageContext<TMessage>
     {
@@ -18,17 +18,17 @@ namespace Chopsticks.Messages.Interceptors.Binders
         }
 
 
-        private readonly IMessageInterceptor<TMessage> _interceptor;
-        public MessageInterceptorBinder(IMessageInterceptor<TMessage> interceptor)
+        private readonly IInterceptor _interceptor;
+        public InterceptorAdapter(IInterceptor interceptor)
         {
             _interceptor = interceptor;
         }
 
-        public HandlingAwaitable InterceptAsync(TContext context, 
+        public HandlingAwaitable InterceptAsync(TContext context,
             Func<TContext, HandlingAwaitable> next)
         {
             var nextInvoker = new NextInvoker(next, context);
-            return _interceptor.InterceptAsync(context.Message,
+            return _interceptor.InterceptAsync(
                 context.CancellationToken, nextInvoker.InvokeNext);
         }
     }

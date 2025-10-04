@@ -1,9 +1,9 @@
 ﻿using Chopsticks.Messages.Handlers;
 using System;
 
-namespace Chopsticks.Messages.Interceptors.Binders
+namespace Chopsticks.Messages.Interceptors.Adapters
 {
-    public class ContractInterceptorBinder<TMessage, TContext, TContract> :
+    public class ContractInterceptorAdapter<TMessage, TContext, TContract> :
         IContextInterceptor<TMessage, TContext>
         where TContext : IMessageContext<TMessage>
     {
@@ -21,7 +21,7 @@ namespace Chopsticks.Messages.Interceptors.Binders
         }
 
         private readonly IContractInterceptor<TContract> _interceptor;
-        public ContractInterceptorBinder(IContractInterceptor<TContract> interceptor, 
+        public ContractInterceptorAdapter(IContractInterceptor<TContract> interceptor, 
             ContractInterceptorMode mode)
         {
             if (mode == ContractInterceptorMode.Required &&
