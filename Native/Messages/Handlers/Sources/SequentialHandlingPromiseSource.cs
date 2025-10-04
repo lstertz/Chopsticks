@@ -4,7 +4,7 @@ using System;
 namespace Chopsticks.Messages.Handlers.Sources
 {
     public class SequentialHandlingPromiseSource<TMessage, TContext> :
-        BaseHandlingPromiseSource<IRegisteredHandler<TMessage, TContext>[]>
+        BaseHandlingPromiseSource<BaseRegisteredHandler<TMessage, TContext>[]>
         where TContext : IMessageContext<TMessage>, new()
     {
         /// <inheritdoc/>

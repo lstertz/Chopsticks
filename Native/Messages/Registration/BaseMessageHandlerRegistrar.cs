@@ -18,8 +18,8 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     //private readonly List<RegisteredInterceptor<TMessage, TContext>> _perHandlerMessageInterceptors = [];
 
     // TODO :: Rebuild immutable collection used during handling on any register/unregister.
-    protected IRegisteredHandler<TMessage, TContext>[] RegisteredMessageHandlers => [.. _registeredMessageHandlers];
-    private readonly List<IRegisteredHandler<TMessage, TContext>> _registeredMessageHandlers = new(8);
+    protected BaseRegisteredHandler<TMessage, TContext>[] RegisteredMessageHandlers => [.. _registeredMessageHandlers];
+    private readonly List<BaseRegisteredHandler<TMessage, TContext>> _registeredMessageHandlers = new(8);
 
 
     public BaseMessageHandlerRegistrar()
@@ -85,7 +85,8 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
 
 
     // TODO :: Rebuild immutable collection used during handling on any register/unregister.
-    protected void AddRegistration(IRegisteredHandler<TMessage, TContext> registration)
+    //             Immutability is needed to avoid locking during message dispatch.
+    protected void AddRegistration(BaseRegisteredHandler<TMessage, TContext> registration)
     {
         if (_registeredMessageHandlers.Contains(registration))
             return;
@@ -98,13 +99,11 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
                 return orderComparison;
             return 1;
         });
-
-        registration.RebuildHandlePipeline([]);  // TODO :: Pass per-handler interceptors.
     }
 
     protected void RemoveRegistration(IRegisteredHandler registration)
     {
-        if (registration is not IRegisteredHandler<TMessage, TContext> reg)
+        if (registration is not BaseRegisteredHandler<TMessage, TContext> reg)
             return;
 
         _registeredMessageHandlers.Remove(reg);
