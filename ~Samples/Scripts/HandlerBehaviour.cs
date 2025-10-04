@@ -1,12 +1,15 @@
 ﻿using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Handlers.Multicast;
 using Chopsticks.Messages.Registration;
+using Chopsticks.Messages.Registration.Handlers;
 using UnityEngine;
 
 namespace Chopsticks.Messages.Examples
 {
     public class HandlerBehaviour : MonoBehaviour, ISyncMessageHandler<TestMessage>
     {
+        private IRegisteredHandler _registration;
+
         // Assume this is injected.
         private IMessageHandlerRegistrar<TestMessage> _registrar =
             DefaultMulticastMessageHandler<TestMessage>.Get();
@@ -19,7 +22,7 @@ namespace Chopsticks.Messages.Examples
 
         public void OnDisable()
         {
-            _registrar.Unregister(this);
+            _registrar.Unregister(_registration);
         }
 
 
