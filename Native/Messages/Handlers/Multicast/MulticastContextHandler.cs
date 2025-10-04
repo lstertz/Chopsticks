@@ -38,7 +38,8 @@ public class MulticastContextHandler<TMessage, TContext> :
     bool IContextHandlerRegistrar<TMessage, TContext>.Register(
         IContextHandler<TMessage, TContext> handler,
         HandlerRegistrationSettings settings,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors)
+        params (IContextInterceptor<TMessage, TContext>, 
+            InterceptorRegistrationSettings)[] interceptors)
     {
         var registeredInterceptors = interceptors.Select((i) => 
             new RegisteredInterceptor<TMessage, TContext>(i.Item1)
@@ -68,7 +69,7 @@ public class MulticastContextHandler<TMessage, TContext> :
     bool IMessageHandlerRegistrar<TMessage, TContext>.Register(
         IMessageHandler<TMessage> handler,
         HandlerRegistrationSettings settings,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors)
+        params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors)
     {
         var registeredInterceptors = interceptors.Select((i) =>
             new RegisteredInterceptor<TMessage, TContext>(i.Item1)

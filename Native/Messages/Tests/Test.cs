@@ -32,7 +32,7 @@ namespace Tests
             }
         }
 
-        public class Interceptor : ITaskInterceptor<Message, DefaultMessageContext<Message>>
+        public class Interceptor : ITaskContextInterceptor<Message, DefaultMessageContext<Message>>
         {
             public bool CalledAfterNext { get; private set; } = false;
             public bool CalledBeforeNext { get; private set; } = false;

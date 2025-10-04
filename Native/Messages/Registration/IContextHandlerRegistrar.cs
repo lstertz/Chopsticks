@@ -8,11 +8,11 @@ public interface IContextHandlerRegistrar<TMessage, TContext> :
 {
     bool Register(IContextHandler<TMessage, TContext> handler, 
         HandlerRegistrationSettings settings,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors);
+        params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors);
 
 
     bool Register(IContextHandler<TMessage, TContext> handler,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors) =>
+        params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors) =>
             Register(handler, default, interceptors);
 
     void Unregister(IContextHandler<TMessage, TContext> handler);

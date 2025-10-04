@@ -27,7 +27,8 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     }
 
 
-    public void AddDispatchInterceptor(IInterceptor<TMessage, TContext> interceptor, 
+
+    public void AddDispatchInterceptor(IContextInterceptor<TMessage, TContext> interceptor, 
         InterceptorRegistrationSettings settings = default)
     {
         var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor)
@@ -47,7 +48,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         RebuildDispatchPipeline(_dispatchInterceptors);
     }
 
-    public void RemoveDispatchInterceptor(IInterceptor<TMessage, TContext> interceptor)
+    public void RemoveDispatchInterceptor(IContextInterceptor<TMessage, TContext> interceptor)
     {
         var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor);
 

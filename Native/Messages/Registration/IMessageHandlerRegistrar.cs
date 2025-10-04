@@ -23,10 +23,10 @@ public interface IMessageHandlerRegistrar<TMessage, TContext>
 
     bool Register(IMessageHandler<TMessage> handler, 
         HandlerRegistrationSettings settings,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors);
+        params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors);
 
 
     bool Register(IMessageHandler<TMessage> handler,
-        params (IInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors) =>
+        params (IContextInterceptor<TMessage, TContext>, InterceptorRegistrationSettings)[] interceptors) =>
         Register(handler, default, interceptors);
 }
