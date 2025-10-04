@@ -44,7 +44,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     }
     public IRegisteredInterceptor AddDispatchInterceptor<TContract>(
         IContractInterceptor<TContract> interceptor,
-        ContractInterceptorMode mode,
+        ContractInterceptorMode mode = ContractInterceptorMode.Required,
         InterceptorRegistrationSettings settings = default)
     {
         var adapter = new ContractInterceptorAdapter<TMessage, TContext, TContract>(

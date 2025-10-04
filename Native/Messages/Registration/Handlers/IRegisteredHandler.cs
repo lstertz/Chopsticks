@@ -21,7 +21,7 @@ public interface IRegisteredHandler<TMessage> :
 
     IRegisteredHandler<TMessage> AddInterceptor<TContract>(
         IContractInterceptor<TContract> interceptor,
-        ContractInterceptorMode mode,
+        ContractInterceptorMode mode = ContractInterceptorMode.Required,
         InterceptorRegistrationSettings settings = default);
 }
 
@@ -39,7 +39,7 @@ public interface IRegisteredHandler<TMessage, TContext> :
 
     new IRegisteredHandler<TMessage, TContext> AddInterceptor<TContract>(
         IContractInterceptor<TContract> interceptor,
-        ContractInterceptorMode mode,
+        ContractInterceptorMode mode = ContractInterceptorMode.Required,
         InterceptorRegistrationSettings settings = default);
 
     IRegisteredHandler<TMessage, TContext> AddInterceptor(
