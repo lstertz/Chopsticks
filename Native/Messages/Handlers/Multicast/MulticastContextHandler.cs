@@ -39,7 +39,7 @@ public class MulticastContextHandler<TMessage, TContext> :
         IContextHandler<TMessage, TContext> handler,
         HandlerRegistrationSettings settings)
     {
-        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
+        var registration = new RegisteredContextHandler<TMessage, TContext>(handler)
         {
             Order = settings.Order
         };
