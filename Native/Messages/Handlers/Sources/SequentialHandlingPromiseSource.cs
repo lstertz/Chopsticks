@@ -24,9 +24,9 @@ namespace Chopsticks.Messages.Handlers.Sources
             _onHandlerCompletion = OnHandlerCompletion;
 
         /// <inheritdoc/>
-        public override void Dispose()
+        public override void Reset()
         {
-            base.Dispose();
+            base.Reset();
 
             _isCompleted = false;
 

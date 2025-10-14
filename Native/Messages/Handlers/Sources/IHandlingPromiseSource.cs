@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
-    public interface IHandlingPromiseSource
+    public interface IHandlingPromiseSource : IPooledSource
     {
         Action InitiateDefaultContinuations { get; }
 
