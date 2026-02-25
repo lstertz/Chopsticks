@@ -11,6 +11,8 @@ public class RegisteredInterceptor<TMessage, TContext> :
 {
     public int Order { get; init; } = 0;
 
+    public int RegistrationIndex { get; init; } = 0;
+
     private readonly IContextInterceptor<TMessage, TContext> _interceptor;
 
     public RegisteredInterceptor(IContextInterceptor<TMessage, TContext> interceptor) =>

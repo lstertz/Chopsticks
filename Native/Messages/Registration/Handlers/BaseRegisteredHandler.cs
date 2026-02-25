@@ -20,8 +20,17 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
     /// </summary>
     public int Order { get; init; } = 0;
 
+    /// <summary>
+    /// The index in which this handler was registered. This is used 
+    /// to implicitly order registrations in the order in which they were registered, if 
+    /// there is no explicit order (per <see cref="Order"/> specified.
+    /// </summary>
+    public int RegistrationIndex { get; init; } = 0;
+
     private readonly List<RegisteredInterceptor<TMessage, TContext>> _interceptors = [];
     private Func<TContext, HandlingAwaitable> _handlePipeline;
+
+    private int _nextRegistrationIndex = 0;
 
 
     public BaseRegisteredHandler()
@@ -61,7 +70,8 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
     {
         var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor)
         {
-            Order = settings.Order
+            Order = settings.Order,
+            RegistrationIndex = _nextRegistrationIndex++
         };
 
         _interceptors.Add(registration);
@@ -70,7 +80,7 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
             int orderComparison = x.Order.CompareTo(y.Order);
             if (orderComparison != 0)
                 return orderComparison;
-            return 1;
+            return x.RegistrationIndex.CompareTo(y.RegistrationIndex);
         });
 
         RebuildHandlePipeline();
@@ -109,7 +119,7 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
             int orderComparison = x.Order.CompareTo(y.Order);
             if (orderComparison != 0)
                 return orderComparison;
-            return 1;
+            return x.RegistrationIndex.CompareTo(y.RegistrationIndex);
         });
         */
 
