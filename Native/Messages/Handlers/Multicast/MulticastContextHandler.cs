@@ -1,8 +1,5 @@
-﻿using Chopsticks.Messages.Interceptors;
-using Chopsticks.Messages.Registration;
+﻿using Chopsticks.Messages.Registration;
 using Chopsticks.Messages.Registration.Handlers;
-using Chopsticks.Messages.Registration.Interceptors;
-using System.Linq;
 using System.Threading;
 
 namespace Chopsticks.Messages.Handlers.Multicast;
@@ -39,39 +36,21 @@ public class MulticastContextHandler<TMessage, TContext> :
         IContextHandler<TMessage, TContext> handler,
         HandlerRegistrationSettings settings)
     {
-        var registration = new RegisteredContextHandler<TMessage, TContext>(handler)
-        {
-            Order = settings.Order
-        };
-        AddRegistration(registration);
-
-        return registration;
-    }
-
-    IRegisteredHandler<TMessage> IMessageHandlerRegistrar<TMessage>.Register(
-        IMessageHandler<TMessage> handler,
-        HandlerRegistrationSettings settings)
-    {
-        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
-        {
-            Order = settings.Order
-        };
-        AddRegistration(registration);
-        
-        return registration;
+        return AddRegistration(handler, settings);
     }
 
     IRegisteredHandler<TMessage, TContext> IMessageHandlerRegistrar<TMessage, TContext>.Register(
         IMessageHandler<TMessage> handler,
         HandlerRegistrationSettings settings)
     {
-        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
-        {
-            Order = settings.Order
-        };
-        AddRegistration(registration);
+        return AddRegistration(handler, settings);
+    }
 
-        return registration;
+    IRegisteredHandler<TMessage> IMessageHandlerRegistrar<TMessage>.Register(
+        IMessageHandler<TMessage> handler,
+        HandlerRegistrationSettings settings)
+    {
+        return AddRegistration(handler, settings);
     }
 
     void IContextHandlerRegistrar<TMessage, TContext>.Unregister(
