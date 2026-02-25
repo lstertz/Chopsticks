@@ -40,6 +40,8 @@ namespace Tests
             public bool CallNext { get; set; } = true;
             public bool ThrowException { get; set; } = false;
 
+            public Action OnInterception { get; set; } = () => { };
+
             public async Task InterceptAsync(DefaultMessageContext<Message> context, 
                 Func<DefaultMessageContext<Message>, HandlingAwaitable> next)
             {
@@ -48,6 +50,8 @@ namespace Tests
 
                 if (ThrowException)
                     throw new Exception("Simulated failure in interceptor.");
+
+                OnInterception();
 
                 if (CallNext)
                     await next(context);
@@ -108,9 +112,12 @@ namespace Tests
         {
             public bool HandledMessage { get; private set; } = false;
 
+            public Action OnHandling { get; set; } = () => { };
+
             void ISyncMessageHandler<Message>.Handle(Message command)
             {
                 Console.WriteLine($"Received OnCommand, Sync, Value: {command.Value}.");
+                OnHandling();
                 HandledMessage = true;
             }
         }
@@ -119,12 +126,16 @@ namespace Tests
         {
             public bool HandledMessage { get; private set; } = false;
 
+            public Action OnHandling { get; set; } = () => { };
+
             async Task ITaskMessageHandler<Message>.HandleAsync(
                 Message message, CancellationToken token)
             {
                 Console.WriteLine($"Received OnCommand, Async, Value: {message.Value}.");
                 await Task.Delay(100, token); // Simulate async work.
                 Console.WriteLine($"Done handling OnCommand, Async, Value: {message.Value}.");
+
+                OnHandling();
 
                 HandledMessage = true;
             }
@@ -160,7 +171,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task Integration_WithDispatchInterceptors_ExecutesThroughInterceptors()
+        public async Task Integration_WithDispatchInterceptors_ExecutesThroughInterceptorsInImplicitOrder()
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
@@ -169,10 +180,27 @@ namespace Tests
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
                 new SuccessfulAsyncMessageHandler());
 
-            var interceptorA = new Interceptor();
-            multicastHandler.AddDispatchInterceptor(interceptorA);
+            int currentExecution = 0;
 
-            var interceptorB = new Interceptor();
+            int interceptorExecutionOrderA = -1;
+            var interceptorA = new Interceptor()
+            {
+                OnInterception = () =>
+                {
+                    interceptorExecutionOrderA = currentExecution++;
+                }
+            };
+
+            int interceptorExecutionOrderB = -1;
+            var interceptorB = new Interceptor()
+            {
+                OnInterception = () =>
+                {
+                    interceptorExecutionOrderB = currentExecution++;
+                }
+            };
+
+            multicastHandler.AddDispatchInterceptor(interceptorA);
             multicastHandler.AddDispatchInterceptor(interceptorB);
 
             var sender = new MessageSender(multicastHandler);
@@ -185,8 +213,11 @@ namespace Tests
 
             Assert.That(interceptorA.CalledBeforeNext, Is.True);
             Assert.That(interceptorA.CalledAfterNext, Is.True);
+            Assert.That(interceptorExecutionOrderA, Is.EqualTo(0));
+
             Assert.That(interceptorB.CalledBeforeNext, Is.True);
             Assert.That(interceptorB.CalledAfterNext, Is.True);
+            Assert.That(interceptorExecutionOrderB, Is.EqualTo(1));
         }
 
         [Test]
@@ -249,11 +280,28 @@ namespace Tests
         }
 
         [Test]
-        public async Task Integration_WithHandlerInterceptors_ExecutesThroughInterceptors()
+        public async Task Integration_WithHandlerInterceptors_ExecutesThroughInterceptorsInImplicitOrder()
         {
             // Set up
-            var interceptorA = new Interceptor();
-            var interceptorB = new Interceptor();
+            int currentExecution = 0;
+
+            int interceptorExecutionOrderA = -1;
+            var interceptorA = new Interceptor()
+            {
+                OnInterception = () =>
+                {
+                    interceptorExecutionOrderA = currentExecution++;
+                }
+            };
+
+            int interceptorExecutionOrderB = -1;
+            var interceptorB = new Interceptor()
+            {
+                OnInterception = () =>
+                {
+                    interceptorExecutionOrderB = currentExecution++;
+                }
+            };
 
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message, DefaultMessageContext<Message>>)
@@ -271,8 +319,11 @@ namespace Tests
 
             Assert.That(interceptorA.CalledBeforeNext, Is.True);
             Assert.That(interceptorA.CalledAfterNext, Is.True);
+            Assert.That(interceptorExecutionOrderA, Is.EqualTo(0));
+
             Assert.That(interceptorB.CalledBeforeNext, Is.True);
             Assert.That(interceptorB.CalledAfterNext, Is.True);
+            Assert.That(interceptorExecutionOrderB, Is.EqualTo(1));
         }
 
         [Test]
@@ -305,16 +356,41 @@ namespace Tests
 
 
         [Test]
-        public async Task Integration_MulticastAsyncCallAllAsync_Passes()
+        public async Task Integration_MulticastAsyncCallAllAsync_SucceedsAllInImplicitOrder()
         {
             // Set up
+            int executionOrder = 0;
+
+            int handlerExecutionOrderA = -1;
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler());
+                new SuccessfulAsyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderA = executionOrder++;
+                    }
+                });
+
+            int handlerExecutionOrderB = -1;
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler());
+                new SuccessfulAsyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderB = executionOrder++;
+                    }
+                });
+
+            int handlerExecutionOrderC = -1;
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler());
+                new SuccessfulAsyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderC = executionOrder++;
+                    }
+                });
 
             var sender = new MessageSender(multicastHandler);
 
@@ -323,10 +399,14 @@ namespace Tests
 
             // Assert
             Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+
+            Assert.That(handlerExecutionOrderA, Is.EqualTo(0));
+            Assert.That(handlerExecutionOrderB, Is.EqualTo(1));
+            Assert.That(handlerExecutionOrderC, Is.EqualTo(2));
         }
 
         [Test]
-        public async Task Integration_MulticastAsyncCallAllAsyncTwice_Passes()
+        public async Task Integration_MulticastAsyncCallAllAsyncTwice_SucceedsAll()
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
@@ -348,16 +428,41 @@ namespace Tests
         }
 
         [Test]
-        public async Task Integration_MulticastAsyncCallAllSync_Passes()
+        public async Task Integration_MulticastAsyncCallAllSync_SucceedsAllInImplicitOrder()
         {
             // Set up
+            int executionOrder = 0;
+
+            int handlerExecutionOrderA = -1;
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler());
+                new SuccessfulSyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderA = executionOrder++;
+                    }
+                });
+
+            int handlerExecutionOrderB = -1;
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler());
+                new SuccessfulSyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderB = executionOrder++;
+                    }
+                });
+
+            int handlerExecutionOrderC = -1;
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler());
+                new SuccessfulSyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderC = executionOrder++;
+                    }
+                });
 
             var sender = new MessageSender(multicastHandler);
 
@@ -366,10 +471,14 @@ namespace Tests
 
             // Assert
             Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+
+            Assert.That(handlerExecutionOrderA, Is.EqualTo(0));
+            Assert.That(handlerExecutionOrderB, Is.EqualTo(1));
+            Assert.That(handlerExecutionOrderC, Is.EqualTo(2));
         }
 
         [Test]
-        public async Task Integration_MulticastAsyncCallAsyncFirst_Passes()
+        public async Task Integration_MulticastAsyncCallAsyncFirst_SucceedsAll()
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
@@ -391,7 +500,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task Integration_MulticastAsyncCallAsyncSecond_Passes()
+        public async Task Integration_MulticastAsyncCallAsyncSecond_SucceedsAll()
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
@@ -413,43 +522,93 @@ namespace Tests
         }
 
         [Test]
-        public async Task Integration_MulticastSyncCallAllAsync_Passes()
+        public async Task Integration_MulticastSyncCallAllAsync_SucceedsAllInImplicitOrder()
         {
             // Set up
+            int executionOrder = 0;
+
+            int handlerExecutionOrderA = -1;
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler());
+                new SuccessfulAsyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderA = executionOrder++;
+                    }
+                });
+
+            int handlerExecutionOrderB = -1;
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler());
+                new SuccessfulAsyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderB = executionOrder++;
+                    }
+                });
+
+            int handlerExecutionOrderC = -1;
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulAsyncMessageHandler());
+                new SuccessfulAsyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderC = executionOrder++;
+                    }
+                });
 
             var sender = new MessageSender(multicastHandler);
 
             // Act
-            _ = sender.Send();
+            var promise = sender.Send();
 
             await Task.Delay(400);  // Make sure the async handlers finish.
 
-            var promise = sender.Send();
-
-            await Task.Delay(400);
-
             // Assert
             Assert.That(promise.Status, Is.EqualTo(HandlingStatus.Success));
+
+            Assert.That(handlerExecutionOrderA, Is.EqualTo(0));
+            Assert.That(handlerExecutionOrderB, Is.EqualTo(1));
+            Assert.That(handlerExecutionOrderC, Is.EqualTo(2));
         }
 
         [Test]
-        public void Integration_MulticastSyncCallAllSync_Passes()
+        public void Integration_MulticastSyncCallAllSync_SucceedsAllInImplicitOrder()
         {
             // Set up
+            int executionOrder = 0;
+
+            int handlerExecutionOrderA = -1;
             var multicastHandler = new MulticastMessageHandler<Message>();
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler());
+                new SuccessfulSyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderA = executionOrder++;
+                    }
+                });
+
+            int handlerExecutionOrderB = -1;
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler());
+                new SuccessfulSyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderB = executionOrder++;
+                    }
+                });
+
+            int handlerExecutionOrderC = -1;
             (multicastHandler as IMessageHandlerRegistrar<Message>).Register(
-                new SuccessfulSyncMessageHandler());
+                new SuccessfulSyncMessageHandler()
+                {
+                    OnHandling = () =>
+                    {
+                        handlerExecutionOrderC = executionOrder++;
+                    }
+                });
 
             var sender = new MessageSender(multicastHandler);
 
@@ -460,10 +619,14 @@ namespace Tests
 
             // Assert
             Assert.That(promise.Status, Is.EqualTo(HandlingStatus.Success));
+
+            Assert.That(handlerExecutionOrderA, Is.EqualTo(0));
+            Assert.That(handlerExecutionOrderB, Is.EqualTo(1));
+            Assert.That(handlerExecutionOrderC, Is.EqualTo(2));
         }
 
         [Test]
-        public async Task Integration_MulticastSyncCallAsyncFirst_Passes()
+        public async Task Integration_MulticastSyncCallAsyncFirst_SucceedsAll()
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
@@ -487,7 +650,7 @@ namespace Tests
         }
 
         [Test]
-        public async Task Integration_MulticastSyncCallAsyncSecond_Passes()
+        public async Task Integration_MulticastSyncCallAsyncSecond_SucceedsAll()
         {
             // Set up
             var multicastHandler = new MulticastMessageHandler<Message>();
