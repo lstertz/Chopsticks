@@ -54,7 +54,7 @@ namespace Chopsticks.Messages
             }
 
             var result = _source.GetResult();
-            if ((result.Status | HandlingStatus.Completed) != 0)
+            if ((result.Status & HandlingStatus.Completed) != 0)
                 onCompletion(result);
 
             return this;
@@ -84,7 +84,7 @@ namespace Chopsticks.Messages
             }
 
             var result = _source.GetResult();
-            if ((result.Status | HandlingStatus.NonSuccess) != 0)
+            if ((result.Status & HandlingStatus.NonSuccess) != 0)
                 onNonSuccess(result);
 
             return this;
