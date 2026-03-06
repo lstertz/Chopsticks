@@ -263,6 +263,13 @@
             the order of any other handlers registered to the same registrar.
             </summary>
         </member>
+        <member name="P:Chopsticks.Messages.Registration.Handlers.BaseRegisteredHandler`2.RegistrationIndex">
+            <summary>
+            The index in which this handler was registered. This is used 
+            to implicitly order registrations in the order in which they were registered, if 
+            there is no explicit order (per <see cref="P:Chopsticks.Messages.Registration.Handlers.BaseRegisteredHandler`2.Order"/> specified.
+            </summary>
+        </member>
         <member name="M:Chopsticks.Messages.Registration.Handlers.RegisteredContextHandler`2.InternalHandleAsync(`1)">
             <inheritdoc/>
         </member>
