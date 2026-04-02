@@ -1,27 +1,30 @@
-﻿using System.Threading;
+using System.Threading;
 
 namespace Chopsticks.Messages.Handlers;
 
 public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
     where TContext : IMessageContext<TMessage>, new()
 {
-    HandlingPromise IMessageHandler<TMessage>.Handle(TMessage message) =>
-        Handle(new TContext() 
+
+    // TODO :: Add non-try methods.
+
+    HandlingPromise IMessageHandler<TMessage>.TryHandle(TMessage message) =>
+        TryHandle(new TContext() 
         { 
             CancellationToken = default,
             Message = message 
         });
 
-    HandlingPromise Handle(TContext context);
+    HandlingPromise TryHandle(TContext context);
 
     
-    HandlingAwaitable IMessageHandler<TMessage>.HandleAsync(
+    HandlingAwaitable IMessageHandler<TMessage>.TryHandleAsync(
         TMessage message, CancellationToken token) => 
-        HandleAsync(new TContext()
+        TryHandleAsync(new TContext()
         { 
             CancellationToken = token, 
             Message = message 
         });
 
-    HandlingAwaitable HandleAsync(TContext context);
+    HandlingAwaitable TryHandleAsync(TContext context);
 }

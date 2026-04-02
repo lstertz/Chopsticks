@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers.Sources;
+using Chopsticks.Messages.Handlers.Sources;
 using Chopsticks.Messages.Registration;
 using Chopsticks.Messages.Registration.Interceptors;
 using System;
@@ -12,7 +12,7 @@ public abstract class BaseMulticastHandler<TMessage, TContext> :
     where TContext : IMessageContext<TMessage>, new()
 {
     // TODO :: Verify thread safety.
-    protected volatile Func<TContext, HandlingAwaitable> _dispatchPipeline;
+    protected volatile Func<TContext, HandlingAwaitable> _dispatchPipeline = default!;
     // TODO :: Support stopping at the first failure.
 
     protected override void RebuildDispatchPipeline(

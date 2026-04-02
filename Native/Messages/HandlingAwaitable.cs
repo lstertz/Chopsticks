@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers.Sources;
+using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -27,6 +27,7 @@ namespace Chopsticks.Messages
         }
 
 
+        internal IHandlingPromiseSource Source => _source;
         private readonly Awaiter _awaiter;
         private readonly IHandlingPromiseSource _source;
 

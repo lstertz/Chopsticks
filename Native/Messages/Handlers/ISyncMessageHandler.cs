@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers.Sources;
+using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Threading;
 
@@ -10,18 +10,18 @@ namespace Chopsticks.Messages.Handlers
         new void Handle(TMessage message);
 
 
-        HandlingPromise IMessageHandler<TMessage>.Handle(TMessage message)
+        HandlingPromise IMessageHandler<TMessage>.TryHandle(TMessage message)
         {
-            var source = new SyncHandlingPromiseSource();  // TODO :: Rent from a pool.
+            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
             source.Init(EvaluateHandle(message));
 
             return new HandlingPromise(source);
         }
 
-        HandlingAwaitable IMessageHandler<TMessage>.HandleAsync(
+        HandlingAwaitable IMessageHandler<TMessage>.TryHandleAsync(
             TMessage message, CancellationToken token)
         {
-            var source = new SyncHandlingPromiseSource();  // TODO :: Rent from a pool.
+            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
             source.Init(EvaluateHandle(message));
 
             return new HandlingAwaitable(source);

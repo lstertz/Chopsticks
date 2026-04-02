@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Exceptions;
+using Chopsticks.Messages.Exceptions;
 using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Collections.Generic;
@@ -10,16 +10,17 @@ namespace Chopsticks.Messages
     {
         public static HandlingPromise NoHandlers => new(_noHandlersSource);
         private static readonly IHandlingPromiseSource _noHandlersSource = 
-            new SyncHandlingPromiseSource().Init(HandlingResult.NoHandlers);
+            new TryHandlePromiseSource().Init(HandlingResult.NoHandlers);
 
         public static HandlingPromise Success => new(_successSource);
         private static readonly IHandlingPromiseSource _successSource =
-            new SyncHandlingPromiseSource().Init(HandlingResult.Success);
+            new TryHandlePromiseSource().Init(HandlingResult.Success);
 
 
         public HandlingStatus Status => _source.IsCompleted ? 
             _source.GetResult().Status : HandlingStatus.Processing;
 
+        internal IHandlingPromiseSource Source => _source;
         private readonly IHandlingPromiseSource _source;
 
 

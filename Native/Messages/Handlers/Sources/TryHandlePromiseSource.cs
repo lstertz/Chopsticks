@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
-    public class SyncHandlingPromiseSource :
+    public class TryHandlePromiseSource :
         BaseHandlingPromiseSource<HandlingResult>
     {
         /// <inheritdoc/>

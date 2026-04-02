@@ -71,7 +71,7 @@ namespace Tests
             public HandlingPromise Send(SynchronizationContext? context = null)
             {
                 Console.WriteLine("Sending OnCommand");
-                var promise = _handler.Handle(new Message())
+                var promise = _handler.TryHandle(new Message())
                     .ThrowIfFailed(context);
                 Console.WriteLine("Sent OnCommand");
 
@@ -81,7 +81,7 @@ namespace Tests
             public async Task<HandlingResult> SendAsync()
             {
                 Console.WriteLine("Sending OnCommand");
-                var result = await _handler.HandleAsync(new Message())
+                var result = await _handler.TryHandleAsync(new Message())
                     .ContinueWithTask()
                     .ThrowIfFailed();
                 Console.WriteLine("Sent OnCommand");
