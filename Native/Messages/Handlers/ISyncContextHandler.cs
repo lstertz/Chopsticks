@@ -10,20 +10,20 @@ namespace Chopsticks.Messages.Handlers
         new void Handle(TContext context);
 
 
-        HandlingPromise IContextHandler<TMessage, TContext>.TryHandle(TContext context)
+        HandlingResultPromise IContextHandler<TMessage, TContext>.TryHandle(TContext context)
         {
             var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
             source.Init(EvaluateHandle(context));
 
-            return new HandlingPromise(source);
+            return new HandlingResultPromise(source);
         }
 
-        HandlingAwaitable IContextHandler<TMessage, TContext>.TryHandleAsync(TContext context)
+        HandlingResultAwaitable IContextHandler<TMessage, TContext>.TryHandleAsync(TContext context)
         {
             var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
             source.Init(EvaluateHandle(context));
 
-            return new HandlingAwaitable(source);
+            return new HandlingResultAwaitable(source);
         }
 
         private HandlingResult EvaluateHandle(TContext context)

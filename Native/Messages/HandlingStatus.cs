@@ -9,12 +9,12 @@ namespace Chopsticks.Messages
     public enum HandlingStatus
     {
         /// <summary>
-        /// The status indicating that no handlers were found for the message.
+        /// Indicates that no handlers were found for the message.
         /// </summary>
         /// <remarks>
-        /// Under this status, no handling was performed, so it is considered 
+        /// This is a non-handling status. No handling was performed, so it is considered 
         /// neither a success, a failure, nor a cancellation; it never started and 
-        /// therefore never completed.
+        /// therefore never completed any handling.
         /// </remarks>
         NotHandled = 0,
 
@@ -46,7 +46,7 @@ namespace Chopsticks.Messages
         NonSuccess = Failure | Cancelled,
 
         /// <summary>
-        /// The status indicating that the handling was completed, meaning that 
+        /// The status indicating that handling was performed and completed, meaning that 
         /// it started and ended, regardless of whether it was successful or not.
         /// </summary>
         Completed = Success | Failure | Cancelled,

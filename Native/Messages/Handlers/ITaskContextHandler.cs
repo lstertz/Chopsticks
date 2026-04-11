@@ -10,15 +10,15 @@ namespace Chopsticks.Messages.Handlers
         new Task HandleAsync(TContext context);
 
 
-        HandlingPromise IContextHandler<TMessage, TContext>.TryHandle(TContext context)
+        HandlingResultPromise IContextHandler<TMessage, TContext>.TryHandle(TContext context)
         {
             var source = new TryHandleAsyncPromiseSource();  // TODO :: Rent from a pool.
             source.Init(HandleAsync(context).GetAwaiter());
 
-            return new HandlingPromise(source);
+            return new HandlingResultPromise(source);
         }
 
-        HandlingAwaitable IContextHandler<TMessage, TContext>.TryHandleAsync(TContext context)
+        HandlingResultAwaitable IContextHandler<TMessage, TContext>.TryHandleAsync(TContext context)
         {
             // Maintain explicit cast to ensure dispatching to the correct method.
             Task task = (this as ITaskContextHandler<TMessage, TContext>).HandleAsync(context);
@@ -26,7 +26,7 @@ namespace Chopsticks.Messages.Handlers
             var source = new TryHandleAsyncPromiseSource();  // TODO :: Rent from a pool.
             source.Init(task.GetAwaiter());
 
-            return new HandlingAwaitable(source);
+            return new HandlingResultAwaitable(source);
         }
 
     }

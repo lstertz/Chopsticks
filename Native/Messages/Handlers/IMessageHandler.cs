@@ -6,31 +6,27 @@ namespace Chopsticks.Messages.Handlers
 {
     public interface IMessageHandler<TMessage>
     {
-        // TODO :: Re-evaluate the return type or completion action, since it 
-        // may be desirable to know whether the handling was handled or not.
-
-        void Handle(TMessage message, Action onCompletion, 
+        HandlingCompletionPromise Handle(TMessage message,
             SynchronizationContext? asyncContext = null)
         {
             var awaitable = TryHandle(message);
             var source = new HandlePromiseSource();
             source.Init(awaitable.Source);
 
-            onCompletion?.Invoke();
+            return new HandlingCompletionPromise(source, asyncContext);
         }
 
-        // TODO :: Re-evaluate the return type.
-        HandlingAwaitable HandleAsync(TMessage message, CancellationToken token = default)
+        HandlingCompletionAwaitable HandleAsync(TMessage message, CancellationToken token = default)
         {
             var awaitable = TryHandleAsync(message, token);
             var source = new HandleAsyncPromiseSource();
             source.Init(awaitable.Source);
 
-            return new HandlingAwaitable(source);
+            return new HandlingCompletionAwaitable(source);
         }
 
-        HandlingPromise TryHandle(TMessage message);
+        HandlingResultPromise TryHandle(TMessage message);
 
-        HandlingAwaitable TryHandleAsync(TMessage message, CancellationToken token = default);
+        HandlingResultAwaitable TryHandleAsync(TMessage message, CancellationToken token = default);
     }
 }

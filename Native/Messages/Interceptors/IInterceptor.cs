@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 
 namespace Chopsticks.Messages.Interceptors
@@ -6,7 +6,7 @@ namespace Chopsticks.Messages.Interceptors
 
     public interface IInterceptor
     {
-        HandlingAwaitable InterceptAsync(CancellationToken token, 
-            Func<HandlingAwaitable> next);
+        HandlingResultAwaitable InterceptAsync(CancellationToken token, 
+            Func<HandlingResultAwaitable> next);
     }
 }

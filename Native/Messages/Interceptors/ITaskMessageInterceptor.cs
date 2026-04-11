@@ -8,16 +8,16 @@ namespace Chopsticks.Messages.Interceptors
     public interface ITaskMessageInterceptor<TMessage> : IMessageInterceptor<TMessage>
     {
         new Task InterceptAsync(TMessage message, CancellationToken token,
-            Func<HandlingAwaitable> next);
+            Func<HandlingResultAwaitable> next);
 
-        HandlingAwaitable IMessageInterceptor<TMessage>.InterceptAsync(TMessage message, 
+        HandlingResultAwaitable IMessageInterceptor<TMessage>.InterceptAsync(TMessage message, 
             CancellationToken token,
-            Func<HandlingAwaitable> next)
+            Func<HandlingResultAwaitable> next)
         {
             var source = new TryHandleAsyncPromiseSource();  // TODO :: Rent from a pool.
             source.Init((this as ITaskMessageInterceptor<TMessage>).InterceptAsync(message, token, next).GetAwaiter());
 
-            return new HandlingAwaitable(source);
+            return new HandlingResultAwaitable(source);
         }
     }
 }

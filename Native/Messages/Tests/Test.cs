@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages;
+using Chopsticks.Messages;
 using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Handlers.Multicast;
 using Chopsticks.Messages.Interceptors;
@@ -43,7 +43,7 @@ namespace Tests
             public Action OnInterception { get; set; } = () => { };
 
             public async Task InterceptAsync(DefaultMessageContext<Message> context, 
-                Func<DefaultMessageContext<Message>, HandlingAwaitable> next)
+                Func<DefaultMessageContext<Message>, HandlingResultAwaitable> next)
             {
                 Console.WriteLine("Before Interceptor");
                 CalledBeforeNext = true;
@@ -68,7 +68,7 @@ namespace Tests
             public MessageSender(IMessageHandler<Message> handler) =>
                 _handler = handler;
 
-            public HandlingPromise Send(SynchronizationContext? context = null)
+            public HandlingResultPromise Send(SynchronizationContext? context = null)
             {
                 Console.WriteLine("Sending OnCommand");
                 var promise = _handler.TryHandle(new Message())

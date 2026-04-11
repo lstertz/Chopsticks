@@ -14,10 +14,10 @@ namespace Chopsticks.Messages.Handlers.Multicast
         public static MulticastMessageHandler<TMessage> Get() =>
             _defaultHandler.Value;
 
-        public static HandlingPromise TryHandle(TMessage message) =>
+        public static HandlingResultPromise TryHandle(TMessage message) =>
             _defaultHandler.Value.TryHandle(message);
 
-        public static HandlingAwaitable TryHandleAsync(TMessage message,
+        public static HandlingResultAwaitable TryHandleAsync(TMessage message,
             CancellationToken token = default) =>
             _defaultHandler.Value.TryHandleAsync(message, token);
 

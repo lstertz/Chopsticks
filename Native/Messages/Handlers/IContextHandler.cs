@@ -8,17 +8,17 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
 
     // TODO :: Add non-try methods.
 
-    HandlingPromise IMessageHandler<TMessage>.TryHandle(TMessage message) =>
+    HandlingResultPromise IMessageHandler<TMessage>.TryHandle(TMessage message) =>
         TryHandle(new TContext() 
         { 
             CancellationToken = default,
             Message = message 
         });
 
-    HandlingPromise TryHandle(TContext context);
+    HandlingResultPromise TryHandle(TContext context);
 
     
-    HandlingAwaitable IMessageHandler<TMessage>.TryHandleAsync(
+    HandlingResultAwaitable IMessageHandler<TMessage>.TryHandleAsync(
         TMessage message, CancellationToken token) => 
         TryHandleAsync(new TContext()
         { 
@@ -26,5 +26,5 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
             Message = message 
         });
 
-    HandlingAwaitable TryHandleAsync(TContext context);
+    HandlingResultAwaitable TryHandleAsync(TContext context);
 }

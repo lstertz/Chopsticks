@@ -12,13 +12,13 @@ public abstract class BaseMulticastHandler<TMessage, TContext> :
     where TContext : IMessageContext<TMessage>, new()
 {
     // TODO :: Verify thread safety.
-    protected volatile Func<TContext, HandlingAwaitable> _dispatchPipeline = default!;
+    protected volatile Func<TContext, HandlingResultAwaitable> _dispatchPipeline = default!;
     // TODO :: Support stopping at the first failure.
 
     protected override void RebuildDispatchPipeline(
         List<RegisteredInterceptor<TMessage, TContext>> interceptors)
     {
-        Func<TContext, HandlingAwaitable> current =
+        Func<TContext, HandlingResultAwaitable> current =
             (context) => new(InitiateWithSource(context.Message, context.CancellationToken));
 
         for (int c = interceptors.Count - 1; c >= 0; c--)

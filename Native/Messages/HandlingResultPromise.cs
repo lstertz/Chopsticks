@@ -6,13 +6,13 @@ using System.Threading;
 
 namespace Chopsticks.Messages
 {
-    public struct HandlingPromise
+    public struct HandlingResultPromise
     {
-        public static HandlingPromise NoHandlers => new(_noHandlersSource);
+        public static HandlingResultPromise NoHandlers => new(_noHandlersSource);
         private static readonly IHandlingPromiseSource _noHandlersSource = 
             new TryHandlePromiseSource().Init(HandlingResult.NoHandlers);
 
-        public static HandlingPromise Success => new(_successSource);
+        public static HandlingResultPromise Success => new(_successSource);
         private static readonly IHandlingPromiseSource _successSource =
             new TryHandlePromiseSource().Init(HandlingResult.Success);
 
@@ -24,14 +24,14 @@ namespace Chopsticks.Messages
         private readonly IHandlingPromiseSource _source;
 
 
-        public HandlingPromise(IHandlingPromiseSource source)
+        public HandlingResultPromise(IHandlingPromiseSource source)
         {
             _source = source;
             if (!_source.IsCompleted)
                 _source.OnCompleted(_source.InitiateDefaultContinuations);
         }
 
-        public HandlingPromise OnCancelled(Action onCancelled)
+        public HandlingResultPromise OnCancelled(Action onCancelled)
         {
             if (!_source.IsCompleted)
             {
@@ -46,7 +46,7 @@ namespace Chopsticks.Messages
             return this;
         }
 
-        public HandlingPromise OnCompletion(Action<HandlingResult> onCompletion)
+        public HandlingResultPromise OnCompletion(Action<HandlingResult> onCompletion)
         {
             if (!_source.IsCompleted)
             {
@@ -61,7 +61,7 @@ namespace Chopsticks.Messages
             return this;
         }
 
-        public HandlingPromise OnFailure(Action<IEnumerable<Exception>> onFailure)
+        public HandlingResultPromise OnFailure(Action<IEnumerable<Exception>> onFailure)
         {
             if (!_source.IsCompleted)
             {
@@ -76,7 +76,7 @@ namespace Chopsticks.Messages
             return this;
         }
 
-        public HandlingPromise OnNonSuccess(Action<HandlingResult> onNonSuccess)
+        public HandlingResultPromise OnNonSuccess(Action<HandlingResult> onNonSuccess)
         {
             if (!_source.IsCompleted)
             {
@@ -91,7 +91,7 @@ namespace Chopsticks.Messages
             return this;
         }
 
-        public HandlingPromise OnSuccess(Action onSuccess)
+        public HandlingResultPromise OnSuccess(Action onSuccess)
         {
             if (!_source.IsCompleted)
             {
@@ -121,10 +121,10 @@ namespace Chopsticks.Messages
         /// synchronization context will attempt to be used, but in doing so, 
         /// exceptions may be lost.</param>
         /// <returns>
-        /// The current <see cref="HandlingPromise"/> instance, 
+        /// The current <see cref="HandlingResultPromise"/> instance, 
         /// allowing for method chaining.
         /// </returns>
-        public readonly HandlingPromise ThrowIfFailed(SynchronizationContext? asyncContext = null)
+        public readonly HandlingResultPromise ThrowIfFailed(SynchronizationContext? asyncContext = null)
         {
             if (!_source.IsCompleted)
             {
@@ -148,10 +148,10 @@ namespace Chopsticks.Messages
         /// Thrown if the message was not handled.
         /// </exception>
         /// <returns>
-        /// The current <see cref="HandlingPromise"/> instance, 
+        /// The current <see cref="HandlingResultPromise"/> instance, 
         /// allowing for method chaining.
         /// </returns>
-        public HandlingPromise ThrowIfNotHandled(string? customExceptionMessage = null)
+        public HandlingResultPromise ThrowIfNotHandled(string? customExceptionMessage = null)
         {
             if (!_source.IsCompleted)
             {
@@ -165,7 +165,7 @@ namespace Chopsticks.Messages
             return this;
         }
 
-        public HandlingPromise WhenNotHandled(Action whenNotHandled)
+        public HandlingResultPromise WhenNotHandled(Action whenNotHandled)
         {
             if (!_source.IsCompleted)
             {

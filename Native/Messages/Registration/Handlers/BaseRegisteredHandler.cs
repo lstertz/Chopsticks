@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Interceptors.Adapters;
 using Chopsticks.Messages.Registration.Interceptors;
@@ -23,12 +23,12 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
     /// <summary>
     /// The index in which this handler was registered. This is used 
     /// to implicitly order registrations in the order in which they were registered, if 
-    /// there is no explicit order (per <see cref="Order"/> specified.
+    /// there is no explicit order (per <see cref="Order"/>) specified.
     /// </summary>
     public int RegistrationIndex { get; init; } = 0;
 
     private readonly List<RegisteredInterceptor<TMessage, TContext>> _interceptors = [];
-    private Func<TContext, HandlingAwaitable> _handlePipeline;
+    private Func<TContext, HandlingResultAwaitable> _handlePipeline;
 
     private int _nextRegistrationIndex = 0;
 
@@ -104,10 +104,10 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
             AddInterceptor(interceptor, mode, settings);
 
 
-    public HandlingAwaitable HandleAsync(TContext context) =>
+    public HandlingResultAwaitable HandleAsync(TContext context) =>
         _handlePipeline(context);
 
-    protected abstract HandlingAwaitable InternalHandleAsync(TContext context);
+    protected abstract HandlingResultAwaitable InternalHandleAsync(TContext context);
 
     private void RebuildHandlePipeline()
     {
@@ -123,7 +123,7 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
         });
         */
 
-        Func<TContext, HandlingAwaitable> current = InternalHandleAsync;
+        Func<TContext, HandlingResultAwaitable> current = InternalHandleAsync;
 
         for (int c = _interceptors.Count - 1; c >= 0; c--)
         {

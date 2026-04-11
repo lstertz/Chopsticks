@@ -11,19 +11,19 @@ public class MulticastContextHandler<TMessage, TContext> :
     IMessageHandlerRegistrar<TMessage, TContext>
     where TContext : IMessageContext<TMessage>, new()
 {
-    public HandlingPromise TryHandle(TContext context) =>
+    public HandlingResultPromise TryHandle(TContext context) =>
         _dispatchPipeline(context).ToPromise();
 
-    public HandlingPromise TryHandle(TMessage message) =>
+    public HandlingResultPromise TryHandle(TMessage message) =>
         _dispatchPipeline(new TContext()
         {
             Message = message,
         }).ToPromise();
 
-    public HandlingAwaitable TryHandleAsync(TContext context) =>
+    public HandlingResultAwaitable TryHandleAsync(TContext context) =>
         _dispatchPipeline(context);
 
-    public HandlingAwaitable TryHandleAsync(TMessage message,
+    public HandlingResultAwaitable TryHandleAsync(TMessage message,
         CancellationToken token = default) =>
             _dispatchPipeline(new TContext()
             {

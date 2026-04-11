@@ -12,7 +12,7 @@ namespace Chopsticks.Messages.Handlers.Sources
         private bool _isCompleted = false;
 
         private Action? _continuation;
-        private HandlingAwaitable.Awaiter _currentAwaiter;
+        private HandlingResultAwaitable.Awaiter _currentAwaiter;
         private int _currentIndex = 0;
         private TContext _context = default!;
         private HandlingResult _result;
