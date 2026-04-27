@@ -1,7 +1,7 @@
-using Chopsticks.Messages.Exceptions;
-using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Threading;
+using Chopsticks.Messages.Exceptions;
+using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages
 {
@@ -16,8 +16,12 @@ namespace Chopsticks.Messages
     /// </remarks>
     public struct HandlingCompletionPromise
     {
+        /// <summary>
+        /// Gets the completion status of the message handling operation.
+        /// </summary>
         public HandlingCompletion Completion => _source.IsCompleted ?
-            (HandlingCompletion)_source.GetResult().Status : 
+            (HandlingCompletion)_source.GetResult().Status :
+
             HandlingCompletion.NotHandled;
 
         internal IHandlingPromiseSource Source => _source;
@@ -49,7 +53,7 @@ namespace Chopsticks.Messages
         /// The current <see cref="HandlingCompletionPromise"/> instance, 
         /// allowing for method chaining.
         /// </returns>
-        public HandlingCompletionPromise ThrowIfNotHandled(
+        public readonly HandlingCompletionPromise ThrowIfNotHandled(
             string? customExceptionMessage = null)
         {
             if (!_source.IsCompleted)
@@ -64,7 +68,16 @@ namespace Chopsticks.Messages
             return this;
         }
 
-        public HandlingCompletionPromise WhenCompleted(Action whenCompleted)
+        /// <summary>
+        /// The continuation performed when the promise has completed, 
+        /// meaning that the message has been handled by at least one handler.
+        /// </summary>
+        /// <param name="whenCompleted">The action to perform when the promise has completed.</param>
+        /// <returns>
+        /// The current <see cref="HandlingCompletionPromise"/> instance, 
+        /// allowing for method chaining.
+        /// </returns>
+        public readonly HandlingCompletionPromise WhenCompleted(Action whenCompleted)
         {
             if (!_source.IsCompleted)
             {
@@ -79,7 +92,20 @@ namespace Chopsticks.Messages
             return this;
         }
 
-        public HandlingCompletionPromise WhenNotHandled(Action whenNotHandled)
+        /// <summary>
+        /// The continuation performed when the promise was not completed 
+        /// due to the  message not being handled.
+        /// </summary>
+        /// <param name="whenNotHandled">The action to perform when the message was not handled.</param>
+        /// <remarks>
+        /// The continuation will be performed immediately (synchronously) if the 
+        /// message was not handled.
+        /// </remarks>
+        /// <returns>
+        /// The current <see cref="HandlingCompletionPromise"/> instance, 
+        /// allowing for method chaining.
+        /// </returns>
+        public readonly HandlingCompletionPromise WhenNotHandled(Action whenNotHandled)
         {
             if (!_source.IsCompleted)
             {

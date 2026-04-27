@@ -1,15 +1,16 @@
-using Chopsticks.Messages.Exceptions;
-using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Chopsticks.Messages.Exceptions;
+using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages
 {
     public struct HandlingResultPromise
     {
         public static HandlingResultPromise NoHandlers => new(_noHandlersSource);
-        private static readonly IHandlingPromiseSource _noHandlersSource = 
+        private static readonly IHandlingPromiseSource _noHandlersSource =
+
             new TryHandlePromiseSource().Init(HandlingResult.NoHandlers);
 
         public static HandlingResultPromise Success => new(_successSource);
@@ -17,7 +18,8 @@ namespace Chopsticks.Messages
             new TryHandlePromiseSource().Init(HandlingResult.Success);
 
 
-        public HandlingStatus Status => _source.IsCompleted ? 
+        public HandlingStatus Status => _source.IsCompleted ?
+
             _source.GetResult().Status : HandlingStatus.Processing;
 
         internal IHandlingPromiseSource Source => _source;
@@ -151,7 +153,7 @@ namespace Chopsticks.Messages
         /// The current <see cref="HandlingResultPromise"/> instance, 
         /// allowing for method chaining.
         /// </returns>
-        public HandlingResultPromise ThrowIfNotHandled(string? customExceptionMessage = null)
+        public readonly HandlingResultPromise ThrowIfNotHandled(string? customExceptionMessage = null)
         {
             if (!_source.IsCompleted)
             {

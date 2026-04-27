@@ -1,14 +1,29 @@
-using Chopsticks.Messages.Exceptions;
-using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Runtime.CompilerServices;
+using Chopsticks.Messages.Exceptions;
+using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages
 {
-    public struct HandlingCompletionAwaitable
+    /// <summary>
+    /// The awaitable result of a message handling operation that has been 
+    /// dispatched through a non-try handler.
+    /// </summary>
+    /// <remarks>
+    /// This is a reduced subset of <see cref="HandlingResultAwaitable"/> that only 
+    /// represents the observable outcomes after failure and cancellation 
+    /// have been thrown as exceptions.
+    /// </remarks>
+    public readonly struct HandlingCompletionAwaitable
     {
+        /// <summary>
+        /// The awaiter for the <see cref="HandlingCompletionAwaitable"/>.
+        /// </summary>
         public readonly struct Awaiter : INotifyCompletion
         {
+            /// <summary>
+            /// Whether the awaiter has completed.
+            /// </summary>
             public bool IsCompleted =>
                 _source.IsCompleted;
 
@@ -37,10 +52,31 @@ namespace Chopsticks.Messages
             _awaiter = new(source);
         }
 
+
+        /// <summary>
+        /// Gets the awaiter for the <see cref="HandlingCompletionAwaitable"/>.
+        /// </summary>
+        /// <returns>
+        /// The awaiter for the <see cref="HandlingCompletionAwaitable"/>.
+        /// </returns>
         public readonly Awaiter GetAwaiter() => _awaiter;
 
 
-        public HandlingCompletionAwaitable ThrowIfNotHandled(
+        /// <summary>
+        /// Throws a <see cref="MessageNotHandledException"/> if the message was not 
+        /// handled by any handlers.
+        /// </summary>
+        /// <param name="customExceptionMessage">
+        /// The optional message to override the default exception message.
+        /// </param>
+        /// <exception cref="MessageNotHandledException">
+        /// Thrown if the message was not handled.
+        /// </exception>
+        /// <returns>
+        /// The current <see cref="HandlingCompletionPromise"/> instance, 
+        /// allowing for method chaining.
+        /// </returns>
+        public readonly HandlingCompletionAwaitable ThrowIfNotHandled(
             string? customExceptionMessage = null)
         {
             if (!_awaiter.IsCompleted)
