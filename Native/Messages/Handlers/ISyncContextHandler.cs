@@ -1,5 +1,5 @@
-using Chopsticks.Messages.Handlers.Sources;
 using System;
+using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages.Handlers
 {
@@ -7,7 +7,7 @@ namespace Chopsticks.Messages.Handlers
         IContextHandler<TMessage, TContext>
         where TContext : IMessageContext<TMessage>, new()
     {
-        new void Handle(TContext context);
+        void Handle(TContext context);
 
 
         HandlingResultPromise IContextHandler<TMessage, TContext>.TryHandle(TContext context)
@@ -30,8 +30,7 @@ namespace Chopsticks.Messages.Handlers
         {
             try
             {
-                // Maintain explicit cast to ensure dispatching to the correct method.
-                (this as ISyncContextHandler<TMessage, TContext>).Handle(context);
+                Handle(context);
                 return HandlingResult.Success;
             }
             catch (Exception ex)

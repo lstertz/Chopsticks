@@ -1,13 +1,13 @@
-using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Threading;
+using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages.Handlers
 {
     public interface ISyncMessageHandler<TMessage> :
         IMessageHandler<TMessage>
     {
-        new void Handle(TMessage message);
+        void Handle(TMessage message);
 
 
         HandlingResultPromise IMessageHandler<TMessage>.TryHandle(TMessage message)
@@ -31,8 +31,7 @@ namespace Chopsticks.Messages.Handlers
         {
             try
             {
-                // Maintain explicit cast to ensure dispatching to the correct method.
-                (this as ISyncMessageHandler<TMessage>).Handle(message);
+                Handle(message);
                 return HandlingResult.Success;
             }
             catch (Exception ex)
