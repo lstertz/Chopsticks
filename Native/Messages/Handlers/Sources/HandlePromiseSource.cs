@@ -13,8 +13,6 @@ namespace Chopsticks.Messages.Handlers.Sources
         public override HandlingResult GetResult()
         {
             var result = InnerSource!.GetResult();
-            result.ThrowIfFailed();
-
             return result;
         }
 

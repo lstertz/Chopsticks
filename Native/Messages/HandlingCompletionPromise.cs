@@ -14,29 +14,34 @@ namespace Chopsticks.Messages
     /// source, so only <see cref="HandlingCompletion.Successful"/> and 
     /// <see cref="HandlingCompletion.NotHandled"/> are observable.
     /// </remarks>
-    public struct HandlingCompletionPromise
+    public readonly struct HandlingCompletionPromise
     {
         /// <summary>
         /// Gets the completion status of the message handling operation.
         /// </summary>
         public HandlingCompletion Completion => _source.IsCompleted ?
             (HandlingCompletion)_source.GetResult().Status :
-
             HandlingCompletion.NotHandled;
 
-        internal IHandlingPromiseSource Source => _source;
+        internal readonly IHandlingPromiseSource Source => _source;
         private readonly IHandlingPromiseSource _source;
-        private readonly SynchronizationContext? _asyncContext;
 
 
         public HandlingCompletionPromise(IHandlingPromiseSource source,
             SynchronizationContext? asyncContext = null)
         {
             _source = source;
-            _asyncContext = asyncContext;
+            _source.FailureContext = asyncContext;
 
             if (!_source.IsCompleted)
                 _source.OnCompleted(_source.InitiateDefaultContinuations);
+            else
+            {
+                _source.InitiateDefaultContinuations();
+
+                // Try to throw directly if this was synchronous.
+                _source.GetResult().ThrowIfFailed();
+            }
         }
 
         /// <summary>

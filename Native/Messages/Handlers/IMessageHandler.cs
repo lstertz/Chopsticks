@@ -13,7 +13,8 @@ namespace Chopsticks.Messages.Handlers
             var source = new HandlePromiseSource();
             source.Init(awaitable.Source);
 
-            return new HandlingCompletionPromise(source, asyncContext);
+            return new HandlingCompletionPromise(source, 
+                asyncContext ?? SynchronizationContext.Current);
         }
 
         HandlingCompletionAwaitable HandleAsync(TMessage message, CancellationToken token = default)

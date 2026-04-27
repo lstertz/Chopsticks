@@ -53,9 +53,6 @@ public class MulticastContextHandler<TMessage, TContext> :
         return AddRegistration(handler, settings);
     }
 
-    void IContextHandlerRegistrar<TMessage, TContext>.Unregister(
-        IRegisteredHandler registration) => RemoveRegistration(registration);
-
     void IMessageHandlerRegistrar<TMessage>.Unregister(
         IRegisteredHandler registration) => RemoveRegistration(registration);
 }

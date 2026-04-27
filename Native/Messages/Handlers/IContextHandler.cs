@@ -13,7 +13,8 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
         var source = new HandlePromiseSource();
         source.Init(awaitable.Source);
 
-        return new HandlingCompletionPromise(source, asyncContext);
+        return new HandlingCompletionPromise(source, 
+            asyncContext ?? SynchronizationContext.Current);
     }
 
     HandlingCompletionAwaitable HandleAsync(TContext context)
