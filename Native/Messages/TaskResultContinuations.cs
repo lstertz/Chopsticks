@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,7 +7,7 @@ namespace Chopsticks.Messages
     public static class TaskResultContinuations
     {
         public static async Task<HandlingResult> ContinueWithTask(
-            this HandlingAwaitable awaitable) =>
+            this HandlingResultAwaitable awaitable) =>
             await awaitable;
 
 

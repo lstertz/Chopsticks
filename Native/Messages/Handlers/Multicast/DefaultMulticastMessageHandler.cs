@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Registration;
+using Chopsticks.Messages.Registration;
 using Chopsticks.Messages.Registration.Handlers;
 using System;
 using System.Threading;
@@ -14,12 +14,12 @@ namespace Chopsticks.Messages.Handlers.Multicast
         public static MulticastMessageHandler<TMessage> Get() =>
             _defaultHandler.Value;
 
-        public static HandlingPromise Handle(TMessage message) =>
-            _defaultHandler.Value.Handle(message);
+        public static HandlingResultPromise TryHandle(TMessage message) =>
+            _defaultHandler.Value.TryHandle(message);
 
-        public static HandlingAwaitable HandleAsync(TMessage message,
+        public static HandlingResultAwaitable TryHandleAsync(TMessage message,
             CancellationToken token = default) =>
-            _defaultHandler.Value.HandleAsync(message, token);
+            _defaultHandler.Value.TryHandleAsync(message, token);
 
         public static void Register(ISyncMessageHandler<TMessage> handler)
         {

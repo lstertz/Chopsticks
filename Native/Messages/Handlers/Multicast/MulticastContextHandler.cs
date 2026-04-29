@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Registration;
+using Chopsticks.Messages.Registration;
 using Chopsticks.Messages.Registration.Handlers;
 using System.Threading;
 
@@ -11,19 +11,19 @@ public class MulticastContextHandler<TMessage, TContext> :
     IMessageHandlerRegistrar<TMessage, TContext>
     where TContext : IMessageContext<TMessage>, new()
 {
-    public HandlingPromise Handle(TContext context) =>
+    public HandlingResultPromise TryHandle(TContext context) =>
         _dispatchPipeline(context).ToPromise();
 
-    public HandlingPromise Handle(TMessage message) =>
+    public HandlingResultPromise TryHandle(TMessage message) =>
         _dispatchPipeline(new TContext()
         {
             Message = message,
         }).ToPromise();
 
-    public HandlingAwaitable HandleAsync(TContext context) =>
+    public HandlingResultAwaitable TryHandleAsync(TContext context) =>
         _dispatchPipeline(context);
 
-    public HandlingAwaitable HandleAsync(TMessage message,
+    public HandlingResultAwaitable TryHandleAsync(TMessage message,
         CancellationToken token = default) =>
             _dispatchPipeline(new TContext()
             {
@@ -52,9 +52,6 @@ public class MulticastContextHandler<TMessage, TContext> :
     {
         return AddRegistration(handler, settings);
     }
-
-    void IContextHandlerRegistrar<TMessage, TContext>.Unregister(
-        IRegisteredHandler registration) => RemoveRegistration(registration);
 
     void IMessageHandlerRegistrar<TMessage>.Unregister(
         IRegisteredHandler registration) => RemoveRegistration(registration);

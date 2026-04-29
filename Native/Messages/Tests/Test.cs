@@ -1,9 +1,9 @@
-﻿using Chopsticks.Messages;
+using System.Collections.Concurrent;
+using Chopsticks.Messages;
 using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Handlers.Multicast;
 using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Registration;
-using System.Collections.Concurrent;
 using static Tests.Test;
 
 namespace Tests
@@ -42,8 +42,8 @@ namespace Tests
 
             public Action OnInterception { get; set; } = () => { };
 
-            public async Task InterceptAsync(DefaultMessageContext<Message> context, 
-                Func<DefaultMessageContext<Message>, HandlingAwaitable> next)
+            public async Task InterceptAsync(DefaultMessageContext<Message> context,
+                Func<DefaultMessageContext<Message>, HandlingResultAwaitable> next)
             {
                 Console.WriteLine("Before Interceptor");
                 CalledBeforeNext = true;
@@ -68,10 +68,10 @@ namespace Tests
             public MessageSender(IMessageHandler<Message> handler) =>
                 _handler = handler;
 
-            public HandlingPromise Send(SynchronizationContext? context = null)
+            public HandlingResultPromise Send(SynchronizationContext? context = null)
             {
                 Console.WriteLine("Sending OnCommand");
-                var promise = _handler.Handle(new Message())
+                var promise = _handler.TryHandle(new Message())
                     .ThrowIfFailed(context);
                 Console.WriteLine("Sent OnCommand");
 
@@ -81,7 +81,7 @@ namespace Tests
             public async Task<HandlingResult> SendAsync()
             {
                 Console.WriteLine("Sending OnCommand");
-                var result = await _handler.HandleAsync(new Message())
+                var result = await _handler.TryHandleAsync(new Message())
                     .ContinueWithTask()
                     .ThrowIfFailed();
                 Console.WriteLine("Sent OnCommand");
@@ -797,6 +797,320 @@ namespace Tests
 
             // Assert
             Assert.That(result.Status, Is.EqualTo(HandlingStatus.Success));
+        }
+
+
+        // -- Context handler test fixtures --
+
+        public class FailingSyncContextHandler :
+            ISyncContextHandler<Message, DefaultMessageContext<Message>>
+        {
+            void ISyncContextHandler<Message, DefaultMessageContext<Message>>.Handle(
+                DefaultMessageContext<Message> context)
+            {
+                throw new Exception("Simulated failure in sync context handler.");
+            }
+        }
+
+        public class FailingAsyncContextHandler :
+            ITaskContextHandler<Message, DefaultMessageContext<Message>>
+        {
+            async Task ITaskContextHandler<Message, DefaultMessageContext<Message>>.HandleAsync(
+                DefaultMessageContext<Message> context)
+            {
+                await Task.Delay(100, context.CancellationToken);
+                throw new Exception("Simulated failure in async context handler.");
+            }
+        }
+
+        public class SuccessfulSyncContextHandler :
+            ISyncContextHandler<Message, DefaultMessageContext<Message>>
+        {
+            public bool HandledMessage { get; private set; } = false;
+
+            void ISyncContextHandler<Message, DefaultMessageContext<Message>>.Handle(
+                DefaultMessageContext<Message> context)
+            {
+                Console.WriteLine($"Received OnCommand via context, Sync, Value: {context.Message.Value}.");
+                HandledMessage = true;
+            }
+        }
+
+        public class SuccessfulAsyncContextHandler :
+            ITaskContextHandler<Message, DefaultMessageContext<Message>>
+        {
+            public bool HandledMessage { get; private set; } = false;
+
+            async Task ITaskContextHandler<Message, DefaultMessageContext<Message>>.HandleAsync(
+                DefaultMessageContext<Message> context)
+            {
+                Console.WriteLine($"Received OnCommand via context, Async, Value: {context.Message.Value}.");
+                await Task.Delay(100, context.CancellationToken);
+                HandledMessage = true;
+            }
+        }
+
+
+        // -- IMessageHandler.Handle / HandleAsync tests --
+
+        [Test]
+        public void MessageHandler_Handle_SyncFailure_Throws()
+        {
+            // Set up
+            IMessageHandler<Message> handler = new FailingSyncMessageHandler();
+
+            // Act & Assert — Handle wraps TryHandle with HandlePromiseSource,
+            // which calls ThrowIfFailed() on GetResult(), re-throwing synchronously.
+            Assert.Throws<Exception>(() => handler.Handle(new Message()));
+        }
+
+        [Test]
+        public async Task MessageHandler_Handle_AsyncFailure_ThrowsViaContext()
+        {
+            // Set up
+            IMessageHandler<Message> handler = new FailingAsyncMessageHandler();
+            var context = new TestSynchronizationContext();
+
+            // Act — The async handler hasn't completed yet, so Handle returns
+            // a promise that will post the failure to the sync context.
+            var promise = handler.Handle(new Message(), context);
+
+            // Wait for async completion.
+            await Task.Delay(400);
+
+            // Assert — The posted callback should throw when the context is drained.
+            Assert.Throws<Exception>(context.Run);
+        }
+
+        [Test]
+        public void MessageHandler_Handle_SyncSuccess_Completes()
+        {
+            // Set up
+            IMessageHandler<Message> handler = new SuccessfulSyncMessageHandler();
+
+            // Act
+            var promise = handler.Handle(new Message());
+
+            // Assert
+            Assert.That(promise.Completion, Is.EqualTo(HandlingCompletion.Successful));
+        }
+
+        [Test]
+        public async Task MessageHandler_Handle_AsyncSuccess_Completes()
+        {
+            // Set up
+            IMessageHandler<Message> handler = new SuccessfulAsyncMessageHandler();
+            bool hasCompleted = false;
+
+            // Act
+            var promise = handler.Handle(new Message());
+            promise.WhenCompleted(() => hasCompleted = true);
+
+            // Wait for async completion.
+            while (!hasCompleted)
+                await Task.Delay(10);
+
+            // Assert
+            Assert.That(promise.Completion, Is.EqualTo(HandlingCompletion.Successful));
+        }
+
+        [Test]
+        public void MessageHandler_HandleAsync_SyncFailure_ThrowsAggregateException()
+        {
+            // Set up
+            IMessageHandler<Message> handler = new FailingSyncMessageHandler();
+
+            // Act & Assert — HandleAsync wraps with HandleAsyncPromiseSource,
+            // which throws AggregateException for failures.
+            Assert.ThrowsAsync<AggregateException>(async () =>
+                await handler.HandleAsync(new Message()));
+        }
+
+        [Test]
+        public void MessageHandler_HandleAsync_AsyncFailure_ThrowsAggregateException()
+        {
+            // Set up
+            IMessageHandler<Message> handler = new FailingAsyncMessageHandler();
+
+            // Act & Assert
+            Assert.ThrowsAsync<AggregateException>(async () =>
+                await handler.HandleAsync(new Message()));
+        }
+
+        [Test]
+        public async Task MessageHandler_HandleAsync_SyncSuccess_Completes()
+        {
+            // Set up
+            IMessageHandler<Message> handler = new SuccessfulSyncMessageHandler();
+
+            // Act
+            var completion = await handler.HandleAsync(new Message());
+
+            // Assert
+            Assert.That(completion, Is.EqualTo(HandlingCompletion.Successful));
+        }
+
+        [Test]
+        public async Task MessageHandler_HandleAsync_AsyncSuccess_Completes()
+        {
+            // Set up
+            IMessageHandler<Message> handler = new SuccessfulAsyncMessageHandler();
+
+            // Act
+            var completion = await handler.HandleAsync(new Message());
+
+            // Assert
+            Assert.That(completion, Is.EqualTo(HandlingCompletion.Successful));
+        }
+
+
+        // -- IContextHandler.Handle / HandleAsync tests --
+
+        [Test]
+        public void ContextHandler_Handle_SyncFailure_Throws()
+        {
+            // Set up
+            IContextHandler<Message, DefaultMessageContext<Message>> handler =
+                new FailingSyncContextHandler();
+            var ctx = new DefaultMessageContext<Message>
+            {
+                Message = new Message()
+            };
+
+            // Act & Assert
+            Assert.Throws<Exception>(() => handler.Handle(ctx));
+        }
+
+        [Test]
+        public async Task ContextHandler_Handle_AsyncFailure_ThrowsViaContext()
+        {
+            // Set up
+            IContextHandler<Message, DefaultMessageContext<Message>> handler =
+                new FailingAsyncContextHandler();
+            var syncCtx = new TestSynchronizationContext();
+            var ctx = new DefaultMessageContext<Message>
+            {
+                Message = new Message()
+            };
+
+            // Act
+            var promise = handler.Handle(ctx, syncCtx);
+
+            // Wait for async completion.
+            await Task.Delay(400);
+
+            // Assert
+            Assert.Throws<Exception>(syncCtx.Run);
+        }
+
+        [Test]
+        public void ContextHandler_Handle_SyncSuccess_Completes()
+        {
+            // Set up
+            IContextHandler<Message, DefaultMessageContext<Message>> handler =
+                new SuccessfulSyncContextHandler();
+            var ctx = new DefaultMessageContext<Message>
+            {
+                Message = new Message()
+            };
+
+            // Act
+            var promise = handler.Handle(ctx);
+
+            // Assert
+            Assert.That(promise.Completion, Is.EqualTo(HandlingCompletion.Successful));
+        }
+
+        [Test]
+        public async Task ContextHandler_Handle_AsyncSuccess_Completes()
+        {
+            // Set up
+            IContextHandler<Message, DefaultMessageContext<Message>> handler =
+                new SuccessfulAsyncContextHandler();
+            var ctx = new DefaultMessageContext<Message>
+            {
+                Message = new Message()
+            };
+            bool hasCompleted = false;
+
+            // Act
+            var promise = handler.Handle(ctx);
+            promise.WhenCompleted(() => hasCompleted = true);
+
+            // Wait for async completion.
+            while (!hasCompleted)
+                await Task.Delay(10);
+
+            // Assert
+            Assert.That(promise.Completion, Is.EqualTo(HandlingCompletion.Successful));
+        }
+
+        [Test]
+        public void ContextHandler_HandleAsync_SyncFailure_ThrowsAggregateException()
+        {
+            // Set up
+            IContextHandler<Message, DefaultMessageContext<Message>> handler =
+                new FailingSyncContextHandler();
+            var ctx = new DefaultMessageContext<Message>
+            {
+                Message = new Message()
+            };
+
+            // Act & Assert
+            Assert.ThrowsAsync<AggregateException>(async () =>
+                await handler.HandleAsync(ctx));
+        }
+
+        [Test]
+        public void ContextHandler_HandleAsync_AsyncFailure_ThrowsAggregateException()
+        {
+            // Set up
+            IContextHandler<Message, DefaultMessageContext<Message>> handler =
+                new FailingAsyncContextHandler();
+            var ctx = new DefaultMessageContext<Message>
+            {
+                Message = new Message()
+            };
+
+            // Act & Assert
+            Assert.ThrowsAsync<AggregateException>(async () =>
+                await handler.HandleAsync(ctx));
+        }
+
+        [Test]
+        public async Task ContextHandler_HandleAsync_SyncSuccess_Completes()
+        {
+            // Set up
+            IContextHandler<Message, DefaultMessageContext<Message>> handler =
+                new SuccessfulSyncContextHandler();
+            var ctx = new DefaultMessageContext<Message>
+            {
+                Message = new Message()
+            };
+
+            // Act
+            var completion = await handler.HandleAsync(ctx);
+
+            // Assert
+            Assert.That(completion, Is.EqualTo(HandlingCompletion.Successful));
+        }
+
+        [Test]
+        public async Task ContextHandler_HandleAsync_AsyncSuccess_Completes()
+        {
+            // Set up
+            IContextHandler<Message, DefaultMessageContext<Message>> handler =
+                new SuccessfulAsyncContextHandler();
+            var ctx = new DefaultMessageContext<Message>
+            {
+                Message = new Message()
+            };
+
+            // Act
+            var completion = await handler.HandleAsync(ctx);
+
+            // Assert
+            Assert.That(completion, Is.EqualTo(HandlingCompletion.Successful));
         }
     }
 }

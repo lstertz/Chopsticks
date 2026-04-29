@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Interceptors;
 using System;
 
@@ -19,8 +19,8 @@ public class RegisteredInterceptor<TMessage, TContext> :
         _interceptor = interceptor ?? throw new ArgumentNullException(nameof(interceptor));
 
 
-    public HandlingAwaitable InterceptAsync(TContext context, 
-        Func<TContext, HandlingAwaitable> next) =>
+    public HandlingResultAwaitable InterceptAsync(TContext context, 
+        Func<TContext, HandlingResultAwaitable> next) =>
         _interceptor.InterceptAsync(context, next);
 
 

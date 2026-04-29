@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers;
 using System;
 
 namespace Chopsticks.Messages.Registration.Handlers;
@@ -16,8 +16,8 @@ public class RegisteredContextHandler<TMessage, TContext> :
 
 
     /// <inheritdoc/>
-    protected override HandlingAwaitable InternalHandleAsync(TContext context) =>
-        _handler.HandleAsync(context);
+    protected override HandlingResultAwaitable InternalHandleAsync(TContext context) =>
+        _handler.TryHandleAsync(context);
 
 
     /// <inheritdoc/>

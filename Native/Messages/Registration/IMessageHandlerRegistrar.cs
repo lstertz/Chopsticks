@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Registration.Handlers;
 
 namespace Chopsticks.Messages.Registration;
@@ -19,6 +19,6 @@ public interface IMessageHandlerRegistrar<TMessage, TContext>
 {
     // TODO :: Accommodate clearing all.
 
-    IRegisteredHandler<TMessage, TContext> Register(IMessageHandler<TMessage> handler, 
+    new IRegisteredHandler<TMessage, TContext> Register(IMessageHandler<TMessage> handler, 
         HandlerRegistrationSettings settings = default);
 }

@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Registration.Handlers;
 namespace Chopsticks.Messages.Registration;
 
@@ -11,6 +11,4 @@ public interface IContextHandlerRegistrar<TMessage, TContext> :
 
     IRegisteredHandler<TMessage, TContext> Register(IContextHandler<TMessage, TContext> handler) =>
             Register(handler, default);
-
-    void Unregister(IRegisteredHandler registration);
 }
