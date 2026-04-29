@@ -21,6 +21,9 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     protected BaseRegisteredHandler<TMessage, TContext>[] RegisteredMessageHandlers => [.. _registeredMessageHandlers];
     private readonly List<BaseRegisteredHandler<TMessage, TContext>> _registeredMessageHandlers = new(8);
 
+    private int _nextHandlerRegistrationIndex = 0;
+    private int _nextInterceptorRegistrationIndex = 0;
+
 
     public BaseMessageHandlerRegistrar()
     {
@@ -58,7 +61,8 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     {
         var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor)
         {
-            Order = settings.Order
+            Order = settings.Order,
+            RegistrationIndex = _nextInterceptorRegistrationIndex++
         };
 
         _dispatchInterceptors.Add(registration);
@@ -67,7 +71,7 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
             int orderComparison = x.Order.CompareTo(y.Order);
             if (orderComparison != 0)
                 return orderComparison;
-            return 1;
+            return x.RegistrationIndex.CompareTo(y.RegistrationIndex);
         });
 
         RebuildDispatchPipeline(_dispatchInterceptors);
@@ -84,21 +88,32 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     }
 
 
-    // TODO :: Rebuild immutable collection used during handling on any register/unregister.
-    //             Immutability is needed to avoid locking during message dispatch.
-    protected void AddRegistration(BaseRegisteredHandler<TMessage, TContext> registration)
+    protected RegisteredContextHandler<TMessage, TContext> AddRegistration(
+        IContextHandler<TMessage, TContext> handler,
+        HandlerRegistrationSettings settings)
     {
-        if (_registeredMessageHandlers.Contains(registration))
-            return;
-
-        _registeredMessageHandlers.Add(registration);
-        _registeredMessageHandlers.Sort((x, y) =>
+        var registration = new RegisteredContextHandler<TMessage, TContext>(handler)
         {
-            int orderComparison = x.Order.CompareTo(y.Order);
-            if (orderComparison != 0)
-                return orderComparison;
-            return 1;
-        });
+            Order = settings.Order,
+            RegistrationIndex = _nextHandlerRegistrationIndex++
+        };
+
+        AddRegistration(registration);
+        return registration;
+    }
+
+    protected RegisteredMessageHandler<TMessage, TContext> AddRegistration(
+        IMessageHandler<TMessage> handler,
+        HandlerRegistrationSettings settings)
+    {
+        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
+        {
+            Order = settings.Order,
+            RegistrationIndex = _nextHandlerRegistrationIndex++
+        };
+
+        AddRegistration(registration);
+        return registration;
     }
 
     protected void RemoveRegistration(IRegisteredHandler registration)
@@ -111,4 +126,22 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
 
     protected abstract void RebuildDispatchPipeline(
         List<RegisteredInterceptor<TMessage, TContext>> interceptors);
+
+
+    // TODO :: Rebuild immutable collection used during handling on any register/unregister.
+    //             Immutability is needed to avoid locking during message dispatch.
+    private void AddRegistration(BaseRegisteredHandler<TMessage, TContext> registration)
+    {
+        if (_registeredMessageHandlers.Contains(registration))
+            return;
+
+        _registeredMessageHandlers.Add(registration);
+        _registeredMessageHandlers.Sort((x, y) =>
+        {
+            int orderComparison = x.Order.CompareTo(y.Order);
+            if (orderComparison != 0)
+                return orderComparison;
+            return x.RegistrationIndex.CompareTo(y.RegistrationIndex);
+        });
+    }
 }

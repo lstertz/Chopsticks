@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
-    public class TaskHandlingPromiseSource : 
+    public class TryHandleAsyncPromiseSource : 
         BaseHandlingPromiseSource<TaskAwaiter>
     {
         /// <inheritdoc/>

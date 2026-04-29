@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers;
 using System;
 
 namespace Chopsticks.Messages.Interceptors
@@ -6,7 +6,7 @@ namespace Chopsticks.Messages.Interceptors
     public interface IContextInterceptor<TMessage, TContext>
         where TContext : IMessageContext<TMessage>
     {
-        HandlingAwaitable InterceptAsync(TContext context, 
-            Func<TContext, HandlingAwaitable> next);
+        HandlingResultAwaitable InterceptAsync(TContext context, 
+            Func<TContext, HandlingResultAwaitable> next);
     }
 }

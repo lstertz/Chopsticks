@@ -1,27 +1,49 @@
-﻿using System.Threading;
+using System.Threading;
+using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages.Handlers;
 
 public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
     where TContext : IMessageContext<TMessage>, new()
 {
-    HandlingPromise IMessageHandler<TMessage>.Handle(TMessage message) =>
-        Handle(new TContext() 
-        { 
+    HandlingCompletionPromise Handle(TContext context,
+        SynchronizationContext? asyncContext = null)
+    {
+        var awaitable = TryHandle(context);
+        var source = new HandlePromiseSource();
+        source.Init(awaitable.Source);
+
+        return new HandlingCompletionPromise(source,
+            asyncContext ?? SynchronizationContext.Current);
+    }
+
+    HandlingCompletionAwaitable HandleAsync(TContext context)
+    {
+        var awaitable = TryHandleAsync(context);
+        var source = new HandleAsyncPromiseSource();
+        source.Init(awaitable.Source);
+
+        return new HandlingCompletionAwaitable(source);
+    }
+
+    HandlingResultPromise IMessageHandler<TMessage>.TryHandle(TMessage message) =>
+        TryHandle(new TContext()
+        {
             CancellationToken = default,
-            Message = message 
+            Message = message
         });
 
-    HandlingPromise Handle(TContext context);
+    HandlingResultPromise TryHandle(TContext context);
 
-    
-    HandlingAwaitable IMessageHandler<TMessage>.HandleAsync(
-        TMessage message, CancellationToken token) => 
-        HandleAsync(new TContext()
-        { 
-            CancellationToken = token, 
-            Message = message 
+
+    HandlingResultAwaitable IMessageHandler<TMessage>.TryHandleAsync(
+        TMessage message, CancellationToken token) =>
+
+        TryHandleAsync(new TContext()
+        {
+            CancellationToken = token,
+            Message = message
         });
 
-    HandlingAwaitable HandleAsync(TContext context);
+    HandlingResultAwaitable TryHandleAsync(TContext context);
 }

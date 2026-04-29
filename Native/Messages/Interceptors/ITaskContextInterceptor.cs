@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers;
 using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Threading.Tasks;
@@ -9,16 +9,16 @@ namespace Chopsticks.Messages.Interceptors
         IContextInterceptor<TMessage, TContext>
         where TContext : IMessageContext<TMessage>
     {
-        new Task InterceptAsync(TContext context, Func<TContext, HandlingAwaitable> next);
+        new Task InterceptAsync(TContext context, Func<TContext, HandlingResultAwaitable> next);
 
-        HandlingAwaitable IContextInterceptor<TMessage, TContext>.InterceptAsync(
-            TContext context, Func<TContext, HandlingAwaitable> next)
+        HandlingResultAwaitable IContextInterceptor<TMessage, TContext>.InterceptAsync(
+            TContext context, Func<TContext, HandlingResultAwaitable> next)
         {
-            var source = new TaskHandlingPromiseSource();  // TODO :: Rent from a pool.
+            var source = new TryHandleAsyncPromiseSource();  // TODO :: Rent from a pool.
             source.Init((this as ITaskContextInterceptor<TMessage, TContext>).InterceptAsync(
                 context, next).GetAwaiter());
 
-            return new HandlingAwaitable(source);
+            return new HandlingResultAwaitable(source);
         }
     }
 }

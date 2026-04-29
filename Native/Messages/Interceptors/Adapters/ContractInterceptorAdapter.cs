@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers;
+using Chopsticks.Messages.Handlers;
 using System;
 
 namespace Chopsticks.Messages.Interceptors.Adapters
@@ -8,10 +8,10 @@ namespace Chopsticks.Messages.Interceptors.Adapters
         where TContext : IMessageContext<TMessage>
     {
         private readonly struct NextInvoker(
-            Func<TContext, HandlingAwaitable> next, 
+            Func<TContext, HandlingResultAwaitable> next, 
             TContext fallbackContext)
         {
-            public HandlingAwaitable InvokeNext(TContract contract)
+            public HandlingResultAwaitable InvokeNext(TContract contract)
             {
                 if (contract is not TContext context)
                     return next(fallbackContext);
@@ -36,8 +36,8 @@ namespace Chopsticks.Messages.Interceptors.Adapters
             _interceptor = interceptor;
         }
 
-        public HandlingAwaitable InterceptAsync(TContext context, 
-            Func<TContext, HandlingAwaitable> next)
+        public HandlingResultAwaitable InterceptAsync(TContext context, 
+            Func<TContext, HandlingResultAwaitable> next)
         {
             if (context is not TContract contractContext)
             {

@@ -1,4 +1,4 @@
-﻿using Chopsticks.Messages.Handlers.Sources;
+using Chopsticks.Messages.Handlers.Sources;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,24 +10,24 @@ namespace Chopsticks.Messages.Handlers
         new Task HandleAsync(TMessage message, CancellationToken token = default);
 
 
-        HandlingPromise IMessageHandler<TMessage>.Handle(TMessage message)
+        HandlingResultPromise IMessageHandler<TMessage>.TryHandle(TMessage message)
         {
-            var source = new TaskHandlingPromiseSource();  // TODO :: Rent from a pool.
+            var source = new TryHandleAsyncPromiseSource();  // TODO :: Rent from a pool.
             source.Init(HandleAsync(message).GetAwaiter());
 
-            return new HandlingPromise(source);
+            return new HandlingResultPromise(source);
         }
 
-        HandlingAwaitable IMessageHandler<TMessage>.HandleAsync(
+        HandlingResultAwaitable IMessageHandler<TMessage>.TryHandleAsync(
             TMessage message, CancellationToken token)
         {
             // Maintain explicit cast to ensure dispatching to the correct method.
             Task task = (this as ITaskMessageHandler<TMessage>).HandleAsync(message, token);
 
-            var source = new TaskHandlingPromiseSource();  // TODO :: Rent from a pool.
+            var source = new TryHandleAsyncPromiseSource();  // TODO :: Rent from a pool.
             source.Init(task.GetAwaiter());
 
-            return new HandlingAwaitable(source);
+            return new HandlingResultAwaitable(source);
         }
 
     }

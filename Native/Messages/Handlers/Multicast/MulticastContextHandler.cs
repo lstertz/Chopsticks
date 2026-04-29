@@ -1,8 +1,5 @@
-﻿using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Registration;
 using Chopsticks.Messages.Registration.Handlers;
-using Chopsticks.Messages.Registration.Interceptors;
-using System.Linq;
 using System.Threading;
 
 namespace Chopsticks.Messages.Handlers.Multicast;
@@ -14,19 +11,19 @@ public class MulticastContextHandler<TMessage, TContext> :
     IMessageHandlerRegistrar<TMessage, TContext>
     where TContext : IMessageContext<TMessage>, new()
 {
-    public HandlingPromise Handle(TContext context) =>
+    public HandlingResultPromise TryHandle(TContext context) =>
         _dispatchPipeline(context).ToPromise();
 
-    public HandlingPromise Handle(TMessage message) =>
+    public HandlingResultPromise TryHandle(TMessage message) =>
         _dispatchPipeline(new TContext()
         {
             Message = message,
         }).ToPromise();
 
-    public HandlingAwaitable HandleAsync(TContext context) =>
+    public HandlingResultAwaitable TryHandleAsync(TContext context) =>
         _dispatchPipeline(context);
 
-    public HandlingAwaitable HandleAsync(TMessage message,
+    public HandlingResultAwaitable TryHandleAsync(TMessage message,
         CancellationToken token = default) =>
             _dispatchPipeline(new TContext()
             {
@@ -39,43 +36,22 @@ public class MulticastContextHandler<TMessage, TContext> :
         IContextHandler<TMessage, TContext> handler,
         HandlerRegistrationSettings settings)
     {
-        var registration = new RegisteredContextHandler<TMessage, TContext>(handler)
-        {
-            Order = settings.Order
-        };
-        AddRegistration(registration);
-
-        return registration;
-    }
-
-    IRegisteredHandler<TMessage> IMessageHandlerRegistrar<TMessage>.Register(
-        IMessageHandler<TMessage> handler,
-        HandlerRegistrationSettings settings)
-    {
-        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
-        {
-            Order = settings.Order
-        };
-        AddRegistration(registration);
-        
-        return registration;
+        return AddRegistration(handler, settings);
     }
 
     IRegisteredHandler<TMessage, TContext> IMessageHandlerRegistrar<TMessage, TContext>.Register(
         IMessageHandler<TMessage> handler,
         HandlerRegistrationSettings settings)
     {
-        var registration = new RegisteredMessageHandler<TMessage, TContext>(handler)
-        {
-            Order = settings.Order
-        };
-        AddRegistration(registration);
-
-        return registration;
+        return AddRegistration(handler, settings);
     }
 
-    void IContextHandlerRegistrar<TMessage, TContext>.Unregister(
-        IRegisteredHandler registration) => RemoveRegistration(registration);
+    IRegisteredHandler<TMessage> IMessageHandlerRegistrar<TMessage>.Register(
+        IMessageHandler<TMessage> handler,
+        HandlerRegistrationSettings settings)
+    {
+        return AddRegistration(handler, settings);
+    }
 
     void IMessageHandlerRegistrar<TMessage>.Unregister(
         IRegisteredHandler registration) => RemoveRegistration(registration);

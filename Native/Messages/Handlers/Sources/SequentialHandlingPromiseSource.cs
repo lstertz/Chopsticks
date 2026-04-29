@@ -1,5 +1,5 @@
-﻿using Chopsticks.Messages.Registration.Handlers;
 using System;
+using Chopsticks.Messages.Registration.Handlers;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
@@ -12,7 +12,7 @@ namespace Chopsticks.Messages.Handlers.Sources
         private bool _isCompleted = false;
 
         private Action? _continuation;
-        private HandlingAwaitable.Awaiter _currentAwaiter;
+        private HandlingResultAwaitable.Awaiter _currentAwaiter;
         private int _currentIndex = 0;
         private TContext _context;
         private HandlingResult _result;
@@ -20,7 +20,7 @@ namespace Chopsticks.Messages.Handlers.Sources
         private readonly Action _onHandlerCompletion;
 
 
-        public SequentialHandlingPromiseSource() : base() => 
+        public SequentialHandlingPromiseSource() : base() =>
             _onHandlerCompletion = OnHandlerCompletion;
 
         /// <inheritdoc/>

@@ -1,10 +1,10 @@
-﻿using Chopsticks.Messages.Handlers.Sources;
+using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Runtime.CompilerServices;
 
 namespace Chopsticks.Messages
 {
-    public struct HandlingAwaitable
+    public struct HandlingResultAwaitable
     {
         public readonly struct Awaiter : INotifyCompletion
         {
@@ -27,10 +27,11 @@ namespace Chopsticks.Messages
         }
 
 
+        internal IHandlingPromiseSource Source => _source;
         private readonly Awaiter _awaiter;
         private readonly IHandlingPromiseSource _source;
 
-        public HandlingAwaitable(IHandlingPromiseSource source)
+        public HandlingResultAwaitable(IHandlingPromiseSource source)
         {
             _source = source;
             _awaiter = new(source);
@@ -39,7 +40,7 @@ namespace Chopsticks.Messages
         public readonly Awaiter GetAwaiter() => _awaiter;
 
 
-        public HandlingAwaitable ThrowIfNotHandled(string? customExceptionMessage = null)
+        public HandlingResultAwaitable ThrowIfNotHandled(string? customExceptionMessage = null)
         {
             if (!_awaiter.IsCompleted)
             {
@@ -54,7 +55,7 @@ namespace Chopsticks.Messages
         }
 
 
-        public HandlingAwaitable WhenNotHandled(Action whenNotHandled)
+        public HandlingResultAwaitable WhenNotHandled(Action whenNotHandled)
         {
             if (!_awaiter.IsCompleted)
             {
@@ -71,7 +72,7 @@ namespace Chopsticks.Messages
         }
 
 
-        public readonly HandlingPromise ToPromise() => 
+        public readonly HandlingResultPromise ToPromise() => 
             new(_source);
     }
 }

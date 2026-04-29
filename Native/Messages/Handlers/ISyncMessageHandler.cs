@@ -1,30 +1,30 @@
-﻿using Chopsticks.Messages.Handlers.Sources;
 using System;
 using System.Threading;
+using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages.Handlers
 {
     public interface ISyncMessageHandler<TMessage> :
         IMessageHandler<TMessage>
     {
-        new void Handle(TMessage message);
+        void Handle(TMessage message);
 
 
-        HandlingPromise IMessageHandler<TMessage>.Handle(TMessage message)
+        HandlingResultPromise IMessageHandler<TMessage>.TryHandle(TMessage message)
         {
-            var source = new SyncHandlingPromiseSource();  // TODO :: Rent from a pool.
+            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
             source.Init(EvaluateHandle(message));
 
-            return new HandlingPromise(source);
+            return new HandlingResultPromise(source);
         }
 
-        HandlingAwaitable IMessageHandler<TMessage>.HandleAsync(
+        HandlingResultAwaitable IMessageHandler<TMessage>.TryHandleAsync(
             TMessage message, CancellationToken token)
         {
-            var source = new SyncHandlingPromiseSource();  // TODO :: Rent from a pool.
+            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
             source.Init(EvaluateHandle(message));
 
-            return new HandlingAwaitable(source);
+            return new HandlingResultAwaitable(source);
         }
 
         private HandlingResult EvaluateHandle(TMessage message)
