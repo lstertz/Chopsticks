@@ -1,83 +1,54 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using Chopsticks.Messages.Handlers.Sources.Pooling;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
-    public interface ISourcePool
-    {
-        IHandlingPromiseSource Rent();
-
-        void Return(IHandlingPromiseSource source);
-    }
-
-    // TODO :: Determine where the pool instance is held.
-    //        Possibly a static instance on each source implementation.
-    //        Needs to be accessible to the awaiters that hold the source reference.
-
-    public class SourcePool<TSource>
-        where TSource : class, IHandlingPromiseSource, new()
-    {
-        private readonly ConcurrentBag<TSource> _available =
-            [
-                new(),
-                new(),
-                new(),
-                new()
-            ];
-        private readonly ConcurrentDictionary<TSource, TSource> _rented = new();
-
-        public IHandlingPromiseSource Rent()
-        {
-            if (!_available.TryTake(out TSource source))
-                source = new();  // All available sources are already rented.
-
-            _rented.TryAdd(source, source);
-            return source;
-        }
-
-        public void Return(IHandlingPromiseSource source)
-        {
-            if (!_rented.TryRemove((TSource)source, out var rentedSource))
-                return;  // This source wasn't rented.
-
-            rentedSource.Reset();
-            _available.Add(rentedSource);
-        }
-    }
-
     /// <summary>
-    /// Defines the required functionality for a source to be pooled.
+    /// Base class for handling promise sources.
     /// </summary>
-    public interface IPooledSource
-    {
-        /// <summary>
-        /// Resets the pooled source so it can be safely used again.
-        /// </summary>
-        void Reset();
-    }
-
-    // TODO :: Implement pooling for all handling promise source implementations.
+    /// <typeparam name="TInnerSource">The type of the inner source.</typeparam>
     public abstract class BaseHandlingPromiseSource<TInnerSource> :
         IHandlingPromiseSource
     {
+        /// <inheritdoc/>
         public abstract bool IsCompleted { get; }
 
+        /// <inheritdoc/>
         public Action InitiateDefaultContinuations { get; private set; }
 
+        /// <inheritdoc/>
         public Action? OnCancelled { get; set; }
+
+        /// <inheritdoc/>
         public Action<HandlingResult>? OnCompletion { get; set; }
+
+        /// <inheritdoc/>
         public Action<IEnumerable<Exception>>? OnFailure { get; set; }
+
+        /// <inheritdoc/>
         public Action<HandlingResult>? OnNonSuccess { get; set; }
+
+        /// <inheritdoc/>
         public Action? OnSuccess { get; set; }
+
+        /// <inheritdoc/>
         public SynchronizationContext? FailureContext { get; set; }
 
 
+        /// <summary>
+        /// The inner source that the promise source wraps.
+        /// </summary>
         protected TInnerSource? InnerSource { get; private set; }
+
         private bool _isInitialized = false;
 
 
+        /// <summary>
+        /// Creates a new instance of the 
+        /// <see cref="BaseHandlingPromiseSource{TInnerSource}"/> class.
+        /// </summary>
         protected BaseHandlingPromiseSource()
         {
             InitiateDefaultContinuations = () =>
@@ -101,6 +72,13 @@ namespace Chopsticks.Messages.Handlers.Sources
             };
         }
 
+        /// <summary>
+        /// Initializes the promise source with the given inner source.
+        /// </summary>
+        /// <param name="innerSource">The inner source to initialize the promise source with.</param>
+        /// <returns>
+        /// The initialized promise source.
+        /// </returns>
         public IHandlingPromiseSource Init(TInnerSource innerSource)
         {
             _isInitialized = true;
@@ -124,12 +102,19 @@ namespace Chopsticks.Messages.Handlers.Sources
             FailureContext = null;
         }
 
-
+        /// <inheritdoc cref="IHandlingPromiseSource.GetResult()"/>
         public abstract HandlingResult GetResult();
 
+        /// <inheritdoc cref="IHandlingPromiseSource.OnCompleted(Action)"/>
         public abstract void OnCompleted(Action continuation);
 
 
+        /// <summary>
+        /// Verifies that the promise source has been initialized.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// The promise source has not been initialized.
+        /// </exception>
         protected void VerifyInitialized()
         {
             if (!_isInitialized)

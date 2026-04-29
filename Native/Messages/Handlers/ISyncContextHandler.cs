@@ -12,7 +12,7 @@ namespace Chopsticks.Messages.Handlers
 
         HandlingResultPromise IContextHandler<TMessage, TContext>.TryHandle(TContext context)
         {
-            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
+            var source = TryHandlePromiseSource.Pool.Rent();
             source.Init(EvaluateHandle(context));
 
             return new HandlingResultPromise(source);
@@ -20,7 +20,7 @@ namespace Chopsticks.Messages.Handlers
 
         HandlingResultAwaitable IContextHandler<TMessage, TContext>.TryHandleAsync(TContext context)
         {
-            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
+            var source = TryHandlePromiseSource.Pool.Rent();
             source.Init(EvaluateHandle(context));
 
             return new HandlingResultAwaitable(source);

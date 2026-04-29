@@ -10,7 +10,7 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
         SynchronizationContext? asyncContext = null)
     {
         var awaitable = TryHandle(context);
-        var source = new HandlePromiseSource();
+        var source = HandlePromiseSource.Pool.Rent();
         source.Init(awaitable.Source);
 
         return new HandlingCompletionPromise(source,
@@ -20,7 +20,7 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
     HandlingCompletionAwaitable HandleAsync(TContext context)
     {
         var awaitable = TryHandleAsync(context);
-        var source = new HandleAsyncPromiseSource();
+        var source = HandleAsyncPromiseSource.Pool.Rent();
         source.Init(awaitable.Source);
 
         return new HandlingCompletionAwaitable(source);

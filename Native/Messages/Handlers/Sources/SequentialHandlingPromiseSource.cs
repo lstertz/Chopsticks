@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Chopsticks.Messages.Registration.Handlers;
 
 namespace Chopsticks.Messages.Handlers.Sources
@@ -32,7 +32,7 @@ namespace Chopsticks.Messages.Handlers.Sources
 
             _continuation = null;
             _currentAwaiter = default;
-            _currentIndex = -1;
+            _currentIndex = 0;
         }
 
 

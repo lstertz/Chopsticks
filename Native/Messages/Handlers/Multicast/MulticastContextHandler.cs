@@ -1,6 +1,6 @@
+﻿using System.Threading;
 using Chopsticks.Messages.Registration;
 using Chopsticks.Messages.Registration.Handlers;
-using System.Threading;
 
 namespace Chopsticks.Messages.Handlers.Multicast;
 
@@ -30,7 +30,6 @@ public class MulticastContextHandler<TMessage, TContext> :
                 Message = message,
                 CancellationToken = token
             });
-
 
     IRegisteredHandler<TMessage, TContext> IContextHandlerRegistrar<TMessage, TContext>.Register(
         IContextHandler<TMessage, TContext> handler,

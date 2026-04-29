@@ -10,7 +10,7 @@ namespace Chopsticks.Messages.Handlers
             SynchronizationContext? asyncContext = null)
         {
             var awaitable = TryHandle(message);
-            var source = new HandlePromiseSource();
+            var source = HandlePromiseSource.Pool.Rent();
             source.Init(awaitable.Source);
 
             return new HandlingCompletionPromise(source, 
@@ -20,7 +20,7 @@ namespace Chopsticks.Messages.Handlers
         HandlingCompletionAwaitable HandleAsync(TMessage message, CancellationToken token = default)
         {
             var awaitable = TryHandleAsync(message, token);
-            var source = new HandleAsyncPromiseSource();
+            var source = HandleAsyncPromiseSource.Pool.Rent();
             source.Init(awaitable.Source);
 
             return new HandlingCompletionAwaitable(source);

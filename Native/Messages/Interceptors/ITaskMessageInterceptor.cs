@@ -14,7 +14,7 @@ namespace Chopsticks.Messages.Interceptors
             CancellationToken token,
             Func<HandlingResultAwaitable> next)
         {
-            var source = new TryHandleAsyncPromiseSource();  // TODO :: Rent from a pool.
+            var source = TryHandleAsyncTaskPromiseSource.Pool.Rent();
             source.Init((this as ITaskMessageInterceptor<TMessage>).InterceptAsync(message, token, next).GetAwaiter());
 
             return new HandlingResultAwaitable(source);
