@@ -31,7 +31,8 @@ namespace Chopsticks.Messages.Handlers
         {
             try
             {
-                Handle(message);
+                // Maintain explicit cast to ensure dispatching to the correct method.
+                (this as ISyncMessageHandler<TMessage>).Handle(message);
                 return HandlingResult.Success;
             }
             catch (Exception ex)

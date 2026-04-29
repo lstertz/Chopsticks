@@ -14,7 +14,7 @@ namespace Chopsticks.Messages.Handlers.Sources
         private Action? _continuation;
         private HandlingResultAwaitable.Awaiter _currentAwaiter;
         private int _currentIndex = 0;
-        private TContext _context = default!;
+        private TContext _context;
         private HandlingResult _result;
 
         private readonly Action _onHandlerCompletion;

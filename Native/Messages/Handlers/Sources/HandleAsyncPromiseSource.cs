@@ -5,9 +5,11 @@ namespace Chopsticks.Messages.Handlers.Sources
     public class HandleAsyncPromiseSource :
         BaseHandlingPromiseSource<IHandlingPromiseSource>
     {
-        public override bool IsCompleted => 
+        /// <inheritdoc/>
+        public override bool IsCompleted =>
             InnerSource!.IsCompleted;
 
+        /// <inheritdoc/>
         public override HandlingResult GetResult()
         {
             var result = InnerSource!.GetResult();
@@ -21,6 +23,7 @@ namespace Chopsticks.Messages.Handlers.Sources
             return result;
         }
 
+        /// <inheritdoc/>
         public override void OnCompleted(Action continuation) =>
             InnerSource!.OnCompleted(continuation);
     }

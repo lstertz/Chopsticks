@@ -13,7 +13,7 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
         var source = new HandlePromiseSource();
         source.Init(awaitable.Source);
 
-        return new HandlingCompletionPromise(source, 
+        return new HandlingCompletionPromise(source,
             asyncContext ?? SynchronizationContext.Current);
     }
 
@@ -29,14 +29,11 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
     HandlingResultPromise IMessageHandler<TMessage>.TryHandle(TMessage message) =>
         TryHandle(new TContext()
         {
-
             CancellationToken = default,
             Message = message
-
         });
 
     HandlingResultPromise TryHandle(TContext context);
-
 
 
     HandlingResultAwaitable IMessageHandler<TMessage>.TryHandleAsync(
@@ -44,11 +41,8 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
 
         TryHandleAsync(new TContext()
         {
-
             CancellationToken = token,
-
             Message = message
-
         });
 
     HandlingResultAwaitable TryHandleAsync(TContext context);

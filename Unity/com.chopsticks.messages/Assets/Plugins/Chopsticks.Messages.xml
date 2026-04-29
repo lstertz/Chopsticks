@@ -4,6 +4,15 @@
         <name>Chopsticks.Messages</name>
     </assembly>
     <members>
+        <member name="P:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource.IsCompleted">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource.GetResult">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource.OnCompleted(System.Action)">
+            <inheritdoc/>
+        </member>
         <member name="P:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.IsCompleted">
             <inheritdoc/>
         </member>
