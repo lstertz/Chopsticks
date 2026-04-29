@@ -4,6 +4,15 @@
         <name>Chopsticks.Messages</name>
     </assembly>
     <members>
+        <member name="P:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.IsCompleted">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.GetResult">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.OnCompleted(System.Action)">
+            <inheritdoc/>
+        </member>
         <member name="P:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.IsCompleted">
             <inheritdoc/>
         </member>
@@ -16,45 +25,80 @@
         <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.OnCompleted(System.Action)">
             <inheritdoc/>
         </member>
-        <member name="P:Chopsticks.Messages.Handlers.Sources.SyncHandlingPromiseSource.IsCompleted">
+        <member name="P:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.IsCompleted">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Messages.Handlers.Sources.SyncHandlingPromiseSource.GetResult">
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.GetResult">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Messages.Handlers.Sources.SyncHandlingPromiseSource.OnCompleted(System.Action)">
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.OnCompleted(System.Action)">
             <inheritdoc/>
         </member>
-        <member name="P:Chopsticks.Messages.Handlers.Sources.TaskHandlingPromiseSource.IsCompleted">
+        <member name="P:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.IsCompleted">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Messages.Handlers.Sources.TaskHandlingPromiseSource.GetResult">
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.GetResult">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Messages.Handlers.Sources.TaskHandlingPromiseSource.OnCompleted(System.Action)">
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.OnCompleted(System.Action)">
             <inheritdoc/>
         </member>
-        <member name="M:Chopsticks.Messages.HandlingPromise.ThrowIfFailed(System.Threading.SynchronizationContext)">
+        <member name="T:Chopsticks.Messages.HandlingCompletion">
             <summary>
-            Rethrows any exceptions encountered during the handling of the message.
+            The completion status of a message handling process that has been 
+            dispatched through a non-try handler.
             </summary>
             <remarks>
-            This will immediately throw any exceptions in the current synchronization context 
-            if the handling was performed synchronously and will post any exceptions 
-            encountered during asynchronous handling to the <paramref name="asyncContext"/> 
-            (or attempt to post to the current context).
+            This is a reduced subset of <see cref="T:Chopsticks.Messages.HandlingStatus"/> that only 
+            represents the observable outcomes after failure and cancellation 
+            have been thrown as exceptions.
             </remarks>
-            <param name="asyncContext">
-            The <see cref="T:System.Threading.SynchronizationContext"/> to use for posting asynchronous exceptions. 
-            If <paramref name="asyncContext"/> is <see langword="null"/>, the current 
-            synchronization context will attempt to be used, but in doing so, 
-            exceptions may be lost.</param>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingCompletion.NotHandled">
+            <summary>
+            Indicates that no handlers were found for the message.
+            </summary>
+            <remarks>
+            This is a non-handling status. No handling was performed, so it is considered 
+            neither a success, a failure, nor a cancellation; it never started and 
+            therefore never completed any handling.
+            </remarks>
+        </member>
+        <member name="F:Chopsticks.Messages.HandlingCompletion.Successful">
+            <summary>
+            The completion indicating that handling was successfully performed.
+            </summary>
+        </member>
+        <member name="T:Chopsticks.Messages.HandlingCompletionAwaitable">
+            <summary>
+            The awaitable result of a message handling operation that has been 
+            dispatched through a non-try handler.
+            </summary>
+            <remarks>
+            This is a reduced subset of <see cref="T:Chopsticks.Messages.HandlingResultAwaitable"/> that only 
+            represents the observable outcomes after failure and cancellation 
+            have been thrown as exceptions.
+            </remarks>
+        </member>
+        <member name="T:Chopsticks.Messages.HandlingCompletionAwaitable.Awaiter">
+            <summary>
+            The awaiter for the <see cref="T:Chopsticks.Messages.HandlingCompletionAwaitable"/>.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.HandlingCompletionAwaitable.Awaiter.IsCompleted">
+            <summary>
+            Whether the awaiter has completed.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingCompletionAwaitable.GetAwaiter">
+            <summary>
+            Gets the awaiter for the <see cref="T:Chopsticks.Messages.HandlingCompletionAwaitable"/>.
+            </summary>
             <returns>
-            The current <see cref="T:Chopsticks.Messages.HandlingPromise"/> instance, 
-            allowing for method chaining.
+            The awaiter for the <see cref="T:Chopsticks.Messages.HandlingCompletionAwaitable"/>.
             </returns>
         </member>
-        <member name="M:Chopsticks.Messages.HandlingPromise.ThrowIfNotHandled(System.String)">
+        <member name="M:Chopsticks.Messages.HandlingCompletionAwaitable.ThrowIfNotHandled(System.String)">
             <summary>
             Throws a <see cref="T:Chopsticks.Messages.Exceptions.MessageNotHandledException"/> if the message was not 
             handled by any handlers.
@@ -66,7 +110,65 @@
             Thrown if the message was not handled.
             </exception>
             <returns>
-            The current <see cref="T:Chopsticks.Messages.HandlingPromise"/> instance, 
+            The current <see cref="T:Chopsticks.Messages.HandlingCompletionPromise"/> instance, 
+            allowing for method chaining.
+            </returns>
+        </member>
+        <member name="T:Chopsticks.Messages.HandlingCompletionPromise">
+            <summary>
+            A promise representing the completion of a non-try message handling operation.
+            </summary>
+            <remarks>
+            This is a reduced API compared to <see cref="T:Chopsticks.Messages.HandlingResultPromise"/>. 
+            Failure and cancellation states are thrown as exceptions by the underlying 
+            source, so only <see cref="F:Chopsticks.Messages.HandlingCompletion.Successful"/> and 
+            <see cref="F:Chopsticks.Messages.HandlingCompletion.NotHandled"/> are observable.
+            </remarks>
+        </member>
+        <member name="P:Chopsticks.Messages.HandlingCompletionPromise.Completion">
+            <summary>
+            Gets the completion status of the message handling operation.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingCompletionPromise.ThrowIfNotHandled(System.String)">
+            <summary>
+            Throws a <see cref="T:Chopsticks.Messages.Exceptions.MessageNotHandledException"/> if the message was not 
+            handled by any handlers.
+            </summary>
+            <param name="customExceptionMessage">
+            The optional message to override the default exception message.
+            </param>
+            <exception cref="T:Chopsticks.Messages.Exceptions.MessageNotHandledException">
+            Thrown if the message was not handled.
+            </exception>
+            <returns>
+            The current <see cref="T:Chopsticks.Messages.HandlingCompletionPromise"/> instance, 
+            allowing for method chaining.
+            </returns>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingCompletionPromise.WhenCompleted(System.Action)">
+            <summary>
+            The continuation performed when the promise has completed, 
+            meaning that the message has been handled by at least one handler.
+            </summary>
+            <param name="whenCompleted">The action to perform when the promise has completed.</param>
+            <returns>
+            The current <see cref="T:Chopsticks.Messages.HandlingCompletionPromise"/> instance, 
+            allowing for method chaining.
+            </returns>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingCompletionPromise.WhenNotHandled(System.Action)">
+            <summary>
+            The continuation performed when the promise was not completed 
+            due to the  message not being handled.
+            </summary>
+            <param name="whenNotHandled">The action to perform when the message was not handled.</param>
+            <remarks>
+            The continuation will be performed immediately (synchronously) if the 
+            message was not handled.
+            </remarks>
+            <returns>
+            The current <see cref="T:Chopsticks.Messages.HandlingCompletionPromise"/> instance, 
             allowing for method chaining.
             </returns>
         </member>
@@ -179,6 +281,42 @@
             <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
             allowing for method chaining.</returns>
         </member>
+        <member name="M:Chopsticks.Messages.HandlingResultPromise.ThrowIfFailed(System.Threading.SynchronizationContext)">
+            <summary>
+            Rethrows any exceptions encountered during the handling of the message.
+            </summary>
+            <remarks>
+            This will immediately throw any exceptions in the current synchronization context 
+            if the handling was performed synchronously and will post any exceptions 
+            encountered during asynchronous handling to the <paramref name="asyncContext"/> 
+            (or attempt to post to the current context).
+            </remarks>
+            <param name="asyncContext">
+            The <see cref="T:System.Threading.SynchronizationContext"/> to use for posting asynchronous exceptions. 
+            If <paramref name="asyncContext"/> is <see langword="null"/>, the current 
+            synchronization context will attempt to be used, but in doing so, 
+            exceptions may be lost.</param>
+            <returns>
+            The current <see cref="T:Chopsticks.Messages.HandlingResultPromise"/> instance, 
+            allowing for method chaining.
+            </returns>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResultPromise.ThrowIfNotHandled(System.String)">
+            <summary>
+            Throws a <see cref="T:Chopsticks.Messages.Exceptions.MessageNotHandledException"/> if the message was not 
+            handled by any handlers.
+            </summary>
+            <param name="customExceptionMessage">
+            The optional message to override the default exception message.
+            </param>
+            <exception cref="T:Chopsticks.Messages.Exceptions.MessageNotHandledException">
+            Thrown if the message was not handled.
+            </exception>
+            <returns>
+            The current <see cref="T:Chopsticks.Messages.HandlingResultPromise"/> instance, 
+            allowing for method chaining.
+            </returns>
+        </member>
         <member name="T:Chopsticks.Messages.HandlingStatus">
             <summary>
             The status of a message handling process.
@@ -186,12 +324,12 @@
         </member>
         <member name="F:Chopsticks.Messages.HandlingStatus.NotHandled">
             <summary>
-            The status indicating that no handlers were found for the message.
+            Indicates that no handlers were found for the message.
             </summary>
             <remarks>
-            Under this status, no handling was performed, so it is considered 
+            This is a non-handling status. No handling was performed, so it is considered 
             neither a success, a failure, nor a cancellation; it never started and 
-            therefore never completed.
+            therefore never completed any handling.
             </remarks>
         </member>
         <member name="F:Chopsticks.Messages.HandlingStatus.Processing">
@@ -222,7 +360,7 @@
         </member>
         <member name="F:Chopsticks.Messages.HandlingStatus.Completed">
             <summary>
-            The status indicating that the handling was completed, meaning that 
+            The status indicating that handling was performed and completed, meaning that 
             it started and ended, regardless of whether it was successful or not.
             </summary>
         </member>
@@ -267,7 +405,7 @@
             <summary>
             The index in which this handler was registered. This is used 
             to implicitly order registrations in the order in which they were registered, if 
-            there is no explicit order (per <see cref="P:Chopsticks.Messages.Registration.Handlers.BaseRegisteredHandler`2.Order"/> specified.
+            there is no explicit order (per <see cref="P:Chopsticks.Messages.Registration.Handlers.BaseRegisteredHandler`2.Order"/>) specified.
             </summary>
         </member>
         <member name="M:Chopsticks.Messages.Registration.Handlers.RegisteredContextHandler`2.InternalHandleAsync(`1)">

@@ -13,7 +13,7 @@ namespace Chopsticks.Messages.Examples
 
         public void Start()
         {
-            var result = _testHandler.Handle(new()
+            var result = _testHandler.TryHandle(new()
             {
                 Content = "TestMonoBehaviour completed Start!"
             });
@@ -30,7 +30,7 @@ namespace Chopsticks.Messages.Examples
                     });
                 });
 
-            result = _testHandler.Handle(new()
+            result = _testHandler.TryHandle(new()
             {
                 Content = "TestMonoBehaviour completed Start 2!"
             });
