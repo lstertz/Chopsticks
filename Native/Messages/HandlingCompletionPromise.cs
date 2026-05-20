@@ -1,7 +1,8 @@
-using System;
-using System.Threading;
 using Chopsticks.Messages.Exceptions;
 using Chopsticks.Messages.Handlers.Sources;
+using Chopsticks.Messages.Handlers.Sources.Pooling;
+using System;
+using System.Threading;
 
 namespace Chopsticks.Messages
 {
@@ -14,34 +15,104 @@ namespace Chopsticks.Messages
     /// source, so only <see cref="HandlingCompletion.Successful"/> and 
     /// <see cref="HandlingCompletion.NotHandled"/> are observable.
     /// </remarks>
-    public readonly struct HandlingCompletionPromise
+    public struct HandlingCompletionPromise : IDisposable
     {
+        private const string DisposalExceptionMessage = 
+            "The promise has been released and can no longer be used.";
+
+        private readonly static SourcePool<HandlePromiseSource> Pool = new();
+
         /// <summary>
-        /// Gets the completion status of the message handling operation.
+        /// Gets the last known completion status of the message handling operation.
         /// </summary>
-        public HandlingCompletion Completion => _source.IsCompleted ?
-            (HandlingCompletion)_source.GetResult().Status :
-            HandlingCompletion.NotHandled;
+        /// <exception cref="ObjectDisposedException">Thrown if the source 
+        /// of the promise has already been released through <see cref="Release"/> 
+        /// and a cached result after completion is not available.</exception>
+        public HandlingCompletion Completion
+        {
+            get
+            {
+                UpdateResult();
+                return (HandlingCompletion)_result.Status;
+            }
+        }
 
-        internal readonly IHandlingPromiseSource Source => _source;
-        private readonly IHandlingPromiseSource _source;
+        private readonly bool HasBeenReleased => 
+            _source == null || _source.Version != _sourceVersion;
+
+        private HandlingResult _result = HandlingResult.Processing;
+        private HandlePromiseSource? _source;
+        private readonly int _sourceVersion;
 
 
-        public HandlingCompletionPromise(IHandlingPromiseSource source,
+        /// <summary>
+        /// Constructs a new <see cref="HandlingCompletionPromise"/> with the given promise source.
+        /// </summary>
+        /// <remarks>
+        /// Synchronous completion will be handled to the constructing thread, 
+        /// so any exceptions thrown by the source will be thrown directly by this constructor.
+        /// </remarks>
+        /// <param name="resultPromiseSource">The source that the promise will 
+        /// provide the result that the promise acts upon.</param>
+        /// <param name="asyncContext">The synchronization context that any async 
+        /// excpeptions will be posted to.</param>
+        public HandlingCompletionPromise(IHandlingPromiseSource resultPromiseSource,
             SynchronizationContext? asyncContext = null)
         {
-            _source = source;
+            _source = Pool.Rent();
+            _sourceVersion = _source.Version;
+            _source.Init(resultPromiseSource);
+
             _source.FailureContext = asyncContext;
 
             if (!_source.IsCompleted)
+            {
                 _source.OnCompleted(_source.InitiateDefaultContinuations);
+            }
             else
             {
                 _source.InitiateDefaultContinuations();
+                _result = _source.GetResult();
+
+                Pool.Return(_source);
+                _source = null;
 
                 // Try to throw directly if this was synchronous.
-                _source.GetResult().ThrowIfFailed();
+                _result.ThrowIfFailed();
             }
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose() => Release();
+
+        /// <summary>
+        /// Releases this promise by returning its inner source to a pool. 
+        /// This should be done once all operations on all copies of this struct 
+        /// have been completed.
+        /// </summary>
+        /// <remarks>
+        /// Any further operations (e.g., continuation calls or use of <see cref="Completion"/>) 
+        /// will throw an <see cref="ObjectDisposedException"/>.
+        /// </remarks>
+        public void Release()
+        {
+            var s = _source;
+            if (s == null)
+            {
+                // Already released or already consumed.
+                _source = null;
+                return;
+            }
+
+            if (s.Version != _sourceVersion)
+            {
+                // Already released by another copy of this struct.
+                _source = null;
+                return;
+            }
+
+            _source = null;
+            Pool.Return(s);
         }
 
         /// <summary>
@@ -54,22 +125,25 @@ namespace Chopsticks.Messages
         /// <exception cref="MessageNotHandledException">
         /// Thrown if the message was not handled.
         /// </exception>
+        /// <exception cref="ObjectDisposedException">Thrown if the source 
+        /// of the promise has already been released through <see cref="Release"/> 
+        /// and a cached result after completion is not available.</exception>
         /// <returns>
         /// The current <see cref="HandlingCompletionPromise"/> instance, 
         /// allowing for method chaining.
         /// </returns>
-        public readonly HandlingCompletionPromise ThrowIfNotHandled(
+        public HandlingCompletionPromise ThrowIfNotHandled(
             string? customExceptionMessage = null)
         {
-            if (!_source.IsCompleted)
+            UpdateResult();
+
+            if (_result.Status == HandlingStatus.Processing)
             {
                 // If the source has not completed immediately, then it must be being handled.
                 return this;
             }
 
-            var result = _source.GetResult();
-            result.ThrowIfNotHandled(customExceptionMessage);
-
+            _result.ThrowIfNotHandled(customExceptionMessage);
             return this;
         }
 
@@ -78,20 +152,25 @@ namespace Chopsticks.Messages
         /// meaning that the message has been handled by at least one handler.
         /// </summary>
         /// <param name="whenCompleted">The action to perform when the promise has completed.</param>
+        /// <exception cref="ObjectDisposedException">Thrown if the source 
+        /// of the promise has already been released through <see cref="Release"/> 
+        /// and a cached result after completion is not available.</exception>
         /// <returns>
         /// The current <see cref="HandlingCompletionPromise"/> instance, 
         /// allowing for method chaining.
         /// </returns>
-        public readonly HandlingCompletionPromise WhenCompleted(Action whenCompleted)
+        public HandlingCompletionPromise WhenCompleted(Action whenCompleted)
         {
-            if (!_source.IsCompleted)
+            UpdateResult();
+
+            if (_result.Status == HandlingStatus.Processing)
             {
-                _source.OnCompletion = (_) => whenCompleted();
+                _source!.OnCompletion = whenCompleted;
+
                 return this;
             }
 
-            var result = _source.GetResult();
-            if ((result.Status & HandlingStatus.Completed) != 0)
+            if ((_result.Status & HandlingStatus.Completed) != 0)
                 whenCompleted();
 
             return this;
@@ -106,23 +185,46 @@ namespace Chopsticks.Messages
         /// The continuation will be performed immediately (synchronously) if the 
         /// message was not handled.
         /// </remarks>
+        /// <exception cref="ObjectDisposedException">Thrown if the source 
+        /// of the promise has already been released through <see cref="Release"/> 
+        /// and a cached result after completion is not available.</exception>
         /// <returns>
         /// The current <see cref="HandlingCompletionPromise"/> instance, 
         /// allowing for method chaining.
         /// </returns>
-        public readonly HandlingCompletionPromise WhenNotHandled(Action whenNotHandled)
+        public HandlingCompletionPromise WhenNotHandled(Action whenNotHandled)
         {
-            if (!_source.IsCompleted)
+            UpdateResult();
+
+            if (_result.Status == HandlingStatus.Processing)
             {
                 // If the source has not completed immediately, then it must be being handled.
                 return this;
             }
 
-            var result = _source.GetResult();
-            if (result.Status == HandlingStatus.NotHandled)
+            if (_result.Status == HandlingStatus.NotHandled)
                 whenNotHandled();
 
             return this;
+        }
+
+
+        private void UpdateResult()
+        {
+            if (_result.Status != HandlingStatus.Processing)
+                return;
+
+            if (HasBeenReleased)
+            {
+                throw new ObjectDisposedException(nameof(HandlingCompletionPromise),
+                    DisposalExceptionMessage);
+            }
+
+            var source = _source!;
+            if (!source.IsCompleted)
+                return;
+
+            _result = source.GetResult();
         }
     }
 }

@@ -23,7 +23,15 @@ namespace Chopsticks.Messages.Handlers.Sources
         /// <summary>
         /// Gets or sets the action to invoke when the promise is completed.
         /// </summary>
-        Action<HandlingResult>? OnCompletion { get; set; }
+        public Action? OnCompletion { get; set; }
+
+        /// <summary>
+        /// Gets or sets the action to invoke when the promise is completed.
+        /// </summary>
+        /// <remarks>
+        /// The result is passed to the action.
+        /// </remarks>
+        Action<HandlingResult>? OnCompletionWithResult { get; set; }
 
         /// <summary>
         /// Gets or sets the action to invoke when the promise fails.
@@ -50,6 +58,13 @@ namespace Chopsticks.Messages.Handlers.Sources
         /// Gets a value indicating whether the promise is completed.
         /// </summary>
         bool IsCompleted { get; }
+
+
+        /// <summary>
+        /// The current version of the source, incremented whenever the source is 
+        /// reset, as is done when it is returned to a pool.
+        /// </summary>
+        int Version { get; }
 
         /// <summary>
         /// Gets the result of the promise.

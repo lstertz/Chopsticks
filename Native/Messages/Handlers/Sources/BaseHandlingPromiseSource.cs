@@ -22,7 +22,10 @@ namespace Chopsticks.Messages.Handlers.Sources
         public Action? OnCancelled { get; set; }
 
         /// <inheritdoc/>
-        public Action<HandlingResult>? OnCompletion { get; set; }
+        public Action? OnCompletion { get; set; }
+
+        /// <inheritdoc/>
+        public Action<HandlingResult>? OnCompletionWithResult { get; set; }
 
         /// <inheritdoc/>
         public Action<IEnumerable<Exception>>? OnFailure { get; set; }
@@ -35,6 +38,9 @@ namespace Chopsticks.Messages.Handlers.Sources
 
         /// <inheritdoc/>
         public SynchronizationContext? FailureContext { get; set; }
+
+        /// <inheritdoc/>
+        public int Version { get; private set; } = 0;
 
 
         /// <summary>
@@ -66,9 +72,20 @@ namespace Chopsticks.Messages.Handlers.Sources
                 if ((result.Status & HandlingStatus.NonSuccess) != 0)
                     OnNonSuccess?.Invoke(result);
                 if ((result.Status & HandlingStatus.Completed) != 0)
-                    OnCompletion?.Invoke(result);
+                {
+                    OnCompletion?.Invoke();
+                    OnCompletionWithResult?.Invoke(result);
+                }
 
-                FailureContext?.Post(_ => result.ThrowIfFailed(), null);
+                try
+                {
+                    FailureContext?.Post(_ => result.ThrowIfFailed(), null);
+                }
+                catch
+                {
+                    // If Post throws synchronously, run ThrowIfFailed on this thread so failures are observed.
+                    result.ThrowIfFailed();
+                }
             };
         }
 
@@ -90,6 +107,8 @@ namespace Chopsticks.Messages.Handlers.Sources
         /// <inheritdoc cref="IPooledSource.Reset"/>
         public virtual void Reset()
         {
+            Version++;
+
             InnerSource = default;
 
             _isInitialized = false;

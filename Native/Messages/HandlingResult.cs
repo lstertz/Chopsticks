@@ -28,6 +28,15 @@ namespace Chopsticks.Messages
         };
 
         /// <summary>
+        /// Provides an in-progress result, that is, a result with a status 
+        /// indicating that it is processing.
+        /// </summary>
+        public static HandlingResult Processing = new()
+        {
+            Status = HandlingStatus.Processing
+        };
+
+        /// <summary>
         /// Builds a result indicating that the message was handled successfully.
         /// </summary>
         public static HandlingResult Success => new()

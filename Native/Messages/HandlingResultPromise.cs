@@ -52,7 +52,7 @@ namespace Chopsticks.Messages
         {
             if (!_source.IsCompleted)
             {
-                _source.OnCompletion = onCompletion;
+                _source.OnCompletionWithResult = onCompletion;
                 return this;
             }
 

@@ -25,6 +25,11 @@ namespace Chopsticks.Messages
         NotHandled = 0,
 
         /// <summary>
+        /// The indication of an in-progress handling.
+        /// </summary>
+        Processing = 1 << 0,
+
+        /// <summary>
         /// The completion indicating that handling was successfully performed.
         /// </summary>
         Successful = 1 << 1,
