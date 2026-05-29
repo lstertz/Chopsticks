@@ -10,12 +10,128 @@ namespace Chopsticks.Messages.Handlers.Sources
 
         public Action InitiateDefaultContinuations { get; private set; }
 
-        public Action? OnCancelled { get; set; }
-        public Action<HandlingResult>? OnCompletion { get; set; }
-        public Action<IEnumerable<Exception>>? OnFailure { get; set; }
-        public Action<HandlingResult>? OnNonSuccess { get; set; }
-        public Action? OnSuccess { get; set; }
-        public SynchronizationContext? FailureContext { get; set; }
+        // Completion-callback registration is synchronized against completion so a callback
+        // registered concurrently with (or after) completion is invoked exactly once, never
+        // dropped. Without this, the fluent HandlingResultPromise.OnXxx methods raced the
+        // async completion path and could silently lose a callback (hanging the awaiter).
+        private readonly object _continuationLock = new();
+        private bool _continuationsFired;
+        private HandlingResult _firedResult;
+
+        private Action? _onCancelled;
+        private Action<HandlingResult>? _onCompletion;
+        private Action<IEnumerable<Exception>>? _onFailure;
+        private Action<HandlingResult>? _onNonSuccess;
+        private Action? _onSuccess;
+        private SynchronizationContext? _failureContext;
+
+        public Action? OnCancelled
+        {
+            get => _onCancelled;
+            set
+            {
+                bool fired;
+                HandlingResult result;
+                lock (_continuationLock)
+                {
+                    fired = _continuationsFired;
+                    result = _firedResult;
+                    if (!fired) _onCancelled = value;
+                }
+                if (fired && value is not null && result.Status == HandlingStatus.Cancelled)
+                    value();
+            }
+        }
+
+        public Action<HandlingResult>? OnCompletion
+        {
+            get => _onCompletion;
+            set
+            {
+                bool fired;
+                HandlingResult result;
+                lock (_continuationLock)
+                {
+                    fired = _continuationsFired;
+                    result = _firedResult;
+                    if (!fired) _onCompletion = value;
+                }
+                if (fired && value is not null && (result.Status & HandlingStatus.Completed) != 0)
+                    value(result);
+            }
+        }
+
+        public Action<IEnumerable<Exception>>? OnFailure
+        {
+            get => _onFailure;
+            set
+            {
+                bool fired;
+                HandlingResult result;
+                lock (_continuationLock)
+                {
+                    fired = _continuationsFired;
+                    result = _firedResult;
+                    if (!fired) _onFailure = value;
+                }
+                if (fired && value is not null && result.Status == HandlingStatus.Failure)
+                    value(result.Exceptions);
+            }
+        }
+
+        public Action<HandlingResult>? OnNonSuccess
+        {
+            get => _onNonSuccess;
+            set
+            {
+                bool fired;
+                HandlingResult result;
+                lock (_continuationLock)
+                {
+                    fired = _continuationsFired;
+                    result = _firedResult;
+                    if (!fired) _onNonSuccess = value;
+                }
+                if (fired && value is not null && (result.Status & HandlingStatus.NonSuccess) != 0)
+                    value(result);
+            }
+        }
+
+        public Action? OnSuccess
+        {
+            get => _onSuccess;
+            set
+            {
+                bool fired;
+                HandlingResult result;
+                lock (_continuationLock)
+                {
+                    fired = _continuationsFired;
+                    result = _firedResult;
+                    if (!fired) _onSuccess = value;
+                }
+                if (fired && value is not null && result.Status == HandlingStatus.Success)
+                    value();
+            }
+        }
+
+        public SynchronizationContext? FailureContext
+        {
+            get => _failureContext;
+            set
+            {
+                bool fired;
+                HandlingResult result;
+                lock (_continuationLock)
+                {
+                    fired = _continuationsFired;
+                    result = _firedResult;
+                    if (!fired) _failureContext = value;
+                }
+                if (fired && value is not null)
+                    value.Post(PostThrowIfFailedCallback, result);
+            }
+        }
 
 
         protected TInnerSource? InnerSource { get; private set; }
@@ -52,21 +168,42 @@ namespace Chopsticks.Messages.Handlers.Sources
                 // Get result WITHOUT auto-return - we need the callbacks first
                 var result = GetResultWithoutReturn();
 
+                // Publish completion and snapshot all registered callbacks atomically. Any
+                // callback registered after this point observes _continuationsFired and invokes
+                // itself inline (in its setter), so none can be dropped by a registration race.
+                Action? onCancelled;
+                Action<IEnumerable<Exception>>? onFailure;
+                Action? onSuccess;
+                Action<HandlingResult>? onNonSuccess;
+                Action<HandlingResult>? onCompletion;
+                SynchronizationContext? failureContext;
+                lock (_continuationLock)
+                {
+                    _firedResult = result;
+                    _continuationsFired = true;
+                    onCancelled = _onCancelled;
+                    onFailure = _onFailure;
+                    onSuccess = _onSuccess;
+                    onNonSuccess = _onNonSuccess;
+                    onCompletion = _onCompletion;
+                    failureContext = _failureContext;
+                }
+
                 if (result.Status == HandlingStatus.Cancelled)
-                    OnCancelled?.Invoke();
+                    onCancelled?.Invoke();
                 else if (result.Status == HandlingStatus.Failure)
-                    OnFailure?.Invoke(result.Exceptions);
+                    onFailure?.Invoke(result.Exceptions);
                 else if (result.Status == HandlingStatus.Success)
-                    OnSuccess?.Invoke();
+                    onSuccess?.Invoke();
                 
                 if ((result.Status & HandlingStatus.NonSuccess) != 0)
-                    OnNonSuccess?.Invoke(result);
+                    onNonSuccess?.Invoke(result);
                 if ((result.Status & HandlingStatus.Completed) != 0)
-                    OnCompletion?.Invoke(result);
+                    onCompletion?.Invoke(result);
 
                 // Use static callback with boxed state to avoid closure allocation
                 // Boxing still allocates, but avoids the more expensive closure + delegate allocation
-                FailureContext?.Post(PostThrowIfFailedCallback, result);
+                failureContext?.Post(PostThrowIfFailedCallback, result);
                 
                 // Now return to pool after all callbacks are done
                 ReturnToPoolIfCompleted();
@@ -79,6 +216,11 @@ namespace Chopsticks.Messages.Handlers.Sources
             // BEFORE the source is handed to the caller. Resetting here creates a
             // race condition where a stale Dispose() from the previous owner can
             // corrupt the new owner's state.
+            lock (_continuationLock)
+            {
+                _continuationsFired = false;
+                _firedResult = default;
+            }
             _isInitialized = true;
             InnerSource = innerSource;
 
@@ -106,12 +248,20 @@ namespace Chopsticks.Messages.Handlers.Sources
             // stale references calling Dispose() after auto-return will fail
             // TryMarkForPoolReturn() and become no-ops.
 
-            OnCancelled = null;
-            OnCompletion = null;
-            OnFailure = null;
-            OnNonSuccess = null;
-            OnSuccess = null;
-            FailureContext = null;
+            // Clear via backing fields (the synchronized setters intentionally refuse to mutate
+            // once completion has fired). Do NOT reset _continuationsFired/_firedResult here:
+            // Dispose runs as part of completion (ReturnToPoolIfCompleted), so clearing the
+            // "fired" flag mid-lifecycle would let a late OnXxx registration store a callback that
+            // never fires. The fired state is reset only in Init(), i.e. when reused for a new run.
+            lock (_continuationLock)
+            {
+                _onCancelled = null;
+                _onCompletion = null;
+                _onFailure = null;
+                _onNonSuccess = null;
+                _onSuccess = null;
+                _failureContext = null;
+            }
         }
         
         /// <summary>

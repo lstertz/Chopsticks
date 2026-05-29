@@ -28,7 +28,12 @@ namespace Chopsticks.Messages.Handlers.Sources
         
         /// <inheritdoc/>
         public override bool IsCompleted => _isCompleted;
-        private bool _isCompleted = false;
+
+        // Volatile so that a thread observing _isCompleted == true is guaranteed to also observe
+        // the _cachedResult write that happens-before it in Step (release/acquire ordering). Without
+        // this, a consumer could read _isCompleted == true but a stale (NotHandled) result, causing
+        // Completed-only callbacks (e.g. OnCompletion) to be silently skipped.
+        private volatile bool _isCompleted = false;
 
         private Action? _continuation;
         private HandlingResultAwaitable.Awaiter _currentAwaiter;
