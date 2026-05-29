@@ -8,17 +8,18 @@ namespace Chopsticks.Messages.Handlers.Sources
         BaseHandlingPromiseSource<BaseRegisteredHandler<TMessage, TContext>[]>
         where TContext : IMessageContext<TMessage>, new()
     {
-        // POOLING DISABLED (intentional): This source registers completion callbacks on
-        // external async primitives and is consumed via struct awaiters/promises that may be
-        // copied and read AFTER the source completes. Recycling the instance allowed a recycled
-        // source to be reset/re-rented while an old consumer still read it, producing torn reads
-        // of the multi-field _currentAwaiter struct (null _source with _hasDirectResult == false)
-        // and intermittent NullReferenceExceptions in OnHandlerCompletion that crashed the host.
-        // Safely re-enabling reuse requires a result-ownership redesign (copy the result out to the
-        // consumer and forbid reads of a recycled source). Until then, each dispatch gets a fresh
-        // instance: the zero-allocation sync fast path never reaches this source, and async
-        // multicast already allocates Task state machines, so the extra small object is negligible
-        // next to correctness/crash-freedom.
+        // Pooling DISABLED for this source. Re-enabling it (ConcurrentBag reuse) was attempted and
+        // reverted: the fluent consumption path (TryHandleAsync(...).ToPromise().OnCompletion(...))
+        // can recycle a completed source back into the pool — via GetResult() inside
+        // InitiateDefaultContinuations on the handler thread — WHILE the consumer thread is still
+        // chaining .OnCompletion(). The consumer then observes the (re-rented, reset) source as
+        // "not completed" and registers its callback onto an instance belonging to a different
+        // dispatch, dropping the callback and corrupting the other dispatch. This is a use-after-
+        // recycle hazard intrinsic to the current API: the source's lifetime is not owned by a
+        // single consumer. A safe fix requires the version-token redesign of IHandlingPromiseSource
+        // (so stale handles are detected) rather than naive ConcurrentBag reuse. Until then we eat
+        // the ~360 B per async-fallback dispatch and let GC reclaim it. See FallbackConcurrencyTests
+        // (Fallback_HighConcurrency_ToPromise_AllCallbacksFire) which fails the moment reuse is on.
         public static SequentialHandlingPromiseSource<TMessage, TContext> Rent() =>
             new SequentialHandlingPromiseSource<TMessage, TContext>();
 

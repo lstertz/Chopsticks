@@ -7,11 +7,11 @@ using System;
 namespace Chopsticks.Tests;
 
 /// <summary>
-/// Regression guard on the allocation footprint of <see cref="SequentialHandlingPromiseSource{TMessage,TContext}"/>.
-/// This source is allocated fresh per async-fallback dispatch (pooling is intentionally disabled
-/// for it — see the type's remarks), so its size is the per-dispatch cost on that path. The guard
-/// keeps that footprint from silently growing. Measured on a single thread, so the per-thread
-/// allocation counter is reliable here (no <c>await</c> thread hops).
+/// Bounds the per-instance footprint of <see cref="SequentialHandlingPromiseSource{TMessage,TContext}"/>,
+/// which is currently allocated fresh per async-fallback dispatch (pooling for this source is
+/// intentionally disabled — see the type's header comment for the use-after-recycle rationale).
+/// This guard fails loudly if the instance footprint silently grows, since that cost is paid on
+/// every async-fallback dispatch.
 /// </summary>
 [TestFixture]
 [Category("Hardening")]
@@ -20,32 +20,27 @@ public class AsyncDispatchAllocationProbe
     public sealed class Msg { public int Id { get; init; } }
 
     [Test]
-    [Description("SequentialHandlingPromiseSource rent footprint (object + ctor sub-allocations) stays bounded.")]
+    [Description("Per-instance Rent() footprint stays bounded (regression guard on the async-fallback cost).")]
     public void SequentialSource_RentFootprint_Bounded()
     {
-        // Warm (JIT).
-        SequentialHandlingPromiseSource<Msg, DefaultMessageContext<Msg>>? warm = null;
+        // Warm JIT / type init.
         for (int i = 0; i < 1000; i++)
-            warm = SequentialHandlingPromiseSource<Msg, DefaultMessageContext<Msg>>.Rent();
-        GC.KeepAlive(warm);
+            _ = SequentialHandlingPromiseSource<Msg, DefaultMessageContext<Msg>>.Rent();
 
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
 
-        const int Iterations = 100000;
+        const int Iterations = 50000;
         long before = GC.GetAllocatedBytesForCurrentThread();
-        SequentialHandlingPromiseSource<Msg, DefaultMessageContext<Msg>>? keep = null;
         for (int i = 0; i < Iterations; i++)
-            keep = SequentialHandlingPromiseSource<Msg, DefaultMessageContext<Msg>>.Rent();
-        long perRent = (GC.GetAllocatedBytesForCurrentThread() - before) / Iterations;
-        GC.KeepAlive(keep);
+            _ = SequentialHandlingPromiseSource<Msg, DefaultMessageContext<Msg>>.Rent();
+        long perInstance = (GC.GetAllocatedBytesForCurrentThread() - before) / Iterations;
 
-        TestContext.Out.WriteLine($"SequentialHandlingPromiseSource rent footprint: {perRent} B");
+        TestContext.Out.WriteLine($"SequentialHandlingPromiseSource rent footprint: {perInstance} B/instance");
 
-        // Current footprint is ~360 B (instance + InitiateDefaultContinuations delegate +
-        // _onHandlerCompletion delegate + _gate object). Guard against regressions/growth.
-        Assert.That(perRent, Is.LessThanOrEqualTo(512),
-            "per-rent footprint should stay bounded (watch for added per-instance allocations)");
+        // Instance + ctor sub-allocations measured at ~360 B. Bound with slack; fail if it grows.
+        Assert.That(perInstance, Is.LessThanOrEqualTo(512),
+            "SequentialHandlingPromiseSource per-instance footprint should stay bounded");
     }
 }
