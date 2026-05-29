@@ -6,7 +6,8 @@ namespace Chopsticks.Messages.Registration.Interceptors;
 
 public class RegisteredInterceptor<TMessage, TContext> : 
     IEquatable<RegisteredInterceptor<TMessage, TContext>>, 
-    IRegisteredInterceptor
+    IRegisteredInterceptor,
+    IOrderedRegistration
     where TContext : IMessageContext<TMessage>, new()
 {
     public int Order { get; init; } = 0;

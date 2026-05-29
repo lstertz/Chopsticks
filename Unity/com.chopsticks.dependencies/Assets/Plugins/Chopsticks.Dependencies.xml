@@ -389,6 +389,8 @@
             <remarks>
             This resolution assumes the dependency has a lifetime 
             of <see cref="F:Chopsticks.Dependencies.DependencyLifetime.Contained"/>.
+            Thread-safe: uses ConcurrentDictionary for safe concurrent access
+            across multiple containers.
             </remarks>
         </member>
         <member name="M:Chopsticks.Dependencies.Resolutions.ContainedResolution.#ctor(System.Type,System.Func{Chopsticks.Dependencies.Containers.IDependencyContainer,System.Object})">
@@ -396,6 +398,8 @@
             <remarks>
             This resolution assumes the dependency has a lifetime 
             of <see cref="F:Chopsticks.Dependencies.DependencyLifetime.Contained"/>.
+            Thread-safe: uses ConcurrentDictionary for safe concurrent access
+            across multiple containers.
             </remarks>
         </member>
         <member name="M:Chopsticks.Dependencies.Resolutions.ContainedResolution.Dispose">
@@ -514,6 +518,8 @@
             <remarks>
             This resolution assumes the dependency has a lifetime 
             of <see cref="F:Chopsticks.Dependencies.DependencyLifetime.Singleton"/>.
+            Thread-safe: uses double-checked locking to ensure the factory
+            is invoked at most once, even under concurrent access.
             </remarks>
         </member>
         <member name="M:Chopsticks.Dependencies.Resolutions.SingletonResolution.#ctor(System.Type,System.Func{Chopsticks.Dependencies.Containers.IDependencyContainer,System.Object})">
@@ -521,6 +527,8 @@
             <remarks>
             This resolution assumes the dependency has a lifetime 
             of <see cref="F:Chopsticks.Dependencies.DependencyLifetime.Singleton"/>.
+            Thread-safe: uses double-checked locking to ensure the factory
+            is invoked at most once, even under concurrent access.
             </remarks>
         </member>
         <member name="M:Chopsticks.Dependencies.Resolutions.SingletonResolution.Dispose">

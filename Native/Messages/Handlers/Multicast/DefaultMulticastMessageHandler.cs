@@ -20,6 +20,27 @@ namespace Chopsticks.Messages.Handlers.Multicast
         public static HandlingResultAwaitable TryHandleAsync(TMessage message,
             CancellationToken token = default) =>
             _defaultHandler.Value.TryHandleAsync(message, token);
+        
+        /// <summary>
+        /// Dispatches the message to all handlers without returning a result.
+        /// Zero allocation fire-and-forget pattern - exceptions are swallowed.
+        /// </summary>
+        /// <remarks>
+        /// Use this when you don't need the handling result and want optimal performance.
+        /// For error handling, use <see cref="HandleSync"/> instead.
+        /// </remarks>
+        public static void TryHandleFireAndForget(TMessage message, 
+            CancellationToken token = default) =>
+            _defaultHandler.Value.TryHandleFireAndForget(message, token);
+        
+        /// <summary>
+        /// Dispatches the message to all handlers synchronously and returns the result.
+        /// Zero allocation when all handlers are synchronous.
+        /// </summary>
+        /// <returns>The aggregated handling result from all handlers.</returns>
+        public static HandlingResult HandleSync(TMessage message, 
+            CancellationToken token = default) =>
+            _defaultHandler.Value.HandleSync(message, token);
 
         public static void Register(ISyncMessageHandler<TMessage> handler)
         {

@@ -14,7 +14,7 @@ namespace Chopsticks.Messages.Interceptors
         HandlingResultAwaitable IContextInterceptor<TMessage, TContext>.InterceptAsync(
             TContext context, Func<TContext, HandlingResultAwaitable> next)
         {
-            var source = new TryHandleAsyncPromiseSource();  // TODO :: Rent from a pool.
+            var source = TryHandleAsyncPromiseSource.Rent();
             source.Init((this as ITaskContextInterceptor<TMessage, TContext>).InterceptAsync(
                 context, next).GetAwaiter());
 

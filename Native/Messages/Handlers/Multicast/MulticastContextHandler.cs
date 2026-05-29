@@ -30,6 +30,39 @@ public class MulticastContextHandler<TMessage, TContext> :
                 Message = message,
                 CancellationToken = token
             });
+    
+    /// <summary>
+    /// Dispatches the message to all handlers without returning a result.
+    /// Zero allocation fire-and-forget pattern - exceptions are swallowed.
+    /// </summary>
+    /// <remarks>
+    /// Use this when you don't need the handling result and want optimal performance.
+    /// For error handling, use <see cref="HandleSync"/> instead.
+    /// </remarks>
+    public void TryHandleFireAndForget(TMessage message, CancellationToken token = default) =>
+        DispatchFireAndForget(message, token);
+    
+    /// <summary>
+    /// Dispatches the message to all handlers without returning a result.
+    /// Zero allocation fire-and-forget pattern - exceptions are swallowed.
+    /// </summary>
+    public void TryHandleFireAndForget(TContext context) =>
+        DispatchFireAndForget(context.Message, context.CancellationToken);
+    
+    /// <summary>
+    /// Dispatches the message to all handlers synchronously and returns the result.
+    /// Zero allocation when all handlers are synchronous.
+    /// </summary>
+    /// <returns>The aggregated handling result from all handlers.</returns>
+    public HandlingResult HandleSync(TMessage message, CancellationToken token = default) =>
+        DispatchSync(message, token);
+    
+    /// <summary>
+    /// Dispatches the message to all handlers synchronously and returns the result.
+    /// Zero allocation when all handlers are synchronous.
+    /// </summary>
+    public HandlingResult HandleSync(TContext context) =>
+        DispatchSync(context.Message, context.CancellationToken);
 
 
     IRegisteredHandler<TMessage, TContext> IContextHandlerRegistrar<TMessage, TContext>.Register(

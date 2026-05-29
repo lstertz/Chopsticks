@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Chopsticks.Messages.Handlers.Sources
 {
-    public interface IHandlingPromiseSource
+    public interface IHandlingPromiseSource : IDisposable
     {
         Action InitiateDefaultContinuations { get; }
 
@@ -18,5 +18,18 @@ namespace Chopsticks.Messages.Handlers.Sources
         bool IsCompleted { get; }
         HandlingResult GetResult();
         void OnCompleted(Action continuation);
+    }
+    
+    /// <summary>
+    /// Internal interface for poolable promise sources that support getting results
+    /// without triggering auto-return to pool.
+    /// </summary>
+    internal interface IPoolablePromiseSource : IHandlingPromiseSource
+    {
+        /// <summary>
+        /// Gets the result without triggering auto-return to pool.
+        /// Used by wrapper sources to access inner source results.
+        /// </summary>
+        HandlingResult GetResultWithoutAutoReturn();
     }
 }

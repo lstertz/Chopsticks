@@ -6,36 +6,59 @@ using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages
 {
-    public struct HandlingResultPromise
+    public readonly struct HandlingResultPromise
     {
-        public static HandlingResultPromise NoHandlers => new(_noHandlersSource);
-        private static readonly IHandlingPromiseSource _noHandlersSource =
+        public static HandlingResultPromise NoHandlers => new(HandlingResult.NoHandlers);
 
-            new TryHandlePromiseSource().Init(HandlingResult.NoHandlers);
-
-        public static HandlingResultPromise Success => new(_successSource);
-        private static readonly IHandlingPromiseSource _successSource =
-            new TryHandlePromiseSource().Init(HandlingResult.Success);
+        public static HandlingResultPromise Success => new(HandlingResult.Success);
 
 
-        public HandlingStatus Status => _source.IsCompleted ?
+        public HandlingStatus Status => _hasDirectResult ? 
+            _directResult.Status : 
+            (_source?.IsCompleted == true ? _source.GetResult().Status : HandlingStatus.Processing);
 
-            _source.GetResult().Status : HandlingStatus.Processing;
+        internal IHandlingPromiseSource? Source => _source;
+        private readonly IHandlingPromiseSource? _source;
+        
+        private readonly HandlingResult _directResult;
+        private readonly bool _hasDirectResult;
+        
+        /// <summary>
+        /// Gets the result if available. For internal use in Handle() fast path.
+        /// </summary>
+        internal HandlingResult GetResultIfCompleted() => 
+            _hasDirectResult ? _directResult : 
+            (_source?.IsCompleted == true ? _source.GetResult() : HandlingResult.NoHandlers);
 
-        internal IHandlingPromiseSource Source => _source;
-        private readonly IHandlingPromiseSource _source;
-
+        /// <summary>
+        /// Creates a promise from a direct result. Zero allocation for sync paths.
+        /// </summary>
+        public HandlingResultPromise(HandlingResult result)
+        {
+            _directResult = result;
+            _hasDirectResult = true;
+            _source = null;
+        }
 
         public HandlingResultPromise(IHandlingPromiseSource source)
         {
             _source = source;
+            _directResult = default;
+            _hasDirectResult = false;
             if (!_source.IsCompleted)
                 _source.OnCompleted(_source.InitiateDefaultContinuations);
         }
 
         public HandlingResultPromise OnCancelled(Action onCancelled)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                if (_directResult.Status == HandlingStatus.Cancelled)
+                    onCancelled();
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 _source.OnCancelled = onCancelled;
                 return this;
@@ -50,7 +73,14 @@ namespace Chopsticks.Messages
 
         public HandlingResultPromise OnCompletion(Action<HandlingResult> onCompletion)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                if ((_directResult.Status & HandlingStatus.Completed) != 0)
+                    onCompletion(_directResult);
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 _source.OnCompletion = onCompletion;
                 return this;
@@ -65,7 +95,14 @@ namespace Chopsticks.Messages
 
         public HandlingResultPromise OnFailure(Action<IEnumerable<Exception>> onFailure)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                if (_directResult.Status == HandlingStatus.Failure)
+                    onFailure(_directResult.Exceptions);
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 _source.OnFailure = onFailure;
                 return this;
@@ -80,7 +117,14 @@ namespace Chopsticks.Messages
 
         public HandlingResultPromise OnNonSuccess(Action<HandlingResult> onNonSuccess)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                if ((_directResult.Status & HandlingStatus.NonSuccess) != 0)
+                    onNonSuccess(_directResult);
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 _source.OnNonSuccess = onNonSuccess;
                 return this;
@@ -95,7 +139,14 @@ namespace Chopsticks.Messages
 
         public HandlingResultPromise OnSuccess(Action onSuccess)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                if (_directResult.Status == HandlingStatus.Success)
+                    onSuccess();
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 _source.OnSuccess = onSuccess;
                 return this;
@@ -128,7 +179,13 @@ namespace Chopsticks.Messages
         /// </returns>
         public readonly HandlingResultPromise ThrowIfFailed(SynchronizationContext? asyncContext = null)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                _directResult.ThrowIfFailed();
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 _source.FailureContext = asyncContext ?? SynchronizationContext.Current;
                 return this;
@@ -155,7 +212,13 @@ namespace Chopsticks.Messages
         /// </returns>
         public readonly HandlingResultPromise ThrowIfNotHandled(string? customExceptionMessage = null)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                _directResult.ThrowIfNotHandled(customExceptionMessage);
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 // If the source has not completed immediately, then it must be being handled.
                 return this;
@@ -169,7 +232,14 @@ namespace Chopsticks.Messages
 
         public HandlingResultPromise WhenNotHandled(Action whenNotHandled)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                if (_directResult.Status == HandlingStatus.NotHandled)
+                    whenNotHandled();
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 // If the source has not completed immediately, then it must be being handled.
                 return this;

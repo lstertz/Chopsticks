@@ -1,6 +1,6 @@
 ﻿using Chopsticks.Dependencies.Containers;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Chopsticks.Dependencies.Resolutions
 {
@@ -8,12 +8,14 @@ namespace Chopsticks.Dependencies.Resolutions
     /// <remarks>
     /// This resolution assumes the dependency has a lifetime 
     /// of <see cref="DependencyLifetime.Contained"/>.
+    /// Thread-safe: uses ConcurrentDictionary for safe concurrent access
+    /// across multiple containers.
     /// </remarks>
     public class ContainedResolution(Type contract,
         Func<IDependencyContainer, object?> factory) :
         DependencyResolution(contract, factory)
     {
-        private readonly Dictionary<IDependencyContainer, object> _instances = new(1);
+        private readonly ConcurrentDictionary<IDependencyContainer, Lazy<object?>> _instances = new();
 
 
         /// <inheritdoc/>
@@ -21,8 +23,8 @@ namespace Chopsticks.Dependencies.Resolutions
         {
             base.Dispose();
 
-            foreach (var instance in _instances.Values)
-                if (instance is IDisposable disposable)
+            foreach (var lazy in _instances.Values)
+                if (lazy.IsValueCreated && lazy.Value is IDisposable disposable)
                     disposable.Dispose();
 
             _instances.Clear();
@@ -31,25 +33,21 @@ namespace Chopsticks.Dependencies.Resolutions
         /// <inheritdoc/>
         public override void DisposeFor(IDependencyContainer container)
         {
-            if (_instances.TryGetValue(container, out var instance))
-                if (instance is IDisposable disposable)
+            if (_instances.TryRemove(container, out var lazy))
+                if (lazy.IsValueCreated && lazy.Value is IDisposable disposable)
                     disposable.Dispose();
-
-            _instances.Remove(container);
         }
 
 
         /// <inheritdoc/>
         public override object? Get(IDependencyContainer container)
         {
-            if (!_instances.TryGetValue(container, out var instance))
-            {
-                instance = Factory?.Invoke(container);
-                if (instance is not null)
-                    _instances.Add(container, instance);
-            }
+            if (Factory == null)
+                return null;
 
-            return instance;
+            var lazy = _instances.GetOrAdd(container, 
+                c => new Lazy<object?>(() => Factory!.Invoke(c)));
+            return lazy.Value;
         }
     }
 }
