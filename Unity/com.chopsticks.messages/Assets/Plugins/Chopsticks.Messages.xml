@@ -4,14 +4,266 @@
         <name>Chopsticks.Messages</name>
     </assembly>
     <members>
+        <member name="T:Chopsticks.Messages.Handlers.IValueTaskContextHandler`2">
+            <summary>
+            A context handler that returns <see cref="T:System.Threading.Tasks.ValueTask"/> for optimal performance
+            when handlers complete synchronously most of the time.
+            </summary>
+            <remarks>
+            <para>
+            Use this interface when your handler often completes synchronously but occasionally
+            needs to perform async operations. <see cref="T:System.Threading.Tasks.ValueTask"/> avoids allocations
+            for synchronous completions, unlike <see cref="T:System.Threading.Tasks.Task"/>.
+            </para>
+            <para>
+            For handlers that always complete synchronously, use <see cref="T:Chopsticks.Messages.Handlers.ISyncContextHandler`2"/>.
+            For handlers that always require async operations, use <see cref="T:Chopsticks.Messages.Handlers.ITaskContextHandler`2"/>.
+            </para>
+            </remarks>
+            <typeparam name="TMessage">The type of message this handler processes.</typeparam>
+            <typeparam name="TContext">The type of context containing the message.</typeparam>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.IValueTaskContextHandler`2.HandleAsync(`1)">
+            <summary>
+            Handles the message asynchronously, returning a <see cref="T:System.Threading.Tasks.ValueTask"/>.
+            </summary>
+            <param name="context">The context containing the message to handle.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.ValueTask"/> representing the async operation.</returns>
+        </member>
+        <member name="T:Chopsticks.Messages.Handlers.IValueTaskMessageHandler`1">
+            <summary>
+            A message handler that returns <see cref="T:System.Threading.Tasks.ValueTask"/> for optimal performance
+            when handlers complete synchronously most of the time.
+            </summary>
+            <remarks>
+            <para>
+            Use this interface when your handler often completes synchronously but occasionally
+            needs to perform async operations. <see cref="T:System.Threading.Tasks.ValueTask"/> avoids allocations
+            for synchronous completions, unlike <see cref="T:System.Threading.Tasks.Task"/>.
+            </para>
+            <para>
+            For handlers that always complete synchronously, use <see cref="T:Chopsticks.Messages.Handlers.ISyncMessageHandler`1"/>.
+            For handlers that always require async operations, use <see cref="T:Chopsticks.Messages.Handlers.ITaskMessageHandler`1"/>.
+            </para>
+            </remarks>
+            <typeparam name="TMessage">The type of message this handler processes.</typeparam>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.IValueTaskMessageHandler`1.HandleAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            Handles the message asynchronously, returning a <see cref="T:System.Threading.Tasks.ValueTask"/>.
+            </summary>
+            <param name="message">The message to handle.</param>
+            <param name="token">A cancellation token to observe.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.ValueTask"/> representing the async operation.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.BaseMulticastHandler`2.InitiateDispatch(`1)">
+            <summary>
+            Initiates dispatch with sync fast-path optimization.
+            When all handlers complete synchronously, avoids promise source allocation entirely.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.BaseMulticastHandler`2.InitiateDispatchOriginal(`1)">
+            <summary>
+            Original dispatch path - always uses SequentialHandlingPromiseSource.
+            Used for comparison/debugging.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.BaseMulticastHandler`2.TryExecuteSyncFastPath(Chopsticks.Messages.Registration.Handlers.BaseRegisteredHandler{`0,`1}[],`1)">
+            <summary>
+            Attempts to execute all handlers synchronously without allocating a promise source.
+            Falls back to SequentialHandlingPromiseSource if any handler is async.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.BaseMulticastHandler`2.FallbackToPromiseSource(Chopsticks.Messages.Registration.Handlers.BaseRegisteredHandler{`0,`1}[],`1,System.Int32,Chopsticks.Messages.HandlingStatus,System.Collections.Generic.List{System.Exception},Chopsticks.Messages.HandlingResultAwaitable.Awaiter)">
+            <summary>
+            Falls back to SequentialHandlingPromiseSource when async handler encountered.
+            Continues from the current index with already-accumulated state.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.BaseMulticastHandler`2.MergeHandlerResult(Chopsticks.Messages.HandlingResult,Chopsticks.Messages.HandlingStatus@,System.Collections.Generic.List{System.Exception}@)">
+            <summary>
+            Merges a handler's result into the aggregate status.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.BaseMulticastHandler`2.BuildAggregateResult(Chopsticks.Messages.HandlingStatus,System.Collections.Generic.List{System.Exception})">
+            <summary>
+            Builds the final aggregate result from accumulated state.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.BaseMulticastHandler`2.DispatchFireAndForget(`0,System.Threading.CancellationToken)">
+            <summary>
+            Dispatches the message to all handlers without creating a promise source.
+            Zero allocation fire-and-forget pattern. Exceptions are swallowed.
+            </summary>
+            <remarks>
+            Use this for fire-and-forget scenarios where you don't need the result.
+            For scenarios where you need error handling, use <see cref="!:HandleSync"/> instead.
+            </remarks>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.BaseMulticastHandler`2.DispatchSync(`0,System.Threading.CancellationToken)">
+            <summary>
+            Dispatches the message to all handlers synchronously and returns the aggregated result.
+            Zero allocation when all handlers are synchronous.
+            </summary>
+            <returns>The aggregated handling result from all handlers.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.DefaultMulticastMessageHandler`1.TryHandleFireAndForget(`0,System.Threading.CancellationToken)">
+            <summary>
+            Dispatches the message to all handlers without returning a result.
+            Zero allocation fire-and-forget pattern - exceptions are swallowed.
+            </summary>
+            <remarks>
+            Use this when you don't need the handling result and want optimal performance.
+            For error handling, use <see cref="M:Chopsticks.Messages.Handlers.Multicast.DefaultMulticastMessageHandler`1.HandleSync(`0,System.Threading.CancellationToken)"/> instead.
+            </remarks>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.DefaultMulticastMessageHandler`1.HandleSync(`0,System.Threading.CancellationToken)">
+            <summary>
+            Dispatches the message to all handlers synchronously and returns the result.
+            Zero allocation when all handlers are synchronous.
+            </summary>
+            <returns>The aggregated handling result from all handlers.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.MulticastContextHandler`2.TryHandleFireAndForget(`0,System.Threading.CancellationToken)">
+            <summary>
+            Dispatches the message to all handlers without returning a result.
+            Zero allocation fire-and-forget pattern - exceptions are swallowed.
+            </summary>
+            <remarks>
+            Use this when you don't need the handling result and want optimal performance.
+            For error handling, use <see cref="M:Chopsticks.Messages.Handlers.Multicast.MulticastContextHandler`2.HandleSync(`0,System.Threading.CancellationToken)"/> instead.
+            </remarks>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.MulticastContextHandler`2.TryHandleFireAndForget(`1)">
+            <summary>
+            Dispatches the message to all handlers without returning a result.
+            Zero allocation fire-and-forget pattern - exceptions are swallowed.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.MulticastContextHandler`2.HandleSync(`0,System.Threading.CancellationToken)">
+            <summary>
+            Dispatches the message to all handlers synchronously and returns the result.
+            Zero allocation when all handlers are synchronous.
+            </summary>
+            <returns>The aggregated handling result from all handlers.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Multicast.MulticastContextHandler`2.HandleSync(`1)">
+            <summary>
+            Dispatches the message to all handlers synchronously and returns the result.
+            Zero allocation when all handlers are synchronous.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1._poolingSuppressed">
+            <summary>
+            When set, the source must not return itself to a reuse pool for the current generation.
+            Set via <see cref="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.SuppressPooling"/> when the source is handed to a fluent promise that
+            may register continuations after completion. Reset per generation in <see cref="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.Init(`0)"/>.
+            Pooled derived sources consult <see cref="P:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.PoolingSuppressed"/>; others ignore it.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.SuppressPooling">
+            <inheritdoc/>
+        </member>
+        <member name="P:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.PoolingSuppressed">
+            <summary>
+            Whether pool-return has been suppressed for the current generation (see
+            <see cref="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.SuppressPooling"/>). Derived pooled sources must not recycle when this is true.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1._generation">
+            <summary>
+            Generation counter that increments on each Rent(). Used to detect stale
+            Dispose() calls from previous owners. Thread-safe via Interlocked.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1._returnedGeneration">
+            <summary>
+            The generation at which this source was last returned to pool.
+            If _returnedGeneration == _generation, the source has been returned.
+            </summary>
+        </member>
+        <member name="F:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.PostThrowIfFailedCallback">
+            <summary>
+            Static cached callback for SynchronizationContext.Post to avoid closure allocation.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.ResetPoolReturnFlag">
+            <summary>
+            Increments the generation counter. Must be called in Rent() before returning
+            the source to a new caller. This ensures stale Dispose() calls from previous
+            owners will fail because they'll be checking against an old generation.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.TryMarkForPoolReturn">
+            <summary>
+            Attempts to return this source to its pool. Returns true if successfully marked for return.
+            Thread-safe - uses generation tracking to detect stale Dispose() calls from previous owners.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.ReturnToPoolIfCompleted">
+            <summary>
+            Called by derived classes to return to pool after result is consumed.
+            Override in derived classes that implement pooling.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.GetResultWithoutReturn">
+            <summary>
+            Gets the result without triggering auto-return to pool.
+            Used internally by InitiateDefaultContinuations to invoke callbacks first.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.Chopsticks#Messages#Handlers#Sources#IPoolablePromiseSource#GetResultWithoutAutoReturn">
+            <summary>
+            IPoolablePromiseSource implementation - exposes GetResultWithoutReturn for wrapper sources.
+            Returns NotHandled if the source has already been disposed.
+            </summary>
+        </member>
+        <member name="T:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource">
+            <summary>
+            A wrapper promise source used by HandleAsync methods that throws on failure.
+            </summary>
+            <remarks>
+            NOTE: This source is NOT pooled because HandlingCompletionAwaitable structs may
+            hold references to it long after completion. Pooling would cause race conditions
+            where a reused source could corrupt the state observed by old awaitable structs.
+            The inner sources (TryHandleAsyncPromiseSource etc.) are still pooled.
+            </remarks>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource.Rent">
+            <summary>
+            Creates a new HandleAsyncPromiseSource.
+            </summary>
+        </member>
         <member name="P:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource.IsCompleted">
             <inheritdoc/>
         </member>
         <member name="M:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource.GetResult">
             <inheritdoc/>
         </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource.GetResultWithoutReturn">
+            <inheritdoc/>
+        </member>
         <member name="M:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource.OnCompleted(System.Action)">
             <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandleAsyncPromiseSource.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource">
+            <summary>
+            A wrapper promise source used by Handle/HandleAsync methods.
+            </summary>
+            <remarks>
+            NOTE: This source is NOT pooled because HandlingCompletionPromise structs may
+            hold references to it long after completion. Pooling would cause race conditions
+            where a reused source could corrupt the state observed by old promise structs.
+            The inner sources (TryHandleAsyncPromiseSource etc.) are still pooled.
+            </remarks>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.Rent">
+            <summary>
+            Creates a new HandlePromiseSource.
+            </summary>
         </member>
         <member name="P:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.IsCompleted">
             <inheritdoc/>
@@ -19,20 +271,129 @@
         <member name="M:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.GetResult">
             <inheritdoc/>
         </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.GetResultWithoutReturn">
+            <inheritdoc/>
+        </member>
         <member name="M:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.OnCompleted(System.Action)">
             <inheritdoc/>
         </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.IHandlingPromiseSource.SuppressPooling">
+            <summary>
+            Signals that this source is being consumed through a fluent
+            <see cref="T:Chopsticks.Messages.HandlingResultPromise"/> /
+            <see cref="T:Chopsticks.Messages.HandlingCompletionPromise"/> rather than a single-terminal
+            <c>await</c>. The fluent API may register continuations after the source has completed,
+            so the source must NOT return itself to a reuse pool (a recycled-then-re-rented instance
+            would drop a late callback and corrupt the next dispatch). Pooled sources treat this as a
+            one-way latch for the current generation; non-pooled sources may ignore it.
+            </summary>
+        </member>
+        <member name="T:Chopsticks.Messages.Handlers.Sources.IPoolablePromiseSource">
+            <summary>
+            Internal interface for poolable promise sources that support getting results
+            without triggering auto-return to pool.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.IPoolablePromiseSource.GetResultWithoutAutoReturn">
+            <summary>
+            Gets the result without triggering auto-return to pool.
+            Used by wrapper sources to access inner source results.
+            </summary>
+        </member>
+        <member name="T:Chopsticks.Messages.Handlers.Sources.ImmutablePromiseSource">
+            <summary>
+            An immutable promise source for pre-completed results.
+            Used for static HandlingResultPromise instances (Success, NoHandlers)
+            to avoid shared mutable state between callers.
+            </summary>
+            <remarks>
+            All callback setters are no-ops since this source is already completed.
+            Callbacks are invoked immediately inline when set (since IsCompleted is true,
+            the HandlingResultPromise methods handle this case).
+            </remarks>
+        </member>
+        <member name="T:Chopsticks.Messages.Handlers.Sources.PromiseSourcePools">
+            <summary>
+            Provides centralized pool management for promise sources.
+            Call <see cref="M:Chopsticks.Messages.Handlers.Sources.PromiseSourcePools.PreWarm(System.Int32)"/> at application startup for optimal performance.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.Handlers.Sources.PromiseSourcePools.IsPreWarmed">
+            <summary>
+            Gets whether the pools have been pre-warmed.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.PromiseSourcePools.PreWarm(System.Int32)">
+            <summary>
+            Pre-warms all promise source pools by creating initial instances.
+            Call this at application startup for optimal performance.
+            </summary>
+            <param name="countPerPool">Number of instances to create per pool. Default is 16.</param>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.PromiseSourcePools.PreWarmSequentialSource``1(System.Int32)">
+            <summary>
+            Pre-warms the SequentialHandlingPromiseSource pool for a specific message type.
+            Call this for your hot message types at startup for optimal multicast performance.
+            </summary>
+            <typeparam name="TMessage">The message type.</typeparam>
+            <param name="count">Number of instances to create. Default is 16.</param>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.PromiseSourcePools.PreWarmSequentialSource``2(System.Int32)">
+            <summary>
+            Pre-warms the SequentialHandlingPromiseSource pool for a specific message and context type.
+            Call this for your hot message types at startup for optimal multicast performance.
+            </summary>
+            <typeparam name="TMessage">The message type.</typeparam>
+            <typeparam name="TContext">The context type.</typeparam>
+            <param name="count">Number of instances to create. Default is 16.</param>
+        </member>
         <member name="P:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.IsCompleted">
+            <inheritdoc/>
+        </member>
+        <member name="F:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2._cachedResult">
+            <summary>
+            Cached result to preserve state after source is returned to pool.
+            This allows HandlingResultPromise to still read the result.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.ReturnToPoolIfCompleted">
             <inheritdoc/>
         </member>
         <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.Dispose">
             <inheritdoc/>
         </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.RunFromIndex(`1,System.Int32,Chopsticks.Messages.HandlingStatus,System.Collections.Generic.List{System.Exception},Chopsticks.Messages.HandlingResultAwaitable.Awaiter)">
+            <summary>
+            Continues execution from a specific handler index with pre-accumulated state.
+            Used when sync fast-path encounters an async handler.
+            </summary>
+            <param name="context">The message context.</param>
+            <param name="startIndex">The index of the first async handler to run.</param>
+            <param name="currentStatus">Already-accumulated status from sync handlers.</param>
+            <param name="exceptions">Already-accumulated exceptions (may be null).</param>
+            <param name="pendingAwaiter">The awaiter for the first async handler.</param>
+        </member>
         <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.GetResult">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.GetResultWithoutReturn">
             <inheritdoc/>
         </member>
         <member name="M:Chopsticks.Messages.Handlers.Sources.SequentialHandlingPromiseSource`2.OnCompleted(System.Action)">
             <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.Rent">
+            <summary>
+            Rents a TryHandleAsyncPromiseSource from the pool, or creates a new one if the pool is empty.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.ResetForReuse">
+            <summary>
+            Resets state for reuse from pool.
+            </summary>
         </member>
         <member name="P:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.IsCompleted">
             <inheritdoc/>
@@ -40,8 +401,22 @@
         <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.GetResult">
             <inheritdoc/>
         </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.GetResultWithoutReturn">
+            <inheritdoc/>
+        </member>
         <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.OnCompleted(System.Action)">
             <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.ReturnToPoolIfCompleted">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandleAsyncPromiseSource.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.Rent">
+            <summary>
+            Rents a TryHandlePromiseSource from the pool, or creates a new one if the pool is empty.
+            </summary>
         </member>
         <member name="P:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.IsCompleted">
             <inheritdoc/>
@@ -49,7 +424,16 @@
         <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.GetResult">
             <inheritdoc/>
         </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.GetResultWithoutReturn">
+            <inheritdoc/>
+        </member>
         <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.OnCompleted(System.Action)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.ReturnToPoolIfCompleted">
+            <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.TryHandlePromiseSource.Dispose">
             <inheritdoc/>
         </member>
         <member name="T:Chopsticks.Messages.HandlingCompletion">
@@ -99,6 +483,11 @@
             Whether the awaiter has completed.
             </summary>
         </member>
+        <member name="M:Chopsticks.Messages.HandlingCompletionAwaitable.#ctor(Chopsticks.Messages.HandlingResult)">
+            <summary>
+            Creates an awaitable from a direct result. Zero allocation for sync paths.
+            </summary>
+        </member>
         <member name="M:Chopsticks.Messages.HandlingCompletionAwaitable.GetAwaiter">
             <summary>
             Gets the awaiter for the <see cref="T:Chopsticks.Messages.HandlingCompletionAwaitable"/>.
@@ -137,6 +526,11 @@
         <member name="P:Chopsticks.Messages.HandlingCompletionPromise.Completion">
             <summary>
             Gets the completion status of the message handling operation.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingCompletionPromise.#ctor(Chopsticks.Messages.HandlingResult)">
+            <summary>
+            Creates a completion promise from a direct result. Zero allocation for sync paths.
             </summary>
         </member>
         <member name="M:Chopsticks.Messages.HandlingCompletionPromise.ThrowIfNotHandled(System.String)">
@@ -186,19 +580,19 @@
             The result of handling a message.
             </summary>
         </member>
-        <member name="P:Chopsticks.Messages.HandlingResult.Cancelled">
+        <member name="F:Chopsticks.Messages.HandlingResult.Cancelled">
             <summary>
-            Builds a result indicating that the message was cancelled.
+            A result indicating that the message was cancelled.
             </summary>
         </member>
-        <member name="P:Chopsticks.Messages.HandlingResult.NoHandlers">
+        <member name="F:Chopsticks.Messages.HandlingResult.NoHandlers">
             <summary>
-            Builds a result indicating that no handlers were found for the message.
+            A result indicating that no handlers were found for the message.
             </summary>
         </member>
-        <member name="P:Chopsticks.Messages.HandlingResult.Success">
+        <member name="F:Chopsticks.Messages.HandlingResult.Success">
             <summary>
-            Builds a result indicating that the message was handled successfully.
+            A result indicating that the message was handled successfully.
             </summary>
         </member>
         <member name="M:Chopsticks.Messages.HandlingResult.FromException(System.Exception)">
@@ -206,6 +600,20 @@
             Builds a result indicating that the message failed to be handled with an exception.
             </summary>
             <param name="exception">The exception that specifies the failure.</param>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.FromExceptions(System.Collections.Generic.List{System.Exception})">
+            <summary>
+            Builds a result indicating that the message failed with multiple exceptions.
+            </summary>
+            <param name="exceptions">The list of exceptions.</param>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResult.AddExceptionsTo(System.Collections.Generic.List{System.Exception})">
+            <summary>
+            Appends this result's exceptions to <paramref name="target"/> without allocating an
+            enumerator. The single-exception case (the common failure shape) avoids the boxed
+            <see cref="T:Chopsticks.Messages.SingleExceptionEnumerable"/> enumerator that a <c>foreach</c> over
+            <see cref="P:Chopsticks.Messages.HandlingResult.Exceptions"/> would incur on the dispatch/merge hot path.
+            </summary>
         </member>
         <member name="P:Chopsticks.Messages.HandlingResult.Exceptions">
             <summary>
@@ -289,6 +697,28 @@
             is <see cref="F:Chopsticks.Messages.HandlingStatus.Success"/>.</param>
             <returns>The current <see cref="T:Chopsticks.Messages.HandlingResult"/> instance, 
             allowing for method chaining.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResultAwaitable.#ctor(Chopsticks.Messages.HandlingResult)">
+            <summary>
+            Creates an awaitable from a direct result. Zero allocation for sync paths.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResultAwaitable.PeekResult">
+            <summary>
+            Reads the completed result without triggering the source's auto-return to its pool.
+            Only valid when the source has completed. Used by the non-terminal chainable inspectors
+            so the single terminal await keeps ownership of the recycle.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResultPromise.GetResultIfCompleted">
+            <summary>
+            Gets the result if available. For internal use in Handle() fast path.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResultPromise.#ctor(Chopsticks.Messages.HandlingResult)">
+            <summary>
+            Creates a promise from a direct result. Zero allocation for sync paths.
+            </summary>
         </member>
         <member name="M:Chopsticks.Messages.HandlingResultPromise.ThrowIfFailed(System.Threading.SynchronizationContext)">
             <summary>
@@ -417,6 +847,69 @@
             there is no explicit order (per <see cref="P:Chopsticks.Messages.Registration.Handlers.BaseRegisteredHandler`2.Order"/>) specified.
             </summary>
         </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.BaseRegisteredHandler`2.RemoveInterceptor(Chopsticks.Messages.Registration.Interceptors.IRegisteredInterceptor)">
+            <summary>
+            Removes a previously registered interceptor from this handler.
+            </summary>
+            <param name="registration">The interceptor registration to remove.</param>
+            <returns>True if the interceptor was found and removed, false otherwise.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.IRegisteredHandler`1.AddInterceptor(Chopsticks.Messages.Interceptors.IInterceptor,Chopsticks.Messages.Registration.InterceptorRegistrationSettings)">
+            <summary>
+            Adds a generic interceptor to this handler's pipeline.
+            </summary>
+            <param name="interceptor">The interceptor to add.</param>
+            <param name="settings">Optional registration settings.</param>
+            <returns>The interceptor registration, which can be used to remove the interceptor later.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.IRegisteredHandler`1.AddInterceptor(Chopsticks.Messages.Interceptors.IMessageInterceptor{`0},Chopsticks.Messages.Registration.InterceptorRegistrationSettings)">
+            <summary>
+            Adds a message-specific interceptor to this handler's pipeline.
+            </summary>
+            <param name="interceptor">The interceptor to add.</param>
+            <param name="settings">Optional registration settings.</param>
+            <returns>The interceptor registration, which can be used to remove the interceptor later.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.IRegisteredHandler`1.AddInterceptor``1(Chopsticks.Messages.Interceptors.IContractInterceptor{``0},Chopsticks.Messages.Interceptors.ContractInterceptorMode,Chopsticks.Messages.Registration.InterceptorRegistrationSettings)">
+            <summary>
+            Adds a contract interceptor to this handler's pipeline.
+            </summary>
+            <typeparam name="TContract">The contract type.</typeparam>
+            <param name="interceptor">The interceptor to add.</param>
+            <param name="mode">The contract interception mode.</param>
+            <param name="settings">Optional registration settings.</param>
+            <returns>The interceptor registration, which can be used to remove the interceptor later.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.IRegisteredHandler`1.RemoveInterceptor(Chopsticks.Messages.Registration.Interceptors.IRegisteredInterceptor)">
+            <summary>
+            Removes a previously registered interceptor from this handler.
+            </summary>
+            <param name="registration">The interceptor registration returned from AddInterceptor.</param>
+            <returns>True if the interceptor was found and removed, false otherwise.</returns>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.IRegisteredHandler`2.AddInterceptor(Chopsticks.Messages.Interceptors.IInterceptor,Chopsticks.Messages.Registration.InterceptorRegistrationSettings)">
+            <summary>
+            Adds a generic interceptor to this handler's pipeline.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.IRegisteredHandler`2.AddInterceptor(Chopsticks.Messages.Interceptors.IMessageInterceptor{`0},Chopsticks.Messages.Registration.InterceptorRegistrationSettings)">
+            <summary>
+            Adds a message-specific interceptor to this handler's pipeline.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.IRegisteredHandler`2.AddInterceptor``1(Chopsticks.Messages.Interceptors.IContractInterceptor{``0},Chopsticks.Messages.Interceptors.ContractInterceptorMode,Chopsticks.Messages.Registration.InterceptorRegistrationSettings)">
+            <summary>
+            Adds a contract interceptor to this handler's pipeline.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Registration.Handlers.IRegisteredHandler`2.AddInterceptor(Chopsticks.Messages.Interceptors.IContextInterceptor{`0,`1},Chopsticks.Messages.Registration.InterceptorRegistrationSettings)">
+            <summary>
+            Adds a context-specific interceptor to this handler's pipeline.
+            </summary>
+            <param name="interceptor">The interceptor to add.</param>
+            <param name="settings">Optional registration settings.</param>
+            <returns>The interceptor registration, which can be used to remove the interceptor later.</returns>
+        </member>
         <member name="M:Chopsticks.Messages.Registration.Handlers.RegisteredContextHandler`2.InternalHandleAsync(`1)">
             <inheritdoc/>
         </member>
@@ -457,6 +950,26 @@
         </member>
         <member name="M:Chopsticks.Messages.Registration.Interceptors.RegisteredInterceptor`2.GetHashCode">
             <inheritdoc/>
+        </member>
+        <member name="T:Chopsticks.Messages.Registration.IOrderedRegistration">
+            <summary>
+            Interface for registrations that are ordered by priority and registration sequence.
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.Registration.IOrderedRegistration.Order">
+            <summary>
+            The sort priority (lower = higher priority).
+            </summary>
+        </member>
+        <member name="P:Chopsticks.Messages.Registration.IOrderedRegistration.RegistrationIndex">
+            <summary>
+            The registration sequence number for stable ordering among equal priorities.
+            </summary>
+        </member>
+        <member name="T:Chopsticks.Messages.SingleExceptionEnumerable">
+            <summary>
+            A zero-allocation enumerable for a single exception.
+            </summary>
         </member>
         <member name="T:System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute">
             <summary>

@@ -1,5 +1,4 @@
 using System;
-using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages.Handlers
 {
@@ -12,18 +11,12 @@ namespace Chopsticks.Messages.Handlers
 
         HandlingResultPromise IContextHandler<TMessage, TContext>.TryHandle(TContext context)
         {
-            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
-            source.Init(EvaluateHandle(context));
-
-            return new HandlingResultPromise(source);
+            return new HandlingResultPromise(EvaluateHandle(context));
         }
 
         HandlingResultAwaitable IContextHandler<TMessage, TContext>.TryHandleAsync(TContext context)
         {
-            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
-            source.Init(EvaluateHandle(context));
-
-            return new HandlingResultAwaitable(source);
+            return new HandlingResultAwaitable(EvaluateHandle(context));
         }
 
         private HandlingResult EvaluateHandle(TContext context)

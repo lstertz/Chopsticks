@@ -3,7 +3,9 @@ using Chopsticks.Messages.Interceptors;
 using Chopsticks.Messages.Interceptors.Adapters;
 using Chopsticks.Messages.Registration.Handlers;
 using Chopsticks.Messages.Registration.Interceptors;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Chopsticks.Messages.Registration;
 
@@ -11,15 +13,17 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
     where TContext : IMessageContext<TMessage>, new()
 {
     private readonly List<RegisteredInterceptor<TMessage, TContext>> _dispatchInterceptors = [];
+    private readonly object _interceptorLock = new();
 
-    // TODO :: Support per-handler interceptors.
-    //protected RegisteredInterceptor<TMessage, TContext>[] PerHandlerMessageInterceptors =>
-    //    [.. _perHandlerMessageInterceptors];
-    //private readonly List<RegisteredInterceptor<TMessage, TContext>> _perHandlerMessageInterceptors = [];
-
-    // TODO :: Rebuild immutable collection used during handling on any register/unregister.
-    protected BaseRegisteredHandler<TMessage, TContext>[] RegisteredMessageHandlers => [.. _registeredMessageHandlers];
+    private static readonly BaseRegisteredHandler<TMessage, TContext>[] EmptyHandlers = 
+        Array.Empty<BaseRegisteredHandler<TMessage, TContext>>();
+    
+    protected BaseRegisteredHandler<TMessage, TContext>[] RegisteredMessageHandlers => 
+        Volatile.Read(ref _cachedHandlers);
+    
+    private BaseRegisteredHandler<TMessage, TContext>[] _cachedHandlers = EmptyHandlers;
     private readonly List<BaseRegisteredHandler<TMessage, TContext>> _registeredMessageHandlers = new(8);
+    private readonly object _handlerLock = new();
 
     private int _nextHandlerRegistrationIndex = 0;
     private int _nextInterceptorRegistrationIndex = 0;
@@ -59,23 +63,20 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         IContextInterceptor<TMessage, TContext> interceptor,
         InterceptorRegistrationSettings settings = default)
     {
-        var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor)
+        lock (_interceptorLock)
         {
-            Order = settings.Order,
-            RegistrationIndex = _nextInterceptorRegistrationIndex++
-        };
+            var registration = new RegisteredInterceptor<TMessage, TContext>(interceptor)
+            {
+                Order = settings.Order,
+                RegistrationIndex = _nextInterceptorRegistrationIndex++
+            };
 
-        _dispatchInterceptors.Add(registration);
-        _dispatchInterceptors.Sort((x, y) =>
-        {
-            int orderComparison = x.Order.CompareTo(y.Order);
-            if (orderComparison != 0)
-                return orderComparison;
-            return x.RegistrationIndex.CompareTo(y.RegistrationIndex);
-        });
+            int insertIndex = BinarySearchInsertIndex(_dispatchInterceptors, registration);
+            _dispatchInterceptors.Insert(insertIndex, registration);
 
-        RebuildDispatchPipeline(_dispatchInterceptors);
-        return registration;
+            RebuildDispatchPipeline(_dispatchInterceptors);
+            return registration;
+        }
     }
 
     public void RemoveDispatchInterceptor(IRegisteredInterceptor registration)
@@ -83,8 +84,11 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         if (registration is not RegisteredInterceptor<TMessage, TContext> reg)
             return;
 
-        if (_dispatchInterceptors.Remove(reg))
-            RebuildDispatchPipeline(_dispatchInterceptors);
+        lock (_interceptorLock)
+        {
+            if (_dispatchInterceptors.Remove(reg))
+                RebuildDispatchPipeline(_dispatchInterceptors);
+        }
     }
 
 
@@ -121,27 +125,64 @@ public abstract class BaseMessageHandlerRegistrar<TMessage, TContext>
         if (registration is not BaseRegisteredHandler<TMessage, TContext> reg)
             return;
 
-        _registeredMessageHandlers.Remove(reg);
+        lock (_handlerLock)
+        {
+            if (_registeredMessageHandlers.Remove(reg))
+                RebuildHandlerCache();
+        }
     }
 
     protected abstract void RebuildDispatchPipeline(
         List<RegisteredInterceptor<TMessage, TContext>> interceptors);
 
-
-    // TODO :: Rebuild immutable collection used during handling on any register/unregister.
-    //             Immutability is needed to avoid locking during message dispatch.
     private void AddRegistration(BaseRegisteredHandler<TMessage, TContext> registration)
     {
-        if (_registeredMessageHandlers.Contains(registration))
-            return;
-
-        _registeredMessageHandlers.Add(registration);
-        _registeredMessageHandlers.Sort((x, y) =>
+        lock (_handlerLock)
         {
-            int orderComparison = x.Order.CompareTo(y.Order);
-            if (orderComparison != 0)
-                return orderComparison;
-            return x.RegistrationIndex.CompareTo(y.RegistrationIndex);
-        });
+            if (_registeredMessageHandlers.Contains(registration))
+                return;
+
+            int insertIndex = BinarySearchInsertIndex(_registeredMessageHandlers, registration);
+            _registeredMessageHandlers.Insert(insertIndex, registration);
+            
+            RebuildHandlerCache();
+        }
+    }
+    
+    private void RebuildHandlerCache()
+    {
+        var newCache = _registeredMessageHandlers.Count == 0 
+            ? EmptyHandlers 
+            : _registeredMessageHandlers.ToArray();
+        Volatile.Write(ref _cachedHandlers, newCache);
+    }
+    
+    private static int BinarySearchInsertIndex<T>(List<T> list, T item)
+        where T : IOrderedRegistration
+    {
+        int low = 0;
+        int high = list.Count - 1;
+
+        while (low <= high)
+        {
+            int mid = low + ((high - low) >> 1);
+            int cmp = CompareRegistrations(list[mid], item);
+
+            if (cmp < 0)
+                low = mid + 1;
+            else
+                high = mid - 1;
+        }
+
+        return low;
+    }
+    
+    private static int CompareRegistrations<T>(T x, T y)
+        where T : IOrderedRegistration
+    {
+        int orderComparison = x.Order.CompareTo(y.Order);
+        if (orderComparison != 0)
+            return orderComparison;
+        return x.RegistrationIndex.CompareTo(y.RegistrationIndex);
     }
 }

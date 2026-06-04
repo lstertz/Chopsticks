@@ -64,12 +64,11 @@ namespace Chopsticks.Dependencies.Containers
         /// <inheritdoc/>
         public IDependencyContainer Deregister(DependencyRegistration registration)
         {
-            if (!_resolutions.ContainsKey(registration.Contract))
+            if (!_resolutions.TryGetValue(registration.Contract, out var resolutions))
                 return this;
 
             int index = 0;
             DependencyResolution? resolution = null;
-            var resolutions = _resolutions[registration.Contract];
             int count = resolutions.Count;
             for (; index < count; index++)
             {

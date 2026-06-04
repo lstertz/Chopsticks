@@ -12,19 +12,13 @@ namespace Chopsticks.Messages.Handlers
 
         HandlingResultPromise IMessageHandler<TMessage>.TryHandle(TMessage message)
         {
-            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
-            source.Init(EvaluateHandle(message));
-
-            return new HandlingResultPromise(source);
+            return new HandlingResultPromise(EvaluateHandle(message));
         }
 
         HandlingResultAwaitable IMessageHandler<TMessage>.TryHandleAsync(
             TMessage message, CancellationToken token)
         {
-            var source = new TryHandlePromiseSource();  // TODO :: Rent from a pool.
-            source.Init(EvaluateHandle(message));
-
-            return new HandlingResultAwaitable(source);
+            return new HandlingResultAwaitable(EvaluateHandle(message));
         }
 
         private HandlingResult EvaluateHandle(TMessage message)

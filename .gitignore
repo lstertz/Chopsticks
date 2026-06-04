@@ -1,0 +1,13 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# BenchmarkDotNet run artifacts (regenerable; results live in docs/ when curated)
+BenchmarkDotNet.Artifacts/
+
+# .NET / IDE
+*.user
+.vs/
+
+# Note: Unity plugin binaries under Unity/**/Assets/Plugins are intentionally
+# tracked (they are the distributed package output) and are NOT ignored.

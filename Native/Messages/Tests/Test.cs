@@ -304,10 +304,10 @@ namespace Tests
             };
 
             var multicastHandler = new MulticastMessageHandler<Message>();
-            (multicastHandler as IMessageHandlerRegistrar<Message, DefaultMessageContext<Message>>)
-                .Register(new SuccessfulSyncMessageHandler())
-                .AddInterceptor(interceptorA)
-                .AddInterceptor(interceptorB);
+            var registration = (multicastHandler as IMessageHandlerRegistrar<Message, DefaultMessageContext<Message>>)
+                .Register(new SuccessfulSyncMessageHandler());
+            registration.AddInterceptor(interceptorA);
+            registration.AddInterceptor(interceptorB);
 
             var sender = new MessageSender(multicastHandler);
 

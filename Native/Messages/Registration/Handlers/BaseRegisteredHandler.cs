@@ -8,7 +8,8 @@ using System.Collections.Generic;
 namespace Chopsticks.Messages.Registration.Handlers;
 
 public abstract class BaseRegisteredHandler<TMessage, TContext> : 
-    IRegisteredHandler<TMessage, TContext>
+    IRegisteredHandler<TMessage, TContext>,
+    IOrderedRegistration
     where TContext : IMessageContext<TMessage>, new()
 {
     // TODO :: Support per-handler interceptors, set from the multicaster, triggers rebuild.
@@ -38,7 +39,7 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
         _handlePipeline = InternalHandleAsync;
     }
 
-    public IRegisteredHandler<TMessage, TContext> AddInterceptor(
+    public IRegisteredInterceptor AddInterceptor(
         IInterceptor interceptor, 
         InterceptorRegistrationSettings settings = default)
     {
@@ -46,7 +47,7 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
         return AddInterceptor(adapter, settings);
     }
 
-    public IRegisteredHandler<TMessage, TContext> AddInterceptor(
+    public IRegisteredInterceptor AddInterceptor(
         IMessageInterceptor<TMessage> interceptor, 
         InterceptorRegistrationSettings settings = default)
     {
@@ -54,7 +55,7 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
         return AddInterceptor(adapter, settings);
     }
 
-    public IRegisteredHandler<TMessage, TContext> AddInterceptor<TContract>(
+    public IRegisteredInterceptor AddInterceptor<TContract>(
         IContractInterceptor<TContract> interceptor, 
         ContractInterceptorMode mode = ContractInterceptorMode.Required, 
         InterceptorRegistrationSettings settings = default)
@@ -64,7 +65,7 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
         return AddInterceptor(adapter, settings);
     }
 
-    public IRegisteredHandler<TMessage, TContext> AddInterceptor(
+    public IRegisteredInterceptor AddInterceptor(
         IContextInterceptor<TMessage, TContext> interceptor, 
         InterceptorRegistrationSettings settings = default)
     {
@@ -74,30 +75,72 @@ public abstract class BaseRegisteredHandler<TMessage, TContext> :
             RegistrationIndex = _nextRegistrationIndex++
         };
 
-        _interceptors.Add(registration);
-        _interceptors.Sort((x, y) =>
-        {
-            int orderComparison = x.Order.CompareTo(y.Order);
-            if (orderComparison != 0)
-                return orderComparison;
-            return x.RegistrationIndex.CompareTo(y.RegistrationIndex);
-        });
+        int insertIndex = BinarySearchInsertIndex(_interceptors, registration);
+        _interceptors.Insert(insertIndex, registration);
 
         RebuildHandlePipeline();
-        return this;
+        return registration;
+    }
+    
+    /// <summary>
+    /// Removes a previously registered interceptor from this handler.
+    /// </summary>
+    /// <param name="registration">The interceptor registration to remove.</param>
+    /// <returns>True if the interceptor was found and removed, false otherwise.</returns>
+    public bool RemoveInterceptor(IRegisteredInterceptor registration)
+    {
+        if (registration is not RegisteredInterceptor<TMessage, TContext> reg)
+            return false;
+        
+        if (_interceptors.Remove(reg))
+        {
+            RebuildHandlePipeline();
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private static int BinarySearchInsertIndex<T>(List<T> list, T item)
+        where T : IOrderedRegistration
+    {
+        int low = 0;
+        int high = list.Count - 1;
+
+        while (low <= high)
+        {
+            int mid = low + ((high - low) >> 1);
+            int cmp = CompareRegistrations(list[mid], item);
+
+            if (cmp < 0)
+                low = mid + 1;
+            else
+                high = mid - 1;
+        }
+
+        return low;
+    }
+    
+    private static int CompareRegistrations<T>(T x, T y)
+        where T : IOrderedRegistration
+    {
+        int orderComparison = x.Order.CompareTo(y.Order);
+        if (orderComparison != 0)
+            return orderComparison;
+        return x.RegistrationIndex.CompareTo(y.RegistrationIndex);
     }
 
-    IRegisteredHandler<TMessage> IRegisteredHandler<TMessage>.AddInterceptor(
+    IRegisteredInterceptor IRegisteredHandler<TMessage>.AddInterceptor(
         IInterceptor interceptor,
         InterceptorRegistrationSettings settings) => 
             AddInterceptor(interceptor, settings);
 
-    IRegisteredHandler<TMessage> IRegisteredHandler<TMessage>.AddInterceptor(
+    IRegisteredInterceptor IRegisteredHandler<TMessage>.AddInterceptor(
         IMessageInterceptor<TMessage> interceptor,
         InterceptorRegistrationSettings settings) => 
             AddInterceptor(interceptor, settings);
 
-    IRegisteredHandler<TMessage> IRegisteredHandler<TMessage>.AddInterceptor<TContract>(
+    IRegisteredInterceptor IRegisteredHandler<TMessage>.AddInterceptor<TContract>(
         IContractInterceptor<TContract> interceptor,
         ContractInterceptorMode mode,
         InterceptorRegistrationSettings settings) => 

@@ -19,18 +19,40 @@ namespace Chopsticks.Messages
         /// <summary>
         /// Gets the completion status of the message handling operation.
         /// </summary>
-        public HandlingCompletion Completion => _source.IsCompleted ?
-            (HandlingCompletion)_source.GetResult().Status :
-            HandlingCompletion.NotHandled;
+        public HandlingCompletion Completion => _hasDirectResult ?
+            (HandlingCompletion)_directResult.Status :
+            (_source?.IsCompleted == true ?
+                (HandlingCompletion)_source.GetResult().Status :
+                HandlingCompletion.NotHandled);
 
-        internal readonly IHandlingPromiseSource Source => _source;
-        private readonly IHandlingPromiseSource _source;
+        internal readonly IHandlingPromiseSource? Source => _source;
+        private readonly IHandlingPromiseSource? _source;
+        
+        private readonly HandlingResult _directResult;
+        private readonly bool _hasDirectResult;
 
+        /// <summary>
+        /// Creates a completion promise from a direct result. Zero allocation for sync paths.
+        /// </summary>
+        public HandlingCompletionPromise(HandlingResult result)
+        {
+            _directResult = result;
+            _hasDirectResult = true;
+            _source = null;
+            
+            // Throw immediately for sync failures
+            result.ThrowIfFailed();
+        }
 
         public HandlingCompletionPromise(IHandlingPromiseSource source,
             SynchronizationContext? asyncContext = null)
         {
             _source = source;
+            _directResult = default;
+            _hasDirectResult = false;
+            // Fluent consumption may register callbacks after completion, so the source must not be
+            // recycled out from under this promise. Suppress BEFORE registering any continuation.
+            _source.SuppressPooling();
             _source.FailureContext = asyncContext;
 
             if (!_source.IsCompleted)
@@ -61,7 +83,13 @@ namespace Chopsticks.Messages
         public readonly HandlingCompletionPromise ThrowIfNotHandled(
             string? customExceptionMessage = null)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                _directResult.ThrowIfNotHandled(customExceptionMessage);
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 // If the source has not completed immediately, then it must be being handled.
                 return this;
@@ -84,7 +112,14 @@ namespace Chopsticks.Messages
         /// </returns>
         public readonly HandlingCompletionPromise WhenCompleted(Action whenCompleted)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                if ((_directResult.Status & HandlingStatus.Completed) != 0)
+                    whenCompleted();
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 _source.OnCompletion = (_) => whenCompleted();
                 return this;
@@ -112,7 +147,14 @@ namespace Chopsticks.Messages
         /// </returns>
         public readonly HandlingCompletionPromise WhenNotHandled(Action whenNotHandled)
         {
-            if (!_source.IsCompleted)
+            if (_hasDirectResult)
+            {
+                if (_directResult.Status == HandlingStatus.NotHandled)
+                    whenNotHandled();
+                return this;
+            }
+            
+            if (!_source!.IsCompleted)
             {
                 // If the source has not completed immediately, then it must be being handled.
                 return this;

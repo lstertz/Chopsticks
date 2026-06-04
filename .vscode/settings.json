@@ -1,0 +1,13 @@
+{
+    "dotrush.roslyn.projectOrSolutionFiles": [
+        "a:\\g\\Chopsticks2\\Native\\Dependencies\\Dependencies.sln",
+        "a:\\g\\Chopsticks2\\Native\\Foundation\\Foundation.sln",
+        "a:\\g\\Chopsticks2\\Native\\Messages\\Messages.sln",
+        "a:\\g\\Chopsticks2\\Native\\Dependencies\\Dependencies.csproj",
+        "a:\\g\\Chopsticks2\\Native\\Foundation\\Foundation.csproj",
+        "a:\\g\\Chopsticks2\\Native\\Messages\\Messages.csproj",
+        "a:\\g\\Chopsticks2\\Native\\Foundation\\Tests\\Tests.csproj",
+        "a:\\g\\Chopsticks2\\Native\\Dependencies\\Tests\\Tests.csproj",
+        "a:\\g\\Chopsticks2\\Native\\Messages\\Tests\\Tests.csproj"
+    ]
+}

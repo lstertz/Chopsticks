@@ -7,6 +7,9 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<RootNamespace>Chopsticks.Dependencies</RootNamespace>
 		<AssemblyName>Chopsticks.Dependencies</AssemblyName>
+		<Version>2.1.0</Version>
+		<AssemblyVersion>2.1.0.0</AssemblyVersion>
+		<FileVersion>2.1.0.0</FileVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -12,25 +12,25 @@ namespace Chopsticks.Messages
         // TODO :: Possibly support a count of completed handlers.
 
         /// <summary>
-        /// Builds a result indicating that the message was cancelled.
+        /// A result indicating that the message was cancelled.
         /// </summary>
-        public static HandlingResult Cancelled => new()
+        public static readonly HandlingResult Cancelled = new()
         {
             Status = HandlingStatus.Cancelled
         };
 
         /// <summary>
-        /// Builds a result indicating that no handlers were found for the message.
+        /// A result indicating that no handlers were found for the message.
         /// </summary>
-        public static HandlingResult NoHandlers => new()
+        public static readonly HandlingResult NoHandlers = new()
         {
             Status = HandlingStatus.NotHandled
         };
 
         /// <summary>
-        /// Builds a result indicating that the message was handled successfully.
+        /// A result indicating that the message was handled successfully.
         /// </summary>
-        public static HandlingResult Success => new()
+        public static readonly HandlingResult Success = new()
         {
             Status = HandlingStatus.Success
         };
@@ -40,25 +40,54 @@ namespace Chopsticks.Messages
         /// </summary>
         /// <param name="exception">The exception that specifies the failure.</param>
         public static HandlingResult FromException(Exception exception) => new(exception);
+        
+        /// <summary>
+        /// Builds a result indicating that the message failed with multiple exceptions.
+        /// </summary>
+        /// <param name="exceptions">The list of exceptions.</param>
+        internal static HandlingResult FromExceptions(List<Exception> exceptions)
+        {
+            if (exceptions.Count == 0)
+                return Success;
+            if (exceptions.Count == 1)
+                return new HandlingResult(exceptions[0]);
+            return new HandlingResult(exceptions.ToArray());
+        }
 
+
+        private static readonly Exception[] EmptyExceptions = Array.Empty<Exception>();
+
+        /// <summary>
+        /// Appends this result's exceptions to <paramref name="target"/> without allocating an
+        /// enumerator. The single-exception case (the common failure shape) avoids the boxed
+        /// <see cref="SingleExceptionEnumerable"/> enumerator that a <c>foreach</c> over
+        /// <see cref="Exceptions"/> would incur on the dispatch/merge hot path.
+        /// </summary>
+        internal void AddExceptionsTo(List<Exception> target)
+        {
+            switch (_exceptions)
+            {
+                case null:
+                    break;
+                case Exception single:
+                    target.Add(single);
+                    break;
+                case Exception[] array:
+                    target.AddRange(array);
+                    break;
+            }
+        }
 
         /// <summary>
         /// The exceptions that occurred during handling, if any.
         /// </summary>
-        public IEnumerable<Exception> Exceptions
+        public IEnumerable<Exception> Exceptions => _exceptions switch
         {
-            get
-            {
-                if (_exceptions is null)
-                    yield break;
-
-                if (_exceptions is Exception exception)
-                    yield return exception;
-                else if (_exceptions is Exception[] exceptions)
-                    foreach (var ex in exceptions)
-                        yield return ex;
-            }
-        }
+            null => EmptyExceptions,
+            Exception single => new SingleExceptionEnumerable(single),
+            Exception[] array => array,
+            _ => EmptyExceptions
+        };
 
         /// <summary>
         /// The status of the handling result.
