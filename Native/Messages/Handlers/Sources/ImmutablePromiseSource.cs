@@ -26,6 +26,9 @@ namespace Chopsticks.Messages.Handlers.Sources
 
         public void OnCompleted(Action continuation) => continuation();
 
+        // Never pooled; nothing to suppress.
+        public void SuppressPooling() { }
+
         public Action InitiateDefaultContinuations => static () => { };
 
         public Action? OnCancelled { get => null; set { } }

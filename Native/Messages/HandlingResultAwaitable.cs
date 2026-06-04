@@ -83,7 +83,10 @@ namespace Chopsticks.Messages
                 return this;
             }
 
-            var result = _awaiter.GetResult();
+            // Read WITHOUT auto-returning the source to its pool: a subsequent await on this same
+            // awaitable performs the single terminal GetResult() that owns the recycle. Recycling
+            // here would let the source be re-rented before that terminal read.
+            var result = PeekResult();
             result.ThrowIfNotHandled(customExceptionMessage);
 
             return this;
@@ -105,12 +108,22 @@ namespace Chopsticks.Messages
                 return this;
             }
 
-            var result = _awaiter.GetResult();
+            var result = PeekResult();
             if (result.Status == HandlingStatus.NotHandled)
                 whenNotHandled();
 
             return this;
         }
+
+        /// <summary>
+        /// Reads the completed result without triggering the source's auto-return to its pool.
+        /// Only valid when the source has completed. Used by the non-terminal chainable inspectors
+        /// so the single terminal await keeps ownership of the recycle.
+        /// </summary>
+        private readonly HandlingResult PeekResult() =>
+            _source is IPoolablePromiseSource poolable
+                ? poolable.GetResultWithoutAutoReturn()
+                : _awaiter.GetResult();
 
 
         public readonly HandlingResultPromise ToPromise() => 

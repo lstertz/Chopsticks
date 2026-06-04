@@ -136,6 +136,23 @@ namespace Chopsticks.Messages.Handlers.Sources
 
         protected TInnerSource? InnerSource { get; private set; }
         private bool _isInitialized = false;
+
+        /// <summary>
+        /// When set, the source must not return itself to a reuse pool for the current generation.
+        /// Set via <see cref="SuppressPooling"/> when the source is handed to a fluent promise that
+        /// may register continuations after completion. Reset per generation in <see cref="Init"/>.
+        /// Pooled derived sources consult <see cref="PoolingSuppressed"/>; others ignore it.
+        /// </summary>
+        private volatile bool _poolingSuppressed;
+
+        /// <inheritdoc/>
+        public void SuppressPooling() => _poolingSuppressed = true;
+
+        /// <summary>
+        /// Whether pool-return has been suppressed for the current generation (see
+        /// <see cref="SuppressPooling"/>). Derived pooled sources must not recycle when this is true.
+        /// </summary>
+        protected bool PoolingSuppressed => _poolingSuppressed;
         
         /// <summary>
         /// Generation counter that increments on each Rent(). Used to detect stale
@@ -221,6 +238,8 @@ namespace Chopsticks.Messages.Handlers.Sources
                 _continuationsFired = false;
                 _firedResult = default;
             }
+            // New generation defaults to poolable; a fluent promise re-suppresses after wrapping.
+            _poolingSuppressed = false;
             _isInitialized = true;
             InnerSource = innerSource;
 

@@ -153,6 +153,23 @@
             Zero allocation when all handlers are synchronous.
             </summary>
         </member>
+        <member name="F:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1._poolingSuppressed">
+            <summary>
+            When set, the source must not return itself to a reuse pool for the current generation.
+            Set via <see cref="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.SuppressPooling"/> when the source is handed to a fluent promise that
+            may register continuations after completion. Reset per generation in <see cref="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.Init(`0)"/>.
+            Pooled derived sources consult <see cref="P:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.PoolingSuppressed"/>; others ignore it.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.SuppressPooling">
+            <inheritdoc/>
+        </member>
+        <member name="P:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.PoolingSuppressed">
+            <summary>
+            Whether pool-return has been suppressed for the current generation (see
+            <see cref="M:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1.SuppressPooling"/>). Derived pooled sources must not recycle when this is true.
+            </summary>
+        </member>
         <member name="F:Chopsticks.Messages.Handlers.Sources.BaseHandlingPromiseSource`1._generation">
             <summary>
             Generation counter that increments on each Rent(). Used to detect stale
@@ -262,6 +279,17 @@
         </member>
         <member name="M:Chopsticks.Messages.Handlers.Sources.HandlePromiseSource.Dispose">
             <inheritdoc/>
+        </member>
+        <member name="M:Chopsticks.Messages.Handlers.Sources.IHandlingPromiseSource.SuppressPooling">
+            <summary>
+            Signals that this source is being consumed through a fluent
+            <see cref="T:Chopsticks.Messages.HandlingResultPromise"/> /
+            <see cref="T:Chopsticks.Messages.HandlingCompletionPromise"/> rather than a single-terminal
+            <c>await</c>. The fluent API may register continuations after the source has completed,
+            so the source must NOT return itself to a reuse pool (a recycled-then-re-rented instance
+            would drop a late callback and corrupt the next dispatch). Pooled sources treat this as a
+            one-way latch for the current generation; non-pooled sources may ignore it.
+            </summary>
         </member>
         <member name="T:Chopsticks.Messages.Handlers.Sources.IPoolablePromiseSource">
             <summary>
@@ -673,6 +701,13 @@
         <member name="M:Chopsticks.Messages.HandlingResultAwaitable.#ctor(Chopsticks.Messages.HandlingResult)">
             <summary>
             Creates an awaitable from a direct result. Zero allocation for sync paths.
+            </summary>
+        </member>
+        <member name="M:Chopsticks.Messages.HandlingResultAwaitable.PeekResult">
+            <summary>
+            Reads the completed result without triggering the source's auto-return to its pool.
+            Only valid when the source has completed. Used by the non-terminal chainable inspectors
+            so the single terminal await keeps ownership of the recycle.
             </summary>
         </member>
         <member name="M:Chopsticks.Messages.HandlingResultPromise.GetResultIfCompleted">

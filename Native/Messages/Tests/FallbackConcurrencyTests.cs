@@ -162,6 +162,62 @@ public class FallbackConcurrencyTests
         Assert.That(innerAsync.Count, Is.EqualTo(Threads * PerThread));
     }
 
+    [Test]
+    [Timeout(120000)]
+    [Description("Await consumers (pooled) and ToPromise consumers (pooling-suppressed) interleaved on the same handler: the ownership boundary must hold — no crash, no dropped callback, no lost handler run.")]
+    public async Task Fallback_Mixed_AwaitAndToPromise_Concurrent_NoCorruption()
+    {
+        var handler = NewHandler();
+        var sync = new SyncCounter();
+        var a = new YieldCounter();
+        Registrar(handler).Register(sync);
+        Registrar(handler).Register(a);
+
+        const int Threads = 32;
+        const int PerThread = 500;
+        var errors = new ConcurrentBag<Exception>();
+        int awaited = 0, promised = 0;
+
+        var tasks = Enumerable.Range(0, Threads).Select(t => Task.Run(async () =>
+        {
+            try
+            {
+                for (int i = 0; i < PerThread; i++)
+                {
+                    // Alternate the two consumption styles so pooled (await) and suppressed
+                    // (ToPromise) dispatches contend for the same static pool simultaneously.
+                    if (((t + i) & 1) == 0)
+                    {
+                        var r = await handler.TryHandleAsync(new Msg { Id = i });
+                        if (r.Status != HandlingStatus.Success)
+                            throw new Exception($"await unexpected status {r.Status}");
+                        Interlocked.Increment(ref awaited);
+                    }
+                    else
+                    {
+                        var tcs = new TaskCompletionSource();
+                        handler.TryHandleAsync(new Msg { Id = i })
+                            .ToPromise()
+                            .OnCompletion(_ => tcs.TrySetResult());
+                        var done = await Task.WhenAny(tcs.Task, Task.Delay(5000));
+                        if (done != tcs.Task)
+                            throw new Exception("ToPromise OnCompletion callback dropped");
+                        Interlocked.Increment(ref promised);
+                    }
+                }
+            }
+            catch (Exception ex) { errors.Add(ex); }
+        }));
+
+        await Task.WhenAll(tasks);
+
+        Assert.That(errors, Is.Empty, "ownership boundary holds across pooled + suppressed consumers");
+        int expected = Threads * PerThread;
+        Assert.That(awaited + promised, Is.EqualTo(expected), "every dispatch was consumed exactly once");
+        Assert.That(sync.Count, Is.EqualTo(expected), "sync handler ran exactly once per dispatch");
+        Assert.That(a.Count, Is.EqualTo(expected), "async handler ran exactly once per dispatch");
+    }
+
     private sealed class ReentrantHandler : IValueTaskMessageHandler<Msg>
     {
         private readonly MulticastMessageHandler<Msg> _inner;

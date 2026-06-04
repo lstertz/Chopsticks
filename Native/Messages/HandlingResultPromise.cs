@@ -45,6 +45,9 @@ namespace Chopsticks.Messages
             _source = source;
             _directResult = default;
             _hasDirectResult = false;
+            // Fluent consumption may register callbacks after completion, so the source must not be
+            // recycled out from under this promise. Suppress BEFORE registering any continuation.
+            _source.SuppressPooling();
             if (!_source.IsCompleted)
                 _source.OnCompleted(_source.InitiateDefaultContinuations);
         }

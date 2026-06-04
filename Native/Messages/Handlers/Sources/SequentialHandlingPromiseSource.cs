@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using Chopsticks.Messages.Registration.Handlers;
 
 namespace Chopsticks.Messages.Handlers.Sources
@@ -8,20 +10,49 @@ namespace Chopsticks.Messages.Handlers.Sources
         BaseHandlingPromiseSource<BaseRegisteredHandler<TMessage, TContext>[]>
         where TContext : IMessageContext<TMessage>, new()
     {
-        // Pooling DISABLED for this source. Re-enabling it (ConcurrentBag reuse) was attempted and
-        // reverted: the fluent consumption path (TryHandleAsync(...).ToPromise().OnCompletion(...))
-        // can recycle a completed source back into the pool — via GetResult() inside
-        // InitiateDefaultContinuations on the handler thread — WHILE the consumer thread is still
-        // chaining .OnCompletion(). The consumer then observes the (re-rented, reset) source as
-        // "not completed" and registers its callback onto an instance belonging to a different
-        // dispatch, dropping the callback and corrupting the other dispatch. This is a use-after-
-        // recycle hazard intrinsic to the current API: the source's lifetime is not owned by a
-        // single consumer. A safe fix requires the version-token redesign of IHandlingPromiseSource
-        // (so stale handles are detected) rather than naive ConcurrentBag reuse. Until then we eat
-        // the ~360 B per async-fallback dispatch and let GC reclaim it. See FallbackConcurrencyTests
-        // (Fallback_HighConcurrency_ToPromise_AllCallbacksFire) which fails the moment reuse is on.
-        public static SequentialHandlingPromiseSource<TMessage, TContext> Rent() =>
-            new SequentialHandlingPromiseSource<TMessage, TContext>();
+        // Pooling is re-enabled, but ONLY for the single-terminal await path. The earlier crash/
+        // drop came from the fluent consumption path (TryHandleAsync(...).ToPromise().OnCompletion):
+        // a completed source could be recycled (via GetResult inside InitiateDefaultContinuations on
+        // the handler thread) WHILE the consumer was still chaining .OnCompletion(), so the consumer
+        // registered onto a re-rented instance and the callback was dropped. The source's lifetime
+        // there is not owned by a single consumer.
+        //
+        // Ownership model that makes reuse safe:
+        //  - await path: the awaiter performs exactly ONE terminal GetResult(); that is the single,
+        //    well-defined recycle point. No callbacks are registered after completion. -> pooled.
+        //  - fluent path: HandlingResultPromise/HandlingCompletionPromise call SuppressPooling() on
+        //    the source BEFORE registering any completion continuation, so this instance is never
+        //    returned to the pool (it is simply disposed and GC-reclaimed, exactly as before). Late
+        //    fluent registrations then hit a live, non-recycled instance and fire correctly.
+        // The generation counter (ResetPoolReturnFlag / TryMarkForPoolReturn) still rejects stale
+        // Dispose() calls. FallbackConcurrencyTests covers both paths under heavy concurrency.
+        private static readonly ConcurrentBag<SequentialHandlingPromiseSource<TMessage, TContext>> Pool = new();
+        private static int _poolCount = 0;
+        private const int MaxPoolSize = 64;
+
+        public static SequentialHandlingPromiseSource<TMessage, TContext> Rent()
+        {
+            if (Pool.TryTake(out var source))
+            {
+                Interlocked.Decrement(ref _poolCount);
+                source.ResetForReuse();
+                source.ResetPoolReturnFlag(); // Increment generation BEFORE handing out (rejects stale Dispose).
+                return source;
+            }
+            return new SequentialHandlingPromiseSource<TMessage, TContext>();
+        }
+
+        private void ResetForReuse()
+        {
+            _isCompleted = false;
+            _continuation = null;
+            _currentAwaiter = default;
+            _currentIndex = 0;
+            _context = default!;
+            _aggregateStatus = HandlingStatus.NotHandled;
+            _accumulatedExceptions = null;
+            _cachedResult = null;
+        }
 
         // Guards publication of _isCompleted / _continuation so a continuation registered
         // concurrently with completion is never dropped (which would hang the awaiter).
@@ -67,9 +98,22 @@ namespace Chopsticks.Messages.Handlers.Sources
         
         private void ReturnToPool()
         {
-            // Reuse is disabled (see Rent). Release base resources and let GC reclaim the
-            // instance; never reset and re-pool, which is what enabled the use-after-recycle race.
             base.Dispose();
+
+            // Fluent consumers (promises) suppress pooling: they may still register callbacks on
+            // this instance after completion, so it must stay uniquely theirs and be GC-reclaimed
+            // rather than re-rented. Only the single-terminal await path returns to the pool.
+            if (PoolingSuppressed)
+                return;
+
+            if (Interlocked.Increment(ref _poolCount) <= MaxPoolSize)
+            {
+                Pool.Add(this);
+            }
+            else
+            {
+                Interlocked.Decrement(ref _poolCount);
+            }
         }
 
         /// <inheritdoc/>
