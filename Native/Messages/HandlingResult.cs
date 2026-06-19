@@ -9,6 +9,9 @@ namespace Chopsticks.Messages
     /// </summary>
     public readonly struct HandlingResult
     {
+        private const string CancellationExceptionMessage = 
+            "The message handling operation was cancelled.";
+
         // TODO :: Possibly support a count of completed handlers.
 
         /// <summary>
@@ -170,6 +173,17 @@ namespace Chopsticks.Messages
         {
             callback(this);
             return this;
+        }
+
+        /// <summary>
+        /// Throws an exception if the current status indicates that the handling was cancelled.
+        /// </summary>
+        /// <exception cref="OperationCanceledException">Thrown if the current status indicates
+        /// that the handling was cancelled.</exception>
+        public void ThrowIfCancelled()
+        {
+            if (Status == HandlingStatus.Cancelled)
+                throw new OperationCanceledException(CancellationExceptionMessage);
         }
 
         /// <summary>

@@ -5,6 +5,12 @@ namespace Chopsticks.Messages.Handlers
 {
     public interface IMessageHandler<TMessage>
     {
+
+
+        // TODO :: Push down the non-try methods to the subinterfaces to accommodate 
+        // exception throwing for synchronous handling, and simplify the awaiter use chain.
+        // Make sure lower implementations set to rethrow for non-try.
+
         /// <summary>
         /// Initiates handling of the provided message, 
         /// returning a promise that completes when the handling is complete. 
@@ -23,8 +29,7 @@ namespace Chopsticks.Messages.Handlers
         /// <returns>A promise to bind continuations to for completion 
         /// and other scenarios.</returns>
         HandlingCompletionPromise Handle(TMessage message,
-            SynchronizationContext? asyncContext = null) =>
-            new(TryHandle(message).Source, asyncContext ?? SynchronizationContext.Current);
+            SynchronizationContext? asyncContext = null);
 
         HandlingCompletionAwaitable HandleAsync(TMessage message, CancellationToken token = default)
         {

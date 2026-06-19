@@ -1,185 +1,179 @@
+using Chopsticks.Messages.Handlers.Sources.Pooling;
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Chopsticks.Messages.Exceptions;
-using Chopsticks.Messages.Handlers.Sources;
 
 namespace Chopsticks.Messages
 {
-    public struct HandlingResultPromise
+    public readonly struct HandlingResultPromise : IDisposable
     {
-        public static HandlingResultPromise NoHandlers => new(_noHandlersSource);
-        private static readonly IHandlingPromiseSource _noHandlersSource =
-
-            new TryHandlePromiseSource().Init(HandlingResult.NoHandlers);
-
-        public static HandlingResultPromise Success => new(_successSource);
-        private static readonly IHandlingPromiseSource _successSource =
-            new TryHandlePromiseSource().Init(HandlingResult.Success);
+        private const string DisposalExceptionMessage =
+            "The promise has been released and can no longer be used.";
 
 
-        public HandlingStatus Status => _source.IsCompleted ?
-
-            _source.GetResult().Status : HandlingStatus.Processing;
-
-        internal IHandlingPromiseSource Source => _source;
-        private readonly IHandlingPromiseSource _source;
+        public static HandlingResultPromise NoHandlers => new(HandlingResult.NoHandlers);
+        public static HandlingResultPromise Success => new(HandlingResult.Success);
 
 
-        public HandlingResultPromise(IHandlingPromiseSource source)
+        /// <summary>
+        /// Gets the last known result status of the message handling operation.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">Thrown if the source 
+        /// of the promise has already been released through <see cref="Release"/> 
+        /// and a cached result after completion is not available.</exception>
+        public readonly HandlingResult Result => GetResult();
+
+        private readonly bool HasBeenReleased =>
+            _awaiter != null && _awaiter.Version != _awaiterVersion;
+
+        private readonly HandlingResult _result = HandlingResult.Processing;
+
+        private readonly IHandlingAwaiter? _awaiter;
+        private readonly int _awaiterVersion;
+
+
+        public HandlingResultPromise(HandlingResult result)
         {
-            _source = source;
-            if (!_source.IsCompleted)
-                _source.OnCompleted(_source.InitiateDefaultContinuations);
+            if (result.Status == HandlingStatus.Processing)
+                throw new ArgumentException("A pre-completed promise cannot have a " +
+                    "result that is \"Processing\".", nameof(result));
+
+            _result = result;
+            _awaiter = null;
         }
+
+        public HandlingResultPromise(IHandlingAwaiter resultAwaiter)
+        {
+            if (resultAwaiter.IsCompleted)  // Async awaitable has completed synchronously.
+            {
+                _result = resultAwaiter.GetResult();
+                resultAwaiter.CanRelease = true;
+
+                _awaiter = null;
+
+                return;
+            }
+
+            _awaiter = resultAwaiter;
+            _awaiterVersion = resultAwaiter.Version;
+        }
+
+        /// <inheritdoc/>
+        void IDisposable.Dispose() => Release();
+
+        /// <summary>
+        /// Releases this promise by returning its inner source to a pool. 
+        /// This should be done once all operations on all copies of this struct 
+        /// have been completed.
+        /// </summary>
+        /// <remarks>
+        /// Any further operations (e.g., continuation calls or use of <see cref="Result"/>) 
+        /// will throw an <see cref="ObjectDisposedException"/>.
+        /// </remarks>
+        public void Release()
+        {
+            if (_awaiter != null)
+                _awaiter.CanRelease = true;
+        }
+
 
         public HandlingResultPromise OnCancelled(Action onCancelled)
         {
-            if (!_source.IsCompleted)
+            var status = GetResult().Status;
+            if (status != HandlingStatus.Processing)
             {
-                _source.OnCancelled = onCancelled;
+                if (status == HandlingStatus.Cancelled)
+                    onCancelled();
                 return this;
             }
 
-            var result = _source.GetResult();
-            if (result.Status == HandlingStatus.Cancelled)
-                onCancelled();
-
+            _awaiter!.OnCancelled = onCancelled;
             return this;
         }
 
         public HandlingResultPromise OnCompletion(Action<HandlingResult> onCompletion)
         {
-            if (!_source.IsCompleted)
+            var result = GetResult();
+            if (result.Status != HandlingStatus.Processing)
             {
-                _source.OnCompletionWithResult = onCompletion;
+                if ((result.Status & HandlingStatus.Completed) != 0)
+                    onCompletion(result);
                 return this;
             }
 
-            var result = _source.GetResult();
-            if ((result.Status & HandlingStatus.Completed) != 0)
-                onCompletion(result);
-
+            _awaiter!.OnCompletionWithResult = onCompletion;
             return this;
         }
 
         public HandlingResultPromise OnFailure(Action<IEnumerable<Exception>> onFailure)
         {
-            if (!_source.IsCompleted)
+            var result = GetResult();
+            if (result.Status != HandlingStatus.Processing)
             {
-                _source.OnFailure = onFailure;
+                if (result.Status == HandlingStatus.Failure)
+                    onFailure(result.Exceptions);
                 return this;
             }
 
-            var result = _source.GetResult();
-            if (result.Status == HandlingStatus.Failure)
-                onFailure(result.Exceptions);
-
+            _awaiter!.OnFailure = onFailure;
             return this;
         }
 
         public HandlingResultPromise OnNonSuccess(Action<HandlingResult> onNonSuccess)
         {
-            if (!_source.IsCompleted)
+            var result = GetResult();
+            if (result.Status != HandlingStatus.Processing)
             {
-                _source.OnNonSuccess = onNonSuccess;
+                if ((result.Status & HandlingStatus.NonSuccess) != 0)
+                    onNonSuccess(result);
                 return this;
             }
 
-            var result = _source.GetResult();
-            if ((result.Status & HandlingStatus.NonSuccess) != 0)
-                onNonSuccess(result);
-
+            _awaiter!.OnNonSuccess = onNonSuccess;
             return this;
         }
 
         public HandlingResultPromise OnSuccess(Action onSuccess)
         {
-            if (!_source.IsCompleted)
+            var status = GetResult().Status;
+            if (status != HandlingStatus.Processing)
             {
-                _source.OnSuccess = onSuccess;
+                if (status == HandlingStatus.Success)
+                    onSuccess();
                 return this;
             }
 
-            var result = _source.GetResult();
-            if (result.Status == HandlingStatus.Success)
-                onSuccess();
-
-            return this;
-        }
-
-        /// <summary>
-        /// Rethrows any exceptions encountered during the handling of the message.
-        /// </summary>
-        /// <remarks>
-        /// This will immediately throw any exceptions in the current synchronization context 
-        /// if the handling was performed synchronously and will post any exceptions 
-        /// encountered during asynchronous handling to the <paramref name="asyncContext"/> 
-        /// (or attempt to post to the current context).
-        /// </remarks>
-        /// <param name="asyncContext">
-        /// The <see cref="SynchronizationContext"/> to use for posting asynchronous exceptions. 
-        /// If <paramref name="asyncContext"/> is <see langword="null"/>, the current 
-        /// synchronization context will attempt to be used, but in doing so, 
-        /// exceptions may be lost.</param>
-        /// <returns>
-        /// The current <see cref="HandlingResultPromise"/> instance, 
-        /// allowing for method chaining.
-        /// </returns>
-        public readonly HandlingResultPromise ThrowIfFailed(SynchronizationContext? asyncContext = null)
-        {
-            if (!_source.IsCompleted)
-            {
-                _source.FailureContext = asyncContext ?? SynchronizationContext.Current;
-                return this;
-            }
-
-            var result = _source.GetResult();
-            result.ThrowIfFailed();  // Synchronous handling throws on the current context.
-            return this;
-        }
-
-        /// <summary>
-        /// Throws a <see cref="MessageNotHandledException"/> if the message was not 
-        /// handled by any handlers.
-        /// </summary>
-        /// <param name="customExceptionMessage">
-        /// The optional message to override the default exception message.
-        /// </param>
-        /// <exception cref="MessageNotHandledException">
-        /// Thrown if the message was not handled.
-        /// </exception>
-        /// <returns>
-        /// The current <see cref="HandlingResultPromise"/> instance, 
-        /// allowing for method chaining.
-        /// </returns>
-        public readonly HandlingResultPromise ThrowIfNotHandled(string? customExceptionMessage = null)
-        {
-            if (!_source.IsCompleted)
-            {
-                // If the source has not completed immediately, then it must be being handled.
-                return this;
-            }
-
-            var result = _source.GetResult();
-            result.ThrowIfNotHandled(customExceptionMessage);
-
+            _awaiter!.OnSuccess = onSuccess;
             return this;
         }
 
         public HandlingResultPromise WhenNotHandled(Action whenNotHandled)
         {
-            if (!_source.IsCompleted)
+            var status = GetResult().Status;
+            if (status == HandlingStatus.Processing)
             {
-                // If the source has not completed immediately, then it must be being handled.
+                // If we don't have a completed result, then it must be being handled.
                 return this;
             }
 
-            var result = _source.GetResult();
-            if (result.Status == HandlingStatus.NotHandled)
+            if (status == HandlingStatus.NotHandled)
                 whenNotHandled();
 
             return this;
+        }
+
+
+        private readonly HandlingResult GetResult()
+        {
+            if (_awaiter == null)
+                return _result;
+
+            if (HasBeenReleased)
+            {
+                throw new ObjectDisposedException(nameof(HandlingCompletionPromise),
+                    DisposalExceptionMessage);
+            }
+
+            return _awaiter.GetResult();
         }
     }
 }

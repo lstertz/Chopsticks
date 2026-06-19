@@ -10,14 +10,16 @@ namespace Chopsticks.Messages.Handlers
         void Handle(TMessage message);
 
 
-        HandlingResultPromise IMessageHandler<TMessage>.TryHandle(TMessage message)
-        {
-            var source = TryHandlePromiseSource.Pool.Rent();
-            source.Init(EvaluateHandle(message));
+        /// <inheritdoc/>
+        HandlingCompletionPromise IMessageHandler<TMessage>.Handle(TMessage message, 
+            SynchronizationContext? asyncContext) =>
+            new(EvaluateHandle(message), asyncContext);
 
-            return new HandlingResultPromise(source);
-        }
+        /// <inheritdoc/>
+        HandlingResultPromise IMessageHandler<TMessage>.TryHandle(TMessage message) => 
+            new(EvaluateHandle(message));
 
+        /// <inheritdoc/>
         HandlingResultAwaitable IMessageHandler<TMessage>.TryHandleAsync(
             TMessage message, CancellationToken token)
         {

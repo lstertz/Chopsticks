@@ -24,8 +24,11 @@ public interface IContextHandler<TMessage, TContext> : IMessageHandler<TMessage>
     /// <returns>A promise to bind continuations to for completion 
     /// and other scenarios.</returns>
     HandlingCompletionPromise Handle(TContext context,
-        SynchronizationContext? asyncContext = null) => 
-        new(TryHandle(context).Source, asyncContext ?? SynchronizationContext.Current);
+        SynchronizationContext? asyncContext = null);
+
+
+    // TODO :: Push down the non-try methods to the subinterfaces to accommodate 
+    // exception throwing for synchronous handling, and simplify the awaiter use chain.
 
     HandlingCompletionAwaitable HandleAsync(TContext context)
     {
